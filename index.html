@@ -335,6 +335,11 @@ details.mas .in{padding:14px 14px 2px}
   .cal-n{align-self:center}
 }
 
+.licfranja{display:flex;align-items:center;gap:8px;background:var(--amber-soft);color:var(--amber);border-radius:8px;padding:6px 6px 6px 12px;margin:0 0 12px;font-size:13px}
+.licfranja span{flex:1}.licfranja.urg{background:#fbe7e6;color:#b42318}
+.licx{flex:none;border:0;background:transparent;color:inherit;cursor:pointer;padding:4px;border-radius:6px;display:grid;place-items:center;opacity:.7}
+.licx:hover{opacity:1;background:rgba(0,0,0,.06)}
+
 .reco{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:10px 12px;display:flex;gap:10px;align-items:center;max-width:calc(100vw - 32px);font-size:14px}
 .reco[hidden]{display:none}.reco span{display:flex;gap:6px;align-items:center}
 </style>
@@ -407,7 +412,7 @@ details.mas .in{padding:14px 14px 2px}
 </svg>
 
 <script>
-const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.18-1034";
+const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.18-1618";
 let hoy=new Date();hoy.setHours(0,0,0,0);
 const refrescarHoy=()=>{hoy=new Date();hoy.setHours(0,0,0,0)};
 const pad=n=>String(n).padStart(2,'0');
@@ -502,9 +507,20 @@ async function trasLicencia(L){
   LIC_PANTALLA=false;EST=await api('GET','/api/estado');toast('Licencia activa'+(L.vence?' hasta el '+fCorta(L.vence):'')+'.');
   if(EST.configurada&&TOKEN){try{await abrirApp();return}catch(e){setTok(null)}}
   mostrarLock()}
-function avisoVencimiento(){const L=EST.licencia;if(!L||!L.vence||!licOk(L))return;
-  const d=Math.round((parse(L.vence)-hoy)/864e5);
-  if(d<=5)setTimeout(()=>toast(d<=0?'Tu abono vence hoy. Comunicate para renovarlo.':'Tu abono vence el '+fCorta(L.vence)+' (en '+d+' día'+(d>1?'s':'')+').'),1500)}
+/* aviso de renovación: discreto, desde 7 días antes; se puede cerrar y vuelve a aparecer a las 12 horas */
+const LIC_AVISO_DIAS=7,LIC_AVISO_VUELVE=12*3600e3;let licOcultoMem=0;
+function diasAbono(L){if(!L||!L.vence||!licOk(L))return null;const h=new Date();h.setHours(0,0,0,0);return Math.round((parse(L.vence)-h)/864e5)}
+function textoAbono(d,v){return d<=0?'Tu abono vence <b>hoy</b>':d===1?'Tu abono vence <b>mañana</b>':`Tu abono vence el <b>${fCorta(v)}</b> (en ${d} días)`}
+function licOculto(){let t=licOcultoMem;try{t=Math.max(t,+localStorage.getItem('licOculto')||0)}catch(e){}return Date.now()-t<LIC_AVISO_VUELVE}
+function cerrarAbono(){licOcultoMem=Date.now();try{localStorage.setItem('licOculto',String(licOcultoMem))}catch(e){}const f=document.getElementById('licfranja');if(f)f.remove()}
+function franjaAbono(L){let f=document.getElementById('licfranja');const d=diasAbono(L);
+  if(d===null||d>LIC_AVISO_DIAS||licOculto()){if(f)f.remove();return}
+  if(!f){f=document.createElement('div');f.id='licfranja';const v=document.getElementById('view');v.parentNode.insertBefore(f,v)}
+  f.className='licfranja'+(d<=2?' urg':'');
+  f.innerHTML=`${ic('warn','sm')}<span>${textoAbono(d,L.vence)}. Comunicate para renovarlo.</span><button class="licx" title="Cerrar (vuelve a aparecer en 12 horas)" onclick="cerrarAbono()">${ic('x','sm')}</button>`}
+function avisoVencimiento(){franjaAbono(EST_LIC())}
+setInterval(()=>{if(TOKEN)franjaAbono(EST_LIC())},60000);
+function EST_LIC(){return typeof LIC!=='undefined'&&LIC?LIC:(EST&&EST.licencia)}
 function mostrarLock(){
   document.getElementById('app').hidden=true;document.getElementById('lock').hidden=false;cerrar();pintarSlogan();
   const f=document.getElementById('lockf');
@@ -1337,7 +1353,7 @@ async function abrirApp(){
   entrarApp()}
 function entrarApp(){perfilDesdeDb();setTok('online');
   $id('lock').hidden=true;$id('app').hidden=false;ultAct=Date.now();pintarCopia();ir('inicio');
-  if(LIC&&LIC.vence){const d=Math.round((parse(LIC.vence)-hoy)/864e5);if(d<=5)setTimeout(()=>toast(d<=0?'Tu abono vence hoy. Comunicate para renovarlo.':'Tu abono vence el '+fCorta(LIC.vence)+' (en '+d+' día'+(d>1?'s':'')+').'),1500)}}
+  avisoVencimiento()}
 function mostrarBienvenida(){
   pantalla('user','Empecemos','Contanos quién sos. Tus pacientes se van a guardar en tu Google Drive, en la carpeta <b>MAS Consultorios</b>.',
     `<div class="mfield"><label>Tu nombre</label><input id="s_nom" placeholder="Ej.: Laura Pérez" autocomplete="off"></div>
