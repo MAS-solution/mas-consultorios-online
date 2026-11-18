@@ -417,7 +417,7 @@ details.mas .in{padding:14px 14px 2px}
 </svg>
 
 <script>
-const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.18-1619";
+const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.18-1626";
 let hoy=new Date();hoy.setHours(0,0,0,0);
 const refrescarHoy=()=>{hoy=new Date();hoy.setHours(0,0,0,0)};
 const pad=n=>String(n).padStart(2,'0');
@@ -1228,6 +1228,7 @@ async function g(metodo,url,cuerpo,headers){
   if(r.status===401){GTOK=null;throw new Error('reconectar')}
   if(!r.ok){let t='';try{t=(await r.text()).slice(0,200)}catch(e){}throw new Error('Google Drive '+r.status+(t?': '+t:''))}
   if(r.status===204)return null;
+  if(url.includes('alt=media'))return r;  // descarga de archivo: se devuelve la respuesta tal cual (la lee quien llama)
   return (r.headers.get('content-type')||'').includes('json')?r.json():r}
 const qEsc=s=>String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
 async function buscarArch(q,campos){const j=await g('GET',DAPI+'/files?spaces=drive&pageSize=1000&orderBy=name%20desc&fields='+encodeURIComponent('files('+(campos||'id,name,version,modifiedTime')+')')+'&q='+encodeURIComponent(q+' and trashed=false'));return j.files||[]}
