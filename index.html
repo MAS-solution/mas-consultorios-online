@@ -345,6 +345,11 @@ details.mas .in{padding:14px 14px 2px}
 .licx{flex:none;border:0;background:transparent;color:inherit;cursor:pointer;padding:4px;border-radius:6px;display:grid;place-items:center;opacity:.7}
 .licx:hover{opacity:1;background:rgba(0,0,0,.06)}
 
+.colores{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:6px}
+.colores button{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 12px;font-size:14px;text-align:left}
+.colores button i{width:22px;height:22px;border-radius:50%;flex:none}
+.colores button.on{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue);font-weight:700}
+
 .reco{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:10px 12px;display:flex;gap:10px;align-items:center;max-width:calc(100vw - 32px);font-size:14px}
 .reco[hidden]{display:none}.reco span{display:flex;gap:6px;align-items:center}
 </style>
@@ -417,7 +422,7 @@ details.mas .in{padding:14px 14px 2px}
 </svg>
 
 <script>
-const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.18-1649";
+const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.18-1703";
 let hoy=new Date();hoy.setHours(0,0,0,0);
 const refrescarHoy=()=>{hoy=new Date();hoy.setHours(0,0,0,0)};
 const pad=n=>String(n).padStart(2,'0');
@@ -1124,6 +1129,7 @@ function config(){return `<div class="ph"><div><h1>Configuración</h1><p>Copia d
   <div class="grid cfg-grid">
     <div class="grid">
       <div class="card" id="cfgDrive">${cardDrive()}</div>
+      <div class="card">${cardColores()}</div>
       <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('cfg','sm')}</span>Qué usar en las fichas</h2></div><div class="cfg">
         <p>Todo es opcional. Apagá lo que no uses y deja de aparecer (lo que ya cargaste no se borra).</p>
         ${[['anam','Primera consulta','Entrevista inicial: embarazo, parto, desarrollo, alimentación, sueño, audición, antecedentes.'],
@@ -1170,6 +1176,10 @@ function salir(){confirmar('Cerrar el programa','Se hace una última copia en Go
   try{await cola;await api('POST','/api/salir')}catch(e){}setTok(null);
   document.body.innerHTML='<div style="display:grid;place-items:center;min-height:100vh;color:var(--muted);font-size:16px">MAS Consultorios está cerrado. Ya podés cerrar esta ventana.</div>';setTimeout(()=>window.close(),600)})}
 
+/* selector de color también en Configuración (en el celu la barra lateral no lo muestra) */
+function cardColores(){const act=document.documentElement.dataset.t||'petroleo';
+  return `<div class="card-h"><h2><span class="chip c-blue">${ic('cfg','sm')}</span>Color</h2></div><div class="cfg"><p>Elegí el color del programa. Se guarda en este aparato.</p>
+  <div class="colores">${[...document.querySelectorAll('aside .temas button')].map(b=>`<button type="button" class="${b.dataset.k===act?'on':''}" onclick="tema('${b.dataset.k}');ir('config')"><i style="background:${b.style.background}"></i>${esc(b.title)}</button>`).join('')}</div></div>`}
 function tema(k){if(k==='petroleo')delete document.documentElement.dataset.t;else document.documentElement.dataset.t=k;
   document.querySelectorAll('.temas button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));try{localStorage.setItem('mas-tema',k)}catch(e){}}
 document.querySelectorAll('.temas button').forEach(b=>b.onclick=()=>tema(b.dataset.k));
@@ -1413,6 +1423,7 @@ function config(){const P=(db.cfg.perfil||{});return `<div class="ph"><div><h1>C
   <div class="grid cfg-grid">
     <div class="grid">
       <div class="card" id="cfgDrive">${cardDrive()}</div>
+      <div class="card">${cardColores()}</div>
       <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('cfg','sm')}</span>Qué usar en las fichas</h2></div><div class="cfg">
         <p>Todo es opcional. Apagá lo que no uses y deja de aparecer (lo que ya cargaste no se borra).</p>
         ${[['anam','Primera consulta','Entrevista inicial: embarazo, parto, desarrollo, alimentación, sueño, audición, antecedentes.'],
