@@ -407,7 +407,7 @@ details.mas .in{padding:14px 14px 2px}
 </svg>
 
 <script>
-const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="",VERSION_ONLINE="online 2026.11.17-2341";
+const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="",VERSION_ONLINE="online 2026.11.17-2343";
 let hoy=new Date();hoy.setHours(0,0,0,0);
 const refrescarHoy=()=>{hoy=new Date();hoy.setHours(0,0,0,0)};
 const pad=n=>String(n).padStart(2,'0');
@@ -1293,7 +1293,7 @@ function pantalla(icono,titulo,texto,botones){lockArte();
 const btnGrande=(txt,fn,sec)=>`<button type="button" class="btn${sec?' sec':''}" style="width:100%;justify-content:center;height:44px;margin-top:8px" onclick="${fn}">${txt}</button>`;
 /* 1) sin sesión: botón oficial de Google */
 function mostrarLock(){
-  pantalla('user','Entrá con Google','Usá la cuenta de Google donde querés guardar tus pacientes. Tus datos quedan en <b>tu</b> Google Drive.',`<div id="gbtn" style="display:flex;justify-content:center;margin-top:6px;min-height:44px"></div>`);
+  pantalla('user','Entrá con Google','Usá la cuenta de Google donde querés guardar tus pacientes. Tus datos quedan en <b>tu</b> Google Drive.',`<div id="gbtn" style="display:flex;justify-content:center;margin-top:6px;min-height:44px"></div><p style="text-align:center;font-size:12px;color:var(--muted);margin-top:16px">Al entrar aceptás los <a href="terminos.html" target="_blank">términos de uso y privacidad</a>.</p>`);
   const pintarBoton=()=>{if(!window.google||!google.accounts||!google.accounts.id){setTimeout(pintarBoton,300);return}
     google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:conCredencial,auto_select:false,ux_mode:'popup'});
     google.accounts.id.renderButton($id('gbtn'),{theme:'filled_blue',size:'large',shape:'rectangular',text:'continue_with',locale:'es',width:300})};
@@ -1407,7 +1407,7 @@ function config(){const P=(db.cfg.perfil||{});return `<div class="ph"><div><h1>C
         <div class="mfield"><label>Matrícula <span class="opt">opcional, sale en los informes</span></label><input id="c_mat" value="${esc(db.cfg.matricula||'')}"></div>
         <button class="btn sec" onclick="guardarNombre()">Guardar</button></div></div>
       <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('lock','sm')}</span>Tu licencia</h2></div><div class="cfg">
-        <p style="margin-top:10px">Cuenta: <b>${esc(EMAIL)}</b>${LIC&&LIC.vence?`<br>Abono pago hasta el <b>${fCorta(LIC.vence)}</b>`:''}</p></div></div>
+        <p style="margin-top:10px">Cuenta: <b>${esc(EMAIL)}</b>${LIC&&LIC.vence?`<br>Abono pago hasta el <b>${fCorta(LIC.vence)}</b>`:''}</p><p style="font-size:13px"><a href="terminos.html" target="_blank">Términos de uso y privacidad</a></p></div></div>
       <div class="card"><div class="cfg" style="padding-top:18px"><p style="margin-top:0">Si usás un aparato que no es tuyo, salí al terminar.</p>
         <button class="btn sec" onclick="salir()">Salir</button>
         <p style="font-size:12px;color:var(--faint);margin:14px 0 0">Versión ${esc(VERSION_ONLINE)}</p></div></div>
