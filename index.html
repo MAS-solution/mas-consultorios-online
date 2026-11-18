@@ -72,7 +72,12 @@ aside{width:248px;flex-shrink:0;background:var(--surface);border-right:1px solid
 :root[data-t=azul]{--blue:#2b4f7e;--blue-h:#203c61;--blue-soft:#eaf0f8}
 :root[data-t=salvia]{--blue:#4a6b57;--blue-h:#3a5544;--blue-soft:#edf3ef}
 :root[data-t=ciruela]{--blue:#6a3f66;--blue-h:#552f52;--blue-soft:#f5eef5}
-.temas{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);padding:0 8px 14px}
+:root[data-t=naranja]{--blue:#b65a28;--blue-h:#984a20;--blue-soft:#fbf0e9}
+:root[data-t=ladrillo]{--blue:#9c4a2c;--blue-h:#803c23;--blue-soft:#f8eeea}
+:root[data-t=bordo]{--blue:#7a2e3a;--blue-h:#62242f;--blue-soft:#f6ecee}
+:root[data-t=rosa]{--blue:#9a5263;--blue-h:#7f4352;--blue-soft:#f7eef0}
+:root[data-t=mostaza]{--blue:#8a6a1c;--blue-h:#705615;--blue-soft:#f7f2e6}
+.temas{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12px;color:var(--muted);padding:0 8px 14px}
 .temas button{width:18px;height:18px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);padding:0}
 .temas button.on{box-shadow:0 0 0 2px var(--ink)}
 .me{display:flex;gap:10px;align-items:center;padding:12px 8px 0;border-top:1px solid var(--line)}
@@ -366,7 +371,7 @@ details.mas .in{padding:14px 14px 2px}
     <button class="nav" data-v="config" onclick="ir('config')"><svg class="i"><use href="#i-cfg"/></svg>Configuración</button>
     <div class="sidefoot">
       <button class="bk" id="bk" onclick="ir('config')"></button>
-      <div class="temas">Color<button data-k="petroleo" style="background:#2E5F63" title="Petróleo"></button><button data-k="grafito" style="background:#2f3a48" title="Grafito"></button><button data-k="azul" style="background:#2b4f7e" title="Azul"></button><button data-k="salvia" style="background:#4a6b57" title="Salvia"></button><button data-k="ciruela" style="background:#6a3f66" title="Ciruela"></button></div>
+      <div class="temas">Color<button data-k="petroleo" style="background:#2E5F63" title="Petróleo"></button><button data-k="grafito" style="background:#2f3a48" title="Grafito"></button><button data-k="azul" style="background:#2b4f7e" title="Azul"></button><button data-k="salvia" style="background:#4a6b57" title="Salvia"></button><button data-k="ciruela" style="background:#6a3f66" title="Ciruela"></button><button data-k="naranja" style="background:#b65a28" title="Naranja"></button><button data-k="ladrillo" style="background:#9c4a2c" title="Ladrillo"></button><button data-k="bordo" style="background:#7a2e3a" title="Bordó"></button><button data-k="rosa" style="background:#9a5263" title="Rosa viejo"></button><button data-k="mostaza" style="background:#8a6a1c" title="Mostaza"></button></div>
       <div class="me"><div class="av" id="meIni"></div><div style="flex:1;min-width:0"><b id="meNom"></b><small id="meEsp"></small></div>
         <button class="btn sm sec icon" title="Bloquear (pide la contraseña)" onclick="bloquear()"><svg class="i sm"><use href="#i-lock"/></svg></button></div>
     </div>
@@ -412,7 +417,7 @@ details.mas .in{padding:14px 14px 2px}
 </svg>
 
 <script>
-const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.18-1618";
+const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.18-1619";
 let hoy=new Date();hoy.setHours(0,0,0,0);
 const refrescarHoy=()=>{hoy=new Date();hoy.setHours(0,0,0,0)};
 const pad=n=>String(n).padStart(2,'0');
