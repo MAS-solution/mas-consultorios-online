@@ -17,8 +17,8 @@
 <style>
 
 :root{
-  --bg:#f4f6f9; --surface:#ffffff; --ink:#1e2a3a; --ink2:#3d4b5c; --muted:#6b7a8c; --faint:#9aa6b4;
-  --line:#e6eaf0; --line2:#f0f3f7;
+  --bg:#f0f4f4; --surface:#ffffff; --ink:#1e2a3a; --ink2:#3d4b5c; --muted:#6b7a8c; --faint:#9aa6b4;
+  --line:#e2e9e9; --line2:#eef2f3;
   --blue:#2E5F63; --blue-h:#234a4d; --blue-soft:#e9f1f1;
   --teal:#079d9b; --teal-soft:#e3f5f4;
   --pink:#c2407e; --pink-soft:#fdecf6;
@@ -68,15 +68,15 @@ aside{width:248px;flex-shrink:0;background:var(--surface);border-right:1px solid
 .bk{display:flex;gap:10px;align-items:flex-start;font-size:13px;background:var(--teal-soft);color:var(--ink2);border-radius:12px;padding:12px;margin-bottom:14px}
 .bk svg{color:var(--teal);margin-top:2px}
 .bk b{display:block;color:var(--teal);font-weight:700}
-:root[data-t=grafito]{--blue:#2f3a48;--blue-h:#1f2733;--blue-soft:#eef0f3}
-:root[data-t=azul]{--blue:#2b4f7e;--blue-h:#203c61;--blue-soft:#eaf0f8}
-:root[data-t=salvia]{--blue:#4a6b57;--blue-h:#3a5544;--blue-soft:#edf3ef}
-:root[data-t=ciruela]{--blue:#6a3f66;--blue-h:#552f52;--blue-soft:#f5eef5}
-:root[data-t=naranja]{--blue:#b65a28;--blue-h:#984a20;--blue-soft:#fbf0e9}
-:root[data-t=ladrillo]{--blue:#9c4a2c;--blue-h:#803c23;--blue-soft:#f8eeea}
-:root[data-t=bordo]{--blue:#7a2e3a;--blue-h:#62242f;--blue-soft:#f6ecee}
-:root[data-t=rosa]{--blue:#9a5263;--blue-h:#7f4352;--blue-soft:#f7eef0}
-:root[data-t=mostaza]{--blue:#8a6a1c;--blue-h:#705615;--blue-soft:#f7f2e6}
+:root[data-t=grafito]{--blue:#2f3a48;--blue-h:#1f2733;--blue-soft:#eef0f3;--bg:#f0f1f2;--line:#e2e3e5;--line2:#eeeff0}
+:root[data-t=azul]{--blue:#2b4f7e;--blue-h:#203c61;--blue-soft:#eaf0f8;--bg:#f0f3f6;--line:#e1e6ed;--line2:#eef1f5}
+:root[data-t=salvia]{--blue:#4a6b57;--blue-h:#3a5544;--blue-soft:#edf3ef;--bg:#f2f5f3;--line:#e6eae7;--line2:#f1f3f2}
+:root[data-t=ciruela]{--blue:#6a3f66;--blue-h:#552f52;--blue-soft:#f5eef5;--bg:#f5f2f4;--line:#eae4ea;--line2:#f3f0f3}
+:root[data-t=naranja]{--blue:#b65a28;--blue-h:#984a20;--blue-soft:#fbf0e9;--bg:#faf3f0;--line:#f5e8e1;--line2:#f9f2ee}
+:root[data-t=ladrillo]{--blue:#9c4a2c;--blue-h:#803c23;--blue-soft:#f8eeea;--bg:#f8f2f0;--line:#f1e6e1;--line2:#f7f1ee}
+:root[data-t=bordo]{--blue:#7a2e3a;--blue-h:#62242f;--blue-soft:#f6ecee;--bg:#f6f0f1;--line:#ece2e3;--line2:#f4eeef}
+:root[data-t=rosa]{--blue:#9a5263;--blue-h:#7f4352;--blue-soft:#f7eef0;--bg:#f8f3f4;--line:#f1e7e9;--line2:#f7f1f3}
+:root[data-t=mostaza]{--blue:#8a6a1c;--blue-h:#705615;--blue-soft:#f7f2e6;--bg:#f7f5ef;--line:#efeadf;--line2:#f6f3ed}
 .temas{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12px;color:var(--muted);padding:0 8px 14px}
 .temas button{width:18px;height:18px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);padding:0}
 .temas button.on{box-shadow:0 0 0 2px var(--ink)}
@@ -84,7 +84,7 @@ aside{width:248px;flex-shrink:0;background:var(--surface);border-right:1px solid
 .me b{display:block;font-size:14px}
 .me small{font-size:12px;color:var(--muted)}
 .wrap{flex:1;min-width:0;display:flex;flex-direction:column}
-header.bar{height:64px;background:rgba(244,246,249,.9);backdrop-filter:blur(6px);display:flex;align-items:center;gap:16px;padding:0 32px;position:sticky;top:0;z-index:5}
+header.bar{height:64px;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(6px);display:flex;align-items:center;gap:16px;padding:0 32px;position:sticky;top:0;z-index:5}
 .gsearch{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:0 12px;height:40px;width:360px;max-width:100%;color:var(--faint)}
 .gsearch input{border:0;background:none;outline:0;flex:1;min-width:0;color:var(--ink)}
 .bar .today{margin-left:auto;color:var(--muted);font-size:14px;display:flex;align-items:center;gap:8px}
@@ -417,7 +417,7 @@ details.mas .in{padding:14px 14px 2px}
 </svg>
 
 <script>
-const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.18-1626";
+const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.18-1649";
 let hoy=new Date();hoy.setHours(0,0,0,0);
 const refrescarHoy=()=>{hoy=new Date();hoy.setHours(0,0,0,0)};
 const pad=n=>String(n).padStart(2,'0');
@@ -1189,6 +1189,10 @@ const sb=supabase.createClient(SB_URL,SB_KEY);
 const DAPI='https://www.googleapis.com/drive/v3',UAPI='https://www.googleapis.com/upload/drive/v3';
 const SCOPES='https://www.googleapis.com/auth/drive.file email';
 let GTOK=null,GEXP=0,EMAIL='',LIC=null,tokCli=null,tokCb=null;
+/* el permiso de Google dura ~1 h: se guarda en este aparato para volver a entrar de una sin tocar nada */
+function guardarTok(){try{GTOK&&EMAIL?localStorage.setItem('mas-gtok',JSON.stringify({e:EMAIL,t:GTOK,x:GEXP})):localStorage.removeItem('mas-gtok')}catch(e){}}
+function olvidarTok(){GTOK=null;try{localStorage.removeItem('mas-gtok')}catch(e){}}
+function tokGuardado(){try{const o=JSON.parse(localStorage.getItem('mas-gtok')||'null');if(o&&o.e===EMAIL&&o.t&&o.x>Date.now()+120000)return o}catch(e){}return null}
 let CARP=null,HIST=null,ADJ=null,ARCH=null,VERS=null,BASE='null',ULT=null,PEND=false,GUARDANDO=false,ERRG=null,ultHist=0;
 const lsGet=k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}};
 const lsSet=(k,v)=>{try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}};
@@ -1217,15 +1221,15 @@ function fusionar(base,mio,suyo){base=base||VACIO();mio=mio||VACIO();suyo=suyo||
 /* ---------- Google: identidad (Supabase) + permiso de Drive ---------- */
 function iniciarTokenCliente(){if(tokCli||!window.google||!google.accounts||!google.accounts.oauth2)return;
   tokCli=google.accounts.oauth2.initTokenClient({client_id:GOOGLE_CLIENT_ID,scope:SCOPES,
-    callback:r=>{const cb=tokCb;tokCb=null;if(r&&r.access_token){GTOK=r.access_token;GEXP=Date.now()+((+r.expires_in||3600)-120)*1000;cb&&cb.ok()}else cb&&cb.err(new Error((r&&r.error)||'Google no dio permiso.'))},
+    callback:r=>{const cb=tokCb;tokCb=null;if(r&&r.access_token){GTOK=r.access_token;GEXP=Date.now()+((+r.expires_in||3600)-120)*1000;guardarTok();cb&&cb.ok()}else cb&&cb.err(new Error((r&&r.error)||'Google no dio permiso.'))},
     error_callback:e=>{const cb=tokCb;tokCb=null;cb&&cb.err(new Error(e&&e.type==='popup_closed'?'Se cerró la ventana de Google.':'No se pudo conectar con Google.'))}})}
 function pedirToken(primera){iniciarTokenCliente();
   return new Promise((ok,err)=>{if(!tokCli){err(new Error('Google todavía no cargó. Probá de nuevo en unos segundos.'));return}
     tokCb={ok,err};tokCli.requestAccessToken({prompt:primera?'consent':'',login_hint:EMAIL||undefined})})}
 async function g(metodo,url,cuerpo,headers){
-  if(!GTOK||Date.now()>GEXP){GTOK=null;throw new Error('reconectar')}
+  if(!GTOK||Date.now()>GEXP){olvidarTok();throw new Error('reconectar')}
   const r=await fetch(url,{method:metodo,headers:Object.assign({Authorization:'Bearer '+GTOK},headers||{}),body:cuerpo});
-  if(r.status===401){GTOK=null;throw new Error('reconectar')}
+  if(r.status===401){olvidarTok();throw new Error('reconectar')}
   if(!r.ok){let t='';try{t=(await r.text()).slice(0,200)}catch(e){}throw new Error('Google Drive '+r.status+(t?': '+t:''))}
   if(r.status===204)return null;
   if(url.includes('alt=media'))return r;  // descarga de archivo: se devuelve la respuesta tal cual (la lee quien llama)
@@ -1333,18 +1337,20 @@ async function despuesDeEntrar(primera){
   if(LIC.estado==='sin-licencia'){pantalla('lock','Sin licencia',`La cuenta ${quien} no tiene una licencia de MAS Consultorios Online. Pedísela a quien te dio MAS Consultorios.`,btnGrande('Probar de nuevo','despuesDeEntrar()')+btnGrande('Usar otra cuenta de Google','cambiarCuenta()',true));return}
   if(LIC.estado==='suspendida'){pantalla('warn','Licencia suspendida',`Comunicate con quien te dio MAS Consultorios. <b>Tus pacientes están en tu Google Drive</b> y no se borran.`,btnGrande('Probar de nuevo','despuesDeEntrar()')+btnGrande('Usar otra cuenta de Google','cambiarCuenta()',true));return}
   if(LIC.estado==='vencida'){pantalla('warn','Tu abono venció',`Venció el ${LIC.vence?fCorta(LIC.vence):''}. Comunicate para renovarlo. <b>Tus pacientes están en tu Google Drive</b> y no se borran.`,btnGrande('Probar de nuevo','despuesDeEntrar()')+btnGrande('Usar otra cuenta de Google','cambiarCuenta()',true));return}
+  const tg=tokGuardado();
+  if(tg){GTOK=tg.t;GEXP=tg.x;pantalla('cloud','Abriendo tus datos…','Un momento.');try{await abrirApp();return}catch(x){olvidarTok()}}
   const n=(lsGet('mas-nombre-'+EMAIL)||'').split(/\s+/)[0];
   pantalla('cloud',`Hola${n?', '+esc(n):''}`,`Tocá para abrir tus pacientes desde tu Google Drive (${quien}).`,
     btnGrande('Abrir mis datos','abrirDatos('+(lsGet('mas-drive-ok-'+EMAIL)?'false':'true')+')')+btnGrande('Usar otra cuenta de Google','cambiarCuenta()',true))}
 async function abrirDatos(primera){const e=$id('lerr');e.textContent='Conectando con Google Drive…';
   try{await pedirToken(primera);
     const u=await (await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+GTOK}})).json();
-    if((u.email||'').toLowerCase()!==EMAIL){GTOK=null;e.textContent='En la ventana de Google elegí la cuenta '+EMAIL+'.';return}
+    if((u.email||'').toLowerCase()!==EMAIL){olvidarTok();e.textContent='En la ventana de Google elegí la cuenta '+EMAIL+'.';return}
     lsSet('mas-drive-ok-'+EMAIL,'1');e.textContent='Abriendo tus datos…';await abrirApp()}
   catch(x){e.textContent=msj(x)}}
-async function cambiarCuenta(){await sb.auth.signOut().catch(()=>{});GTOK=null;EMAIL='';try{google.accounts.id.disableAutoSelect()}catch(e){}mostrarLock()}
-function bloquear(){GTOK=null;db=null;CARP=ARCH=null;PEND=false;$id('view').innerHTML='';
-  if(EMAIL)despuesDeEntrar();else mostrarLock()}
+async function cambiarCuenta(){await sb.auth.signOut().catch(()=>{});olvidarTok();EMAIL='';try{google.accounts.id.disableAutoSelect()}catch(e){}mostrarLock()}
+/* en la versión online no se bloquea (ni sola por inactividad ni con botón): queda abierta */
+function bloquear(){}
 function olvide(){}async function recuperarPass(){}async function entrar(){}
 
 /* ---------- abrir: carpeta "MAS Consultorios" en su Drive ---------- */
@@ -1358,6 +1364,7 @@ async function abrirApp(){
   if(!db.cfg.perfil||!db.cfg.perfil.nombre){mostrarBienvenida();return}
   entrarApp()}
 function entrarApp(){perfilDesdeDb();setTok('online');
+  document.querySelectorAll('.me button[onclick="bloquear()"]').forEach(b=>b.hidden=true);
   $id('lock').hidden=true;$id('app').hidden=false;ultAct=Date.now();pintarCopia();ir('inicio');
   avisoVencimiento()}
 function mostrarBienvenida(){
