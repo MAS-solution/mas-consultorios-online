@@ -1,0 +1,1465 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAS Consultorios</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="icono-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2E5F63">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MAS Consultorios">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async></script>
+<style>
+
+:root{
+  --bg:#f4f6f9; --surface:#ffffff; --ink:#1e2a3a; --ink2:#3d4b5c; --muted:#6b7a8c; --faint:#9aa6b4;
+  --line:#e6eaf0; --line2:#f0f3f7;
+  --blue:#2E5F63; --blue-h:#234a4d; --blue-soft:#e9f1f1;
+  --teal:#079d9b; --teal-soft:#e3f5f4;
+  --pink:#c2407e; --pink-soft:#fdecf6;
+  --amber:#b8650f; --amber-soft:#fdf2e3;
+  --r:14px; --shadow:0 1px 2px rgba(30,42,58,.04),0 6px 20px rgba(30,42,58,.05);
+  --fh:"Outfit","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 "Nunito","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+h1,h2,h3{margin:0;line-height:1.25;font-family:var(--fh);font-weight:600}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:square;stroke-linejoin:miter;flex-shrink:0}
+svg.i.sm{width:15px;height:15px}
+
+/* ---------- acceso ---------- */
+#lock{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr}
+.lock-art{background:linear-gradient(140deg,var(--blue) 0%,var(--blue-h) 100%);color:#fff;padding:48px 56px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.lock-art::after{content:"";position:absolute;right:-120px;bottom:-120px;width:380px;height:380px;border-radius:50%;border:56px solid rgba(255,255,255,.07)}
+.lock-art .mark{display:flex;align-items:center;gap:12px;font-family:var(--fh);font-weight:500;font-size:16px}
+.lock-art h2{font-size:34px;max-width:460px;letter-spacing:-.01em}
+.lock-art p{color:rgba(255,255,255,.82);max-width:420px;margin:14px 0 0;font-size:16px}
+.lock-art small{color:rgba(255,255,255,.65)}
+.lock-form{display:grid;place-items:center;padding:24px;background:var(--surface)}
+.lock-form form{width:100%;max-width:350px}
+.lock-form h1{font-size:24px;margin-bottom:6px}
+.lock-form .sub{color:var(--muted);margin:0 0 28px}
+.logo{width:40px;height:40px;border-radius:12px;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center}
+.lock-art .logo{background:rgba(255,255,255,.16);color:#fff}
+
+/* ---------- estructura ---------- */
+#app{display:flex;min-height:100vh}
+aside{width:248px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:11px;padding:0 8px 26px}
+.brand b{display:block;font-family:var(--fh);font-weight:600;font-size:15px;color:var(--blue)}
+.brand small{display:block;font-size:12px;color:var(--muted)}
+.navlbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);font-weight:700;padding:0 12px 8px}
+.nav{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;padding:10px 12px;border-radius:10px;color:var(--ink2);font-weight:600;text-align:left;margin-bottom:3px}
+.nav svg{color:var(--faint)}
+.nav:hover{background:var(--bg)}
+.nav.on{background:var(--blue-soft);color:var(--blue)}
+.nav.on svg{color:var(--blue)}
+.nav .cnt{margin-left:auto;font-size:12px;background:var(--blue);color:#fff;border-radius:99px;padding:0 8px;line-height:20px}
+.sidefoot{margin-top:auto}
+.bk{display:flex;gap:10px;align-items:flex-start;font-size:13px;background:var(--teal-soft);color:var(--ink2);border-radius:12px;padding:12px;margin-bottom:14px}
+.bk svg{color:var(--teal);margin-top:2px}
+.bk b{display:block;color:var(--teal);font-weight:700}
+:root[data-t=grafito]{--blue:#2f3a48;--blue-h:#1f2733;--blue-soft:#eef0f3}
+:root[data-t=azul]{--blue:#2b4f7e;--blue-h:#203c61;--blue-soft:#eaf0f8}
+:root[data-t=salvia]{--blue:#4a6b57;--blue-h:#3a5544;--blue-soft:#edf3ef}
+:root[data-t=ciruela]{--blue:#6a3f66;--blue-h:#552f52;--blue-soft:#f5eef5}
+.temas{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);padding:0 8px 14px}
+.temas button{width:18px;height:18px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);padding:0}
+.temas button.on{box-shadow:0 0 0 2px var(--ink)}
+.me{display:flex;gap:10px;align-items:center;padding:12px 8px 0;border-top:1px solid var(--line)}
+.me b{display:block;font-size:14px}
+.me small{font-size:12px;color:var(--muted)}
+.wrap{flex:1;min-width:0;display:flex;flex-direction:column}
+header.bar{height:64px;background:rgba(244,246,249,.9);backdrop-filter:blur(6px);display:flex;align-items:center;gap:16px;padding:0 32px;position:sticky;top:0;z-index:5}
+.gsearch{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:0 12px;height:40px;width:360px;max-width:100%;color:var(--faint)}
+.gsearch input{border:0;background:none;outline:0;flex:1;min-width:0;color:var(--ink)}
+.bar .today{margin-left:auto;color:var(--muted);font-size:14px;display:flex;align-items:center;gap:8px}
+main{padding:8px 32px 48px;max-width:1200px;width:100%}
+
+/* ---------- comunes ---------- */
+.ph{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:14px 0 24px}
+.ph h1{font-size:24px;letter-spacing:-.01em}
+.ph p{margin:4px 0 0;color:var(--muted)}
+.btn{height:40px;border-radius:10px;padding:0 16px;font-weight:700;border:1px solid var(--blue);background:var(--blue);color:#fff;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.btn:hover{background:var(--blue-h);border-color:var(--blue-h)}
+.btn.sec{background:var(--surface);color:var(--ink2);border-color:var(--line)}
+.btn.sec:hover{background:var(--bg)}
+.btn.teal{background:var(--teal);border-color:var(--teal)}
+.btn.sm{height:32px;padding:0 11px;font-size:13px;border-radius:8px}
+.btn.link{background:none;border:0;color:var(--blue);padding:0;height:auto;font-size:14px}
+.btn.icon{width:32px;padding:0;justify-content:center}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line2)}
+.card-h h2{font-size:15px;display:flex;align-items:center;gap:10px}
+.card-h .meta{color:var(--muted);font-size:13px}
+.card-b{padding:4px 20px}
+.chip{width:32px;height:32px;border-radius:3px;display:grid;place-items:center;flex-shrink:0}
+.c-blue{background:var(--blue-soft);color:var(--blue)}.c-teal{background:var(--teal-soft);color:var(--teal)}
+.c-pink{background:var(--pink-soft);color:var(--pink)}.c-amber{background:var(--amber-soft);color:var(--amber)}
+.grid{display:grid;gap:18px}
+.kpis{grid-template-columns:repeat(4,1fr)}
+.kpi{padding:18px 20px;display:flex;gap:14px;align-items:flex-start;cursor:pointer;text-align:left;width:100%;transition:border-color .15s}
+.kpi:hover{border-color:var(--blue)}
+.fchip{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 8px 0 14px;border-radius:4px;background:var(--blue-soft);color:var(--blue);font-weight:700;border:0}
+.fchip span{font-size:18px;line-height:1;padding:0 6px}
+.kpi .chip{width:44px;height:44px;border-radius:4px}
+.kpi .chip svg{width:21px;height:21px}
+.kpi .l{color:var(--muted);font-size:13px;font-weight:600}
+.kpi .n{font-family:var(--fh);font-size:26px;font-weight:600;line-height:1.2;margin-top:2px}
+.kpi .d{font-size:12px;color:var(--faint)}
+.cols{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)}
+.row{display:flex;align-items:center;gap:12px;padding:13px 0;border-top:1px solid var(--line2)}
+.row:first-child{border-top:0}
+.row .grow{flex:1;min-width:0}
+.row .t{font-weight:700}
+.row .s{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hora{font-family:var(--fh);font-variant-numeric:tabular-nums;font-weight:600;font-size:14px;width:54px;flex-shrink:0;color:var(--blue);background:var(--blue-soft);border-radius:8px;text-align:center;padding:4px 0}
+.av{width:36px;height:36px;border-radius:50%;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center;font-weight:700;font-size:13px;flex-shrink:0}
+.av.pink{background:var(--pink-soft);color:var(--pink)}
+.empty{color:var(--muted);font-size:14px;padding:16px 0}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:2px 10px;border-radius:99px;background:var(--bg);color:var(--ink2);white-space:nowrap}
+.pill.pink{background:var(--pink-soft);color:var(--pink)}
+.pill.amber{background:var(--amber-soft);color:var(--amber)}
+.pill.teal{background:var(--teal-soft);color:var(--teal)}
+.pill.blue{background:var(--blue-soft);color:var(--blue)}
+.acts{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
+
+/* ---------- tablas ---------- */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.field-s{display:flex;align-items:center;gap:8px;flex:1;min-width:220px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:0 12px;height:40px;color:var(--faint)}
+.field-s input{border:0;outline:0;flex:1;min-width:0;background:none;color:var(--ink)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:12px 18px;background:#fafbfd;border-bottom:1px solid var(--line)}
+td{padding:13px 18px;border-bottom:1px solid var(--line2);vertical-align:middle}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:#f8fafd}
+tbody tr:last-child td{border-bottom:0}
+.pname{display:flex;align-items:center;gap:12px}
+.pname b{font-weight:700;display:block}
+.pname small{color:var(--muted);font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- ficha ---------- */
+.back{display:inline-flex;align-items:center;gap:6px;margin:14px 0 14px}
+.fhead{padding:22px 24px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.fhead .av{width:60px;height:60px;font-size:19px;font-family:var(--fh)}
+.fhead h1{font-size:22px}
+.fhead .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tabs{display:flex;gap:6px;border-top:1px solid var(--line2);padding:0 16px;overflow-x:auto}
+.tab{background:none;border:0;border-bottom:3px solid transparent;padding:13px 10px;color:var(--muted);font-weight:700;white-space:nowrap}
+.tab:hover{color:var(--ink)}
+.tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+.side-data dl{margin:0;padding:4px 20px 18px}
+.side-data dt{font-size:12px;color:var(--muted);margin-top:14px;font-weight:600}
+.side-data dd{margin:2px 0 0;font-weight:700}
+.compose{padding:18px 20px;border-bottom:1px solid var(--line2);background:#fafbfd;border-radius:var(--r) var(--r) 0 0}
+.compose label{font-weight:700;font-size:14px;display:block;margin-bottom:8px}
+.compose textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:10px;padding:11px 13px;resize:vertical;outline:0;background:#fff}
+.compose textarea:focus,.mfield input:focus,.mfield select:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft)}
+.compose .fr{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.compose input{height:36px;border:1px solid var(--line);border-radius:10px;padding:0 10px;background:#fff}
+.compose .note{font-size:12px;color:var(--faint);display:flex;align-items:center;gap:5px;margin-left:auto}
+.evo{display:grid;grid-template-columns:96px 1fr;gap:18px;padding:18px 20px;border-top:1px solid var(--line2)}
+.evo:first-child{border-top:0}
+.evo .f{border-left:3px solid var(--teal);padding-left:10px}
+.evo .f b{display:block;font-family:var(--fh);font-weight:600;font-size:14px;font-variant-numeric:tabular-nums}
+.evo .f small{color:var(--muted);font-size:12px;text-transform:capitalize}
+.evo p{margin:0;white-space:pre-wrap;color:var(--ink2)}
+.file{display:flex;align-items:center;gap:12px;padding:13px 0;border-top:1px solid var(--line2)}
+.file:first-child{border-top:0}
+.file .s{color:var(--muted);font-size:12px}
+
+/* ---------- agenda ---------- */
+.day-h{font-family:var(--fh);font-size:15px;font-weight:600;display:flex;gap:10px;align-items:center}
+.day-h .pill{text-transform:none;font-family:"Nunito",sans-serif}
+
+/* ---------- modal / aviso ---------- */
+.modal{position:fixed;inset:0;background:rgba(30,42,58,.45);display:grid;place-items:center;padding:16px;z-index:20}
+.mbox{background:var(--surface);border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow:auto;box-shadow:0 24px 48px rgba(30,42,58,.2)}
+.mbox .mh{padding:20px 24px;border-bottom:1px solid var(--line2)}
+.mbox .mh h2{font-size:17px}
+.mbox .mb{padding:20px 24px 6px}
+.mfield{margin-bottom:14px}
+.mfield label{display:block;font-size:13px;font-weight:700;color:var(--ink2);margin-bottom:6px}
+.mfield input,.mfield select{width:100%;height:42px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:#fff;outline:0}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mf{display:flex;justify-content:flex-end;gap:8px;padding:16px 24px;border-top:1px solid var(--line2);background:#fafbfd;border-radius:0 0 16px 16px}
+#toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;padding:12px 18px;border-radius:10px;font-size:14px;opacity:0;transform:translateY(10px);transition:.2s;z-index:30;max-width:calc(100% - 48px);pointer-events:none}
+#toast.show{opacity:1;transform:none}
+.demo{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);background:rgba(30,42,58,.72);color:#fff;font-size:12px;padding:4px 12px;border-radius:99px;z-index:4;pointer-events:none}
+
+/* ---------- celular ---------- */
+@media (max-width:900px){
+  #lock{grid-template-columns:1fr}.lock-art{display:none}
+  #app{flex-direction:column}
+  aside{width:auto;height:auto;position:sticky;top:0;z-index:10;flex-direction:row;align-items:center;padding:8px 10px;overflow-x:auto;gap:2px;border-right:0;border-bottom:1px solid var(--line)}
+  .brand{padding:0 8px 0 2px}.brand div,.navlbl,.sidefoot,.nav .cnt{display:none}
+  .nav{width:auto;margin:0;white-space:nowrap}
+  header.bar{display:none}
+  main{padding:4px 16px 60px}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .kpi{flex-direction:column;gap:8px}
+  .cols{grid-template-columns:1fr}
+  .hide-m{display:none}
+  .row{flex-wrap:wrap}.row .acts{width:100%;padding-left:102px}
+  .evo{grid-template-columns:1fr;gap:6px}
+  .frow{grid-template-columns:1fr}
+}
+@media print{
+  aside,header.bar,.btn,.compose,.tabs,.noprint,.demo{display:none!important}
+  body{background:#fff}main{padding:0}.card{border:0;box-shadow:none}
+}
+
+
+/* ---------- versión real ---------- */
+.bk{cursor:pointer;border:0;text-align:left;width:100%;font:inherit}
+.bk.warn{background:var(--amber-soft)}
+.bk.warn svg,.bk.warn b{color:var(--amber)}
+.bk.off{background:var(--bg)}
+.bk.off svg,.bk.off b{color:var(--muted)}
+.lock-form .err{color:var(--pink);font-size:13px;font-weight:700;min-height:20px;margin:-4px 0 8px}
+.cfg{padding:6px 20px 20px}
+.cfg p{margin:10px 0;color:var(--ink2)}
+.cfg .path{font-family:Consolas,monospace;font-size:13px;background:var(--bg);border-radius:8px;padding:8px 10px;word-break:break-all;color:var(--ink2)}
+.cfg .acts{margin-top:14px}
+.cfg ol{margin:8px 0;padding-left:20px;color:var(--ink2)}
+.cfg ol li{margin:4px 0}
+.estado{display:flex;gap:10px;align-items:center;font-weight:700;margin:14px 0 4px}
+.estado.ok{color:var(--teal)}.estado.warn{color:var(--amber)}
+.thumb{width:44px;height:44px;border-radius:4px;object-fit:cover;flex-shrink:0;background:var(--bg);border:1px solid var(--line)}
+.file .grow{min-width:0}.file b{word-break:break-all}
+.wk{display:flex;gap:6px;align-items:center}
+.cfg-grid{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);align-items:start}
+.mb p{margin:0 0 12px;color:var(--ink2)}
+.btn.danger{background:var(--pink);border-color:var(--pink)}
+@media (max-width:900px){.cfg-grid{grid-template-columns:1fr}}
+
+/* ---------- opcionales (12/11) ---------- */
+.mbox.ancho{max-width:680px}
+.opt{color:var(--faint);font-weight:600;font-size:12px}
+details.mas{border:1px solid var(--line2);border-radius:10px;margin-bottom:12px;background:#fff}
+details.mas summary{cursor:pointer;padding:11px 14px;font-weight:700;font-size:14px;color:var(--ink2);list-style:none;display:flex;justify-content:space-between;gap:10px}
+details.mas summary::-webkit-details-marker{display:none}
+details.mas summary::after{content:"+";color:var(--muted)}
+details.mas[open] summary::after{content:"−"}
+details.mas[open] summary{border-bottom:1px solid var(--line2)}
+details.mas .in{padding:14px 14px 2px}
+.mfield textarea{width:100%;min-height:64px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;resize:vertical;outline:0;background:#fff;font:inherit}
+.mfield textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.seg button{border:0;background:#fff;padding:0 12px;height:36px;font-weight:700;color:var(--muted);border-left:1px solid var(--line)}
+.seg button:first-child{border-left:0}
+.seg button.on{background:var(--blue-soft);color:var(--blue)}
+.compose .parte{margin-bottom:8px}
+.compose .parte small{display:block;font-weight:700;font-size:13px;color:var(--ink2);margin-bottom:4px}
+.compose .parte textarea{min-height:56px}
+.compose .extras{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.compose .extras select{height:36px;border:1px solid var(--line);border-radius:10px;padding:0 10px;background:#fff}
+.compose .modo{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.compose .modo label{margin:0}
+.evo .et{font-weight:700;color:var(--ink)}
+.blq{padding:18px 20px;border-top:1px solid var(--line2)}
+.blq:first-child{border-top:0}
+.blq h3{font-size:15px;margin:0 0 4px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.blq .sub{color:var(--muted);font-size:13px;margin:0 0 12px}
+.obj{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line2)}
+.obj:first-of-type{border-top:0}
+.obj .grow{flex:1;min-width:0}
+.obj button.pill{border:0;cursor:pointer}
+.addrow{display:flex;gap:8px;margin-top:10px}
+.addrow input{flex:1;height:38px;border:1px solid var(--line);border-radius:10px;padding:0 12px;outline:0;background:#fff}
+.ev-t{font-weight:700}
+.ev-serie{color:var(--muted);font-size:13px}
+.chk{display:flex;gap:9px;align-items:flex-start;margin:9px 0;font-weight:600;color:var(--ink2);cursor:pointer}
+.chk input{margin-top:3px;width:16px;height:16px;accent-color:var(--blue)}
+.chk small{display:block;font-weight:400;color:var(--muted)}
+.aviso-aut{background:var(--amber-soft);color:var(--amber);border-radius:8px;padding:8px 10px;font-size:13px;font-weight:700;margin-top:6px}
+#print{display:none}
+@media print{
+  body.imp #app,body.imp #modal,body.imp #toast,body.imp #lock{display:none!important}
+  body.imp #print{display:block}
+}
+#print{font-family:"Nunito",sans-serif;color:#111;font-size:12.5px;line-height:1.5}
+#print .ph1{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #222;padding-bottom:8px;margin-bottom:14px}
+#print .ph1 b{font-size:15px}
+#print h1{font-size:19px;margin:0 0 2px}
+#print h2{font-size:14px;margin:18px 0 6px;border-bottom:1px solid #bbb;padding-bottom:3px}
+#print table{width:100%;border-collapse:collapse}
+#print td{padding:3px 8px 3px 0;vertical-align:top}
+#print td.k{color:#555;width:190px}
+#print .ses{padding:6px 0;border-bottom:1px solid #ddd;page-break-inside:avoid}
+#print .ses b{display:inline-block;min-width:90px}
+#print p{margin:4px 0;white-space:pre-wrap}
+#print .firma{margin-top:60px;text-align:right}
+#print .firma div{display:inline-block;border-top:1px solid #222;padding-top:4px;min-width:240px;text-align:center}
+
+/* ---------- marca MAS Consultorios ---------- */
+.marca-neg svg{width:280px;height:auto;display:block;margin:-30px 0 0 -26px}
+.marca-circ{width:42px;height:42px;flex-shrink:0}
+.marca-circ svg{width:100%;height:100%;display:block}
+.brand b{letter-spacing:.01em}
+
+/* agenda: calendario mensual */
+.seg{display:inline-flex;background:var(--line2);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:none;font:inherit;font-size:13px;padding:6px 12px;border-radius:8px;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.cal{padding:10px}
+.cal-h{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+.cal-h span{font-size:12px;color:var(--muted);text-align:center;font-weight:600;padding:4px 0}
+.cal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-d{position:relative;min-height:92px;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:6px;text-align:left;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:3px;overflow:hidden;color:var(--ink)}
+.cal-d:hover{border-color:var(--blue)}
+.cal-d.fuera{opacity:.4}
+.cal-d.hoy{border-color:var(--blue);box-shadow:inset 0 0 0 1px var(--blue)}
+.cal-d.hoy .cal-n{background:var(--blue);color:#fff;border-radius:99px;padding:0 7px}
+.cal-n{font-size:13px;font-weight:600;align-self:flex-start}
+.cal-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cal-i{font-size:11.5px;line-height:1.25;background:var(--blue-soft);color:var(--blue);border-radius:5px;padding:2px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-i.fijo{background:var(--teal-soft);color:var(--teal)}
+.cal-mas{font-size:11px;color:var(--muted);padding-left:2px}
+.cal-c{display:none}
+@media (max-width:900px){
+  .cal{padding:6px}.cal-g,.cal-h{gap:2px}
+  .cal-d{min-height:54px;padding:4px;align-items:center}
+  .cal-t{display:none}
+  .cal-c{display:block;font-size:11px;font-weight:700;background:var(--blue);color:#fff;border-radius:99px;min-width:18px;text-align:center;padding:0 5px}
+  .cal-n{align-self:center}
+}
+
+.reco{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:10px 12px;display:flex;gap:10px;align-items:center;max-width:calc(100vw - 32px);font-size:14px}
+.reco[hidden]{display:none}.reco span{display:flex;gap:6px;align-items:center}
+</style>
+</head>
+<body>
+<div id="lock" hidden>
+  <div class="lock-art">
+    <div class="mark marca-neg"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 421 206"><g transform="translate(40,42) scale(1.36)"><circle cx="50" cy="37.0" r="20" fill="#8CC7C2" fill-opacity="0.9"/><circle cx="35.44" cy="58.06" r="20" fill="#E08A5B" fill-opacity="0.9"/><circle cx="64.56" cy="58.06" r="20" fill="#8C7BB8" fill-opacity="0.9"/></g><path d="M192.825 114.0V60.336H196.881L220.047 98.361H217.161L240.327 60.336H244.383V114.0H238.65V70.32L239.976 70.67099999999999L220.632 102.417H216.576L197.232 70.67099999999999L198.558 70.32V114.0ZM264.094 114.0 286.051 60.336H290.34099999999995L312.14199999999994 114.0H305.941L287.02599999999995 66.61500000000001H289.24899999999997L270.178 114.0ZM274.11699999999996 100.038V95.007H302.19699999999995V100.038ZM346.712 114.78Q340.43299999999994 114.78 335.909 112.4205Q331.385 110.061 327.99199999999996 105.732L331.931 101.832Q334.7 105.693 338.327 107.565Q341.95399999999995 109.437 346.94599999999997 109.437Q352.09399999999994 109.437 355.2724999999999 107.09700000000001Q358.45099999999996 104.757 358.45099999999996 100.623Q358.45099999999996 97.386 356.98849999999993 95.3385Q355.52599999999995 93.291 353.12749999999994 91.9845Q350.729 90.678 347.86249999999995 89.664Q344.996 88.65 342.1295 87.519Q339.263 86.388 336.86449999999996 84.6915Q334.46599999999995 82.995 333.0034999999999 80.3235Q331.54099999999994 77.652 331.54099999999994 73.518Q331.54099999999994 69.189 333.64699999999993 66.06899999999999Q335.753 62.949 339.419 61.2525Q343.085 59.556 347.765 59.556Q352.991 59.556 357.1055 61.584Q361.21999999999997 63.612 363.94999999999993 67.083L360.01099999999997 70.983Q357.515 67.97999999999999 354.551 66.4395Q351.587 64.899 347.64799999999997 64.899Q342.96799999999996 64.899 340.1405 67.083Q337.313 69.267 337.313 73.167Q337.313 76.17 338.77549999999997 78.042Q340.23799999999994 79.914 342.63649999999996 81.162Q345.03499999999997 82.41 347.90149999999994 83.4045Q350.768 84.399 353.6345 85.569Q356.501 86.739 358.8995 88.5135Q361.29799999999994 90.288 362.7605 93.0765Q364.22299999999996 95.865 364.22299999999996 100.116Q364.22299999999996 107.097 359.50399999999996 110.9385Q354.78499999999997 114.78 346.712 114.78Z" fill="#FFFFFF"/><path d="M194.91 150.15Q193.77 150.15 192.8025 149.7375Q191.835 149.325 191.115 148.58249999999998Q190.395 147.84 190.005 146.85750000000002Q189.615 145.875 189.615 144.75Q189.615 143.625 190.005 142.64249999999998Q190.395 141.66 191.115 140.925Q191.835 140.19 192.8025 139.76999999999998Q193.77 139.35 194.91 139.35Q196.185 139.35 197.115 139.76999999999998Q198.045 140.19 198.765 140.91L197.595 142.08Q197.13 141.57 196.46249999999998 141.285Q195.795 141.0 194.91 141.0Q194.13 141.0 193.485 141.26999999999998Q192.84 141.54 192.3675 142.0425Q191.895 142.545 191.64 143.235Q191.385 143.925 191.385 144.75Q191.385 145.575 191.64 146.265Q191.895 146.955 192.3675 147.4575Q192.84 147.96 193.485 148.23000000000002Q194.13 148.5 194.91 148.5Q195.87 148.5 196.53750000000002 148.20749999999998Q197.205 147.915 197.67 147.405L198.84 148.575Q198.12 149.31 197.14499999999998 149.73000000000002Q196.17 150.15 194.91 150.15ZM211.815 150.15Q210.69 150.15 209.715 149.73000000000002Q208.74 149.31 208.005 148.5675Q207.27 147.825 206.85750000000002 146.8425Q206.445 145.86 206.445 144.735Q206.445 143.61 206.85750000000002 142.635Q207.27 141.66 207.9975 140.91750000000002Q208.725 140.175 209.6925 139.7625Q210.66 139.35 211.785 139.35Q212.91 139.35 213.8775 139.7625Q214.845 140.175 215.57999999999998 140.91750000000002Q216.315 141.66 216.7275 142.64249999999998Q217.14 143.625 217.14 144.75Q217.14 145.875 216.7275 146.85750000000002Q216.315 147.84 215.58749999999998 148.575Q214.85999999999999 149.31 213.89249999999998 149.73000000000002Q212.925 150.15 211.815 150.15ZM211.785 148.5Q212.85 148.5 213.65249999999997 148.01999999999998Q214.45499999999998 147.54 214.9125 146.6925Q215.37 145.845 215.37 144.735Q215.37 143.91 215.10750000000002 143.2275Q214.845 142.545 214.365 142.0425Q213.885 141.54 213.2325 141.26999999999998Q212.57999999999998 141.0 211.785 141.0Q210.73499999999999 141.0 209.9325 141.4725Q209.13 141.945 208.6725 142.785Q208.215 143.625 208.215 144.735Q208.215 145.56 208.47750000000002 146.2575Q208.74 146.955 209.2125 147.45Q209.685 147.945 210.345 148.2225Q211.005 148.5 211.785 148.5ZM225.49499999999998 150.0V139.5H226.695L227.22 141.48V150.0ZM232.76999999999998 150.0 226.48499999999999 141.795 226.695 139.5 232.98 147.705ZM232.76999999999998 150.0 232.24499999999998 148.155V139.5H233.97V150.0ZM245.77499999999998 150.15Q244.52999999999997 150.15 243.65999999999997 149.7Q242.79 149.25 242.09999999999997 148.38L243.26999999999998 147.21Q243.70499999999998 147.84 244.30499999999998 148.1925Q244.90499999999997 148.545 245.83499999999998 148.545Q246.70499999999998 148.545 247.22249999999997 148.185Q247.73999999999998 147.825 247.73999999999998 147.195Q247.73999999999998 146.67 247.46999999999997 146.33999999999997Q247.2 146.01 246.7575 145.7925Q246.31499999999997 145.575 245.78249999999997 145.40249999999997Q245.24999999999997 145.23 244.71749999999997 145.0125Q244.18499999999997 144.795 243.74249999999998 144.46499999999997Q243.29999999999998 144.135 243.02999999999997 143.61Q242.76 143.085 242.76 142.275Q242.76 141.345 243.21749999999997 140.6925Q243.67499999999998 140.04 244.45499999999998 139.695Q245.23499999999999 139.35 246.195 139.35Q247.23 139.35 248.04749999999999 139.755Q248.86499999999998 140.16 249.37499999999997 140.79L248.20499999999998 141.96Q247.75499999999997 141.45 247.26749999999998 141.2025Q246.77999999999997 140.955 246.14999999999998 140.955Q245.36999999999998 140.955 244.92749999999998 141.27Q244.48499999999999 141.585 244.48499999999999 142.155Q244.48499999999999 142.635 244.755 142.9275Q245.02499999999998 143.22 245.46749999999997 143.4225Q245.90999999999997 143.625 246.44249999999997 143.805Q246.97499999999997 143.985 247.5075 144.21Q248.04 144.435 248.4825 144.7875Q248.92499999999998 145.14 249.195 145.695Q249.46499999999997 146.25 249.46499999999997 147.09Q249.46499999999997 148.5 248.46749999999997 149.325Q247.46999999999997 150.15 245.77499999999998 150.15ZM261.84474193548385 150.15Q260.64948387096774 150.15 259.70540322580644 149.610756302521Q258.7613225806451 149.07151260504202 258.21566129032254 148.1321848739496Q257.66999999999996 147.19285714285715 257.66999999999996 146.01V139.5H259.395V145.995Q259.395 146.75943661971831 259.7170260223048 147.32394366197184Q260.03905204460966 147.88845070422536 260.5952788104089 148.19422535211268Q261.15150557620814 148.5 261.8423977695167 148.5Q262.54499999999996 148.5 263.0843959731543 148.19462264150945Q263.6237919463087 147.88924528301888 263.9393959731543 147.32547169811323Q264.255 146.76169811320756 264.255 146.01V139.5H265.97999999999996V146.025Q265.97999999999996 147.20854430379748 265.4415697674418 148.1397151898734Q264.9031395348837 149.07088607594937 263.9715697674418 149.61044303797468Q263.03999999999996 150.15 261.84474193548385 150.15ZM274.73999999999995 150.0V139.5H276.465V150.0ZM275.92499999999995 150.0V148.425H281.41499999999996V150.0ZM292.22999999999996 150.0V139.8H293.955V150.0ZM288.81 141.075V139.5H297.375V141.075ZM310.305 150.15Q309.18 150.15 308.205 149.73000000000002Q307.22999999999996 149.31 306.495 148.5675Q305.76 147.825 305.34749999999997 146.8425Q304.935 145.86 304.935 144.735Q304.935 143.61 305.34749999999997 142.635Q305.76 141.66 306.48749999999995 140.91750000000002Q307.215 140.175 308.1825 139.7625Q309.15 139.35 310.275 139.35Q311.4 139.35 312.36749999999995 139.7625Q313.335 140.175 314.06999999999994 140.91750000000002Q314.80499999999995 141.66 315.2175 142.64249999999998Q315.63 143.625 315.63 144.75Q315.63 145.875 315.2175 146.85750000000002Q314.80499999999995 147.84 314.0775 148.575Q313.34999999999997 149.31 312.38249999999994 149.73000000000002Q311.41499999999996 150.15 310.305 150.15ZM310.275 148.5Q311.34 148.5 312.1425 148.01999999999998Q312.945 147.54 313.4025 146.6925Q313.85999999999996 145.845 313.85999999999996 144.735Q313.85999999999996 143.91 313.59749999999997 143.2275Q313.335 142.545 312.855 142.0425Q312.375 141.54 311.72249999999997 141.26999999999998Q311.07 141.0 310.275 141.0Q309.22499999999997 141.0 308.4225 141.4725Q307.62 141.945 307.1625 142.785Q306.705 143.625 306.705 144.735Q306.705 145.56 306.9675 146.2575Q307.22999999999996 146.955 307.7025 147.45Q308.17499999999995 147.945 308.835 148.2225Q309.495 148.5 310.275 148.5ZM325.16999999999996 145.545V144.12H327.825Q328.61999999999995 144.12 329.0625 143.70749999999998Q329.505 143.295 329.505 142.56Q329.505 141.9 329.07 141.45Q328.635 141.0 327.84 141.0H325.16999999999996V139.5H327.91499999999996Q328.905 139.5 329.655 139.89749999999998Q330.405 140.295 330.8175 140.9775Q331.22999999999996 141.66 331.22999999999996 142.53Q331.22999999999996 143.445 330.8175 144.12Q330.405 144.795 329.655 145.17Q328.905 145.545 327.91499999999996 145.545ZM323.98499999999996 150.0V139.5H325.71V150.0ZM329.74499999999995 150.0 326.07 145.44 327.67499999999995 144.855 331.91999999999996 150.0ZM340.00499999999994 150.0V139.5H341.72999999999996V150.0ZM355.44 150.15Q354.315 150.15 353.34 149.73000000000002Q352.36499999999995 149.31 351.63 148.5675Q350.895 147.825 350.48249999999996 146.8425Q350.07 145.86 350.07 144.735Q350.07 143.61 350.48249999999996 142.635Q350.895 141.66 351.62249999999995 140.91750000000002Q352.34999999999997 140.175 353.3175 139.7625Q354.28499999999997 139.35 355.40999999999997 139.35Q356.53499999999997 139.35 357.50249999999994 139.7625Q358.46999999999997 140.175 359.2049999999999 140.91750000000002Q359.93999999999994 141.66 360.35249999999996 142.64249999999998Q360.765 143.625 360.765 144.75Q360.765 145.875 360.35249999999996 146.85750000000002Q359.93999999999994 147.84 359.2125 148.575Q358.48499999999996 149.31 357.5174999999999 149.73000000000002Q356.54999999999995 150.15 355.44 150.15ZM355.40999999999997 148.5Q356.47499999999997 148.5 357.2775 148.01999999999998Q358.08 147.54 358.53749999999997 146.6925Q358.99499999999995 145.845 358.99499999999995 144.735Q358.99499999999995 143.91 358.73249999999996 143.2275Q358.46999999999997 142.545 357.99 142.0425Q357.51 141.54 356.85749999999996 141.26999999999998Q356.205 141.0 355.40999999999997 141.0Q354.35999999999996 141.0 353.5575 141.4725Q352.755 141.945 352.2975 142.785Q351.84 143.625 351.84 144.735Q351.84 145.56 352.10249999999996 146.2575Q352.36499999999995 146.955 352.8375 147.45Q353.30999999999995 147.945 353.96999999999997 148.2225Q354.63 148.5 355.40999999999997 148.5ZM372.04499999999996 150.15Q370.79999999999995 150.15 369.92999999999995 149.7Q369.05999999999995 149.25 368.36999999999995 148.38L369.53999999999996 147.21Q369.97499999999997 147.84 370.57499999999993 148.1925Q371.17499999999995 148.545 372.10499999999996 148.545Q372.97499999999997 148.545 373.49249999999995 148.185Q374.00999999999993 147.825 374.00999999999993 147.195Q374.00999999999993 146.67 373.73999999999995 146.33999999999997Q373.46999999999997 146.01 373.0275 145.7925Q372.585 145.575 372.0525 145.40249999999997Q371.52 145.23 370.98749999999995 145.0125Q370.455 144.795 370.01249999999993 144.46499999999997Q369.56999999999994 144.135 369.29999999999995 143.61Q369.03 143.085 369.03 142.275Q369.03 141.345 369.48749999999995 140.6925Q369.94499999999994 140.04 370.7249999999999 139.695Q371.50499999999994 139.35 372.465 139.35Q373.49999999999994 139.35 374.31749999999994 139.755Q375.13499999999993 140.16 375.645 140.79L374.47499999999997 141.96Q374.025 141.45 373.53749999999997 141.2025Q373.04999999999995 140.955 372.41999999999996 140.955Q371.64 140.955 371.1975 141.27Q370.75499999999994 141.585 370.75499999999994 142.155Q370.75499999999994 142.635 371.025 142.9275Q371.29499999999996 143.22 371.73749999999995 143.4225Q372.17999999999995 143.625 372.7125 143.805Q373.24499999999995 143.985 373.7774999999999 144.21Q374.30999999999995 144.435 374.75249999999994 144.7875Q375.19499999999994 145.14 375.4649999999999 145.695Q375.73499999999996 146.25 375.73499999999996 147.09Q375.73499999999996 148.5 374.73749999999995 149.325Q373.73999999999995 150.15 372.04499999999996 150.15Z" fill="#FFFFFF"/></svg>
+</div>
+    <div><h2 id="slogan"></h2></div>
+    <small id="lockpie"></small>
+  </div>
+  <div class="lock-form"><form id="lockf" onsubmit="return false"></form></div>
+</div>
+
+<div id="app" hidden>
+  <aside>
+    <div class="brand"><div class="marca-circ"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="37.35" r="21" fill="#2E6E73" fill-opacity="0.9"/><circle cx="34.711999999999996" cy="59.463" r="21" fill="#E08A5B" fill-opacity="0.9"/><circle cx="65.288" cy="59.463" r="21" fill="#8C7BB8" fill-opacity="0.9"/></svg>
+</div><div><b>MAS Consultorios</b><small id="brEsp"></small></div></div>
+    <div class="navlbl">Menú</div>
+    <button class="nav" data-v="inicio" onclick="ir('inicio')"><svg class="i"><use href="#i-home"/></svg>Inicio</button>
+    <button class="nav" data-v="agenda" onclick="semana=0;ir('agenda')"><svg class="i"><use href="#i-cal"/></svg>Agenda<span class="cnt" id="cntT"></span></button>
+    <button class="nav" data-v="pacientes" onclick="esp='';ir('pacientes')"><svg class="i"><use href="#i-users"/></svg>Pacientes</button>
+    <button class="nav" data-v="config" onclick="ir('config')"><svg class="i"><use href="#i-cfg"/></svg>Configuración</button>
+    <div class="sidefoot">
+      <button class="bk" id="bk" onclick="ir('config')"></button>
+      <div class="temas">Color<button data-k="petroleo" style="background:#2E5F63" title="Petróleo"></button><button data-k="grafito" style="background:#2f3a48" title="Grafito"></button><button data-k="azul" style="background:#2b4f7e" title="Azul"></button><button data-k="salvia" style="background:#4a6b57" title="Salvia"></button><button data-k="ciruela" style="background:#6a3f66" title="Ciruela"></button></div>
+      <div class="me"><div class="av" id="meIni"></div><div style="flex:1;min-width:0"><b id="meNom"></b><small id="meEsp"></small></div>
+        <button class="btn sm sec icon" title="Bloquear (pide la contraseña)" onclick="bloquear()"><svg class="i sm"><use href="#i-lock"/></svg></button></div>
+    </div>
+  </aside>
+  <div class="wrap">
+    <header class="bar">
+      <label class="gsearch"><svg class="i sm"><use href="#i-search"/></svg><input placeholder="Buscar paciente…" oninput="buscarGlobal(this.value)"></label>
+      <div class="today"><svg class="i sm"><use href="#i-cal"/></svg><span id="today"></span></div>
+    </header>
+    <main id="view"></main>
+  </div>
+</div>
+
+<div class="modal" id="modal" hidden onclick="if(event.target===this)cerrar()"><div class="mbox" id="mbox"></div></div>
+<div id="toast"></div>
+<div id="print"></div>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 12h1M6 8v8M10 5v14M14 9v6M18 7v10M22 12h-1"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10 12 3l9 7v11h-6v-6H9v6H3z"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+  <symbol id="i-cake" viewBox="0 0 24 24"><path d="M4 21V11h16v10M4 16l4-2 4 2 4-2 4 2M2 21h20M7 7v4M12 7v4M17 7v4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-msg" viewBox="0 0 24 24"><path d="M3 4h18v13H9l-6 4z"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H4v20h16V8z"/><path d="M14 2v6h6"/></symbol>
+  <symbol id="i-img" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></symbol>
+  <symbol id="i-print" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H2V9h20v9h-4"/><rect x="6" y="14" width="12" height="8"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M21 15v6H3v-6M17 8l-5-5-5 5M12 3v12"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M3 4h18v16H3zM3 9h18"/><path d="m9 14 2 2 4-4"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11"/><path d="M7 11V4h10v7"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><path d="M9 7v10h6V5H11v10"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></symbol>
+  <symbol id="i-note" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+  <symbol id="i-logo" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></symbol>
+  <symbol id="i-cfg" viewBox="0 0 24 24"><path d="M3 6h11M18 6h3M3 12h4M11 12h10M3 18h13M20 18h1"/><rect x="14" y="4" width="4" height="4"/><rect x="7" y="10" width="4" height="4"/><rect x="16" y="16" width="4" height="4"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3 2 21h20zM12 10v5M12 18v1"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m12 5 7 7-7 7M5 12h14"/></symbol>
+</svg>
+
+<script>
+const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="",VERSION_ONLINE="online 2026.11.17-2341";
+let hoy=new Date();hoy.setHours(0,0,0,0);
+const refrescarHoy=()=>{hoy=new Date();hoy.setHours(0,0,0,0)};
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const addDays=n=>{const d=new Date(hoy);d.setDate(d.getDate()+n);return d};
+const parse=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const DIAS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const fLarga=d=>DIAS[d.getDay()]+' '+d.getDate()+' de '+MESES[d.getMonth()];
+const may=s=>s?s[0].toUpperCase()+s.slice(1):'';
+const fCorta=s=>{if(!s)return '—';const d=parse(s);return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()};
+const ic=(n,c='')=>`<svg class="i ${c}"><use href="#i-${n}"/></svg>`;
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+
+function edad(nac){if(!nac)return '';const n=parse(nac);let e=hoy.getFullYear()-n.getFullYear();const c=new Date(hoy.getFullYear(),n.getMonth(),n.getDate());if(c>hoy)e--;return e}
+function diasCumple(nac){if(!nac)return 999;const n=parse(nac);let c=new Date(hoy.getFullYear(),n.getMonth(),n.getDate());if(c<hoy)c=new Date(hoy.getFullYear()+1,n.getMonth(),n.getDate());return Math.round((c-hoy)/864e5)}
+const ini=p=>((p.nombre||' ')[0]+(p.apellido||' ')[0]).toUpperCase();
+const nom=p=>p.nombre+' '+p.apellido;
+const primerNombre=()=>(EST.nombre||'').trim().split(/\s+/)[0]||'';
+const espec=()=>(EST.especialidad||'').trim();
+const SLOGANS=['Más cerca de cada paciente, en cada paso de su historia.','Cada paciente es una historia. Acompañala.','Vos y tus pacientes, más cerca.','Cuidar también es acompañar.','Detrás de cada ficha, una persona.'];
+const slogan=()=>(EST.slogan||'').trim()||SLOGANS[0];
+function pintarSlogan(){const h=document.getElementById('slogan');if(h)h.textContent=slogan()}
+const ESPECIALIDADES=['Fonoaudiología','Psicología','Psicopedagogía','Kinesiología','Nutrición','Terapia ocupacional','Odontología','Medicina general','Pediatría','Podología','Estética','Masoterapia'];
+const dlEsp=`<datalist id="dl_esp">${ESPECIALIDADES.map(e=>`<option value="${e}">`).join('')}</datalist>`;
+function pintarPerfil(){document.getElementById('meNom').textContent=EST.nombre||'';document.getElementById('meIni').textContent=(EST.nombre||'?')[0].toUpperCase();
+  document.getElementById('meEsp').textContent=espec();document.getElementById('brEsp').textContent=espec()||'Tu consultorio';
+  document.title='MAS Consultorios'+(espec()?' · '+espec():'')}
+
+/* ---------- conexión con el programa ---------- */
+let TOKEN=null;try{TOKEN=sessionStorage.getItem('tk')}catch(e){}
+let EST={},db=null;
+const VACIO=()=>({v:1,P:[],E:[],T:[],A:[],V:[],Ob:[],cfg:{}});
+function normalizar(){for(const k of ['P','E','T','A','V','Ob','S'])if(!Array.isArray(db[k]))db[k]=[];if(!db.cfg||typeof db.cfg!=='object')db.cfg={}}
+/* módulos opcionales: se prenden/apagan en Configuración */
+const OPC=()=>Object.assign({anam:true,evalu:true,asist:true,cobro:true,partes:false},db.cfg);
+const activo=p=>p.estado!=='alta';
+const ASIST={vino:'Vino',aviso:'Faltó con aviso',sinaviso:'Faltó sin aviso'};
+const vino=e=>!e.asist||e.asist==='vino';
+async function api(m,path,body,raw){
+  const o={method:m,headers:{}};
+  if(TOKEN)o.headers['X-Token']=TOKEN;
+  if(body!==undefined){if(raw)o.body=body;else{o.headers['Content-Type']='application/json';o.body=JSON.stringify(body)}}
+  let r;try{r=await fetch(path,o)}catch(e){throw new Error('MAS Consultorios está cerrado. Abrilo desde el ícono "MAS Consultorios" del escritorio.')}
+  let j=null;try{j=await r.json()}catch(e){}
+  if(r.status===402){mostrarLicencia(j&&j.licencia);throw new Error('Falta activar la licencia.')}
+  if(r.status===401&&!/login|crear/.test(path)){bloquear();throw new Error('Por seguridad se cerró la sesión. Volvé a entrar.')}
+  if(!r.ok)throw new Error((j&&j.error)||'Error '+r.status);
+  return j;
+}
+let cola=Promise.resolve();
+function guardar(){
+  const copia=JSON.stringify(db);
+  cola=cola.then(()=>api('PUT','/api/datos',JSON.parse(copia))).then(e=>{EST=e;pintarCopia()}).catch(e=>toast('No se pudo guardar: '+e.message));
+  return cola;
+}
+
+/* ---------- acceso ---------- */
+function setTok(t){TOKEN=t;try{t?sessionStorage.setItem('tk',t):sessionStorage.removeItem('tk')}catch(e){}}
+/* ---------- licencia ---------- */
+const licOk=L=>!L||L.estado==='ok'||L.estado==='ok-sin-internet';
+let LIC_PANTALLA=false;
+function mostrarLicencia(L){L=L||{};LIC_PANTALLA=true;
+  document.getElementById('app').hidden=true;document.getElementById('lock').hidden=false;cerrar();pintarSlogan();
+  document.getElementById('lockpie').textContent='Licencia';
+  const f=document.getElementById('lockf'),eq=`<p class="sub" style="margin-top:14px">Código de este equipo: <b style="letter-spacing:1px">${esc(L.equipo||'')}</b></p>`;
+  const probar=`<button type="button" class="btn" style="width:100%;justify-content:center;height:44px" onclick="probarLicencia()">Probar de nuevo</button>`;
+  const ingresar=(titulo,texto)=>`<div class="logo" style="margin-bottom:22px">${ic('lock')}</div><h1>${titulo}</h1><p class="sub">${texto}</p>
+    <div class="mfield"><label>Código de licencia</label><input id="lic_c" placeholder="XXXX-XXXX-XXXX" autocomplete="off" style="text-transform:uppercase;letter-spacing:1px"></div>
+    <div class="err" id="lerr"></div><button class="btn" style="width:100%;justify-content:center;height:44px">Activar</button>${eq}`;
+  const aviso=(titulo,texto)=>`<div class="logo" style="margin-bottom:22px">${ic('warn')}</div><h1>${titulo}</h1><p class="sub">${texto}</p><div class="err" id="lerr"></div>${probar}${eq}`;
+  const e=L.estado;
+  if(e==='sin-codigo'||!L.tieneCodigo)f.innerHTML=ingresar('Activá MAS Consultorios','Escribí el código de licencia que te dieron. Se hace una sola vez.');
+  else if(e==='invalido')f.innerHTML=ingresar('Código no válido','Ese código no existe. Revisalo (son 12 letras y números) o pedilo de nuevo.');
+  else if(e==='pendiente')f.innerHTML=aviso('Equipo sin autorizar','Tu licencia ya se está usando en otra computadora. Pasale el <b>código de este equipo</b> (abajo) a quien te dio MAS Consultorios para que lo autorice.');
+  else if(e==='vencida')f.innerHTML=aviso('Tu abono venció',`Venció el ${L.vence?fCorta(L.vence):''}. Comunicate con quien te dio MAS Consultorios para renovarlo. <b>Tus pacientes y fichas están guardados</b> y no se borran.`);
+  else if(e==='suspendida')f.innerHTML=aviso('Licencia suspendida','Comunicate con quien te dio MAS Consultorios. <b>Tus pacientes y fichas están guardados</b> y no se borran.');
+  else if(e==='sin-conexion')f.innerHTML=aviso('Conectate a internet',`Hace más de ${L.diasSinInternet||7} días que MAS Consultorios no puede verificar la licencia. Conectá la computadora a internet y tocá "Probar de nuevo".`);
+  else f.innerHTML=aviso('Verificando la licencia…','Un momento.');
+  f.onsubmit=()=>{activarLicencia();return false};
+  const i=document.getElementById('lic_c');if(i)setTimeout(()=>i.focus(),50);
+  if(e==='verificando')setTimeout(probarLicencia,1500)}
+async function activarLicencia(){const c=document.getElementById('lic_c').value.trim(),e=document.getElementById('lerr');
+  if(c.replace(/[^a-z0-9]/gi,'').length<12){e.textContent='El código tiene 12 letras y números.';return}
+  e.textContent='Verificando…';
+  try{const L=await api('POST','/api/licencia',{codigo:c});trasLicencia(L)}catch(x){e.textContent=x.message}}
+async function probarLicencia(){const e=document.getElementById('lerr');if(e)e.textContent='Verificando…';
+  try{const L=await api('POST','/api/licencia',{});trasLicencia(L)}catch(x){if(e)e.textContent=x.message}}
+async function trasLicencia(L){
+  if(!licOk(L)){mostrarLicencia(L);if(L.estado!=='sin-codigo'&&L.estado!=='verificando'){const e=document.getElementById('lerr');if(e&&!e.textContent)e.textContent=''}return}
+  LIC_PANTALLA=false;EST=await api('GET','/api/estado');toast('Licencia activa'+(L.vence?' hasta el '+fCorta(L.vence):'')+'.');
+  if(EST.configurada&&TOKEN){try{await abrirApp();return}catch(e){setTok(null)}}
+  mostrarLock()}
+function avisoVencimiento(){const L=EST.licencia;if(!L||!L.vence||!licOk(L))return;
+  const d=Math.round((parse(L.vence)-hoy)/864e5);
+  if(d<=5)setTimeout(()=>toast(d<=0?'Tu abono vence hoy. Comunicate para renovarlo.':'Tu abono vence el '+fCorta(L.vence)+' (en '+d+' día'+(d>1?'s':'')+').'),1500)}
+function mostrarLock(){
+  document.getElementById('app').hidden=true;document.getElementById('lock').hidden=false;cerrar();pintarSlogan();
+  const f=document.getElementById('lockf');
+  if(!EST.configurada){
+    document.getElementById('lockpie').textContent='Primera vez en esta computadora';
+    f.innerHTML=`<div class="logo" style="margin-bottom:22px">${ic('user')}</div>
+      <h1>Empecemos</h1><p class="sub">Elegí una contraseña para que nadie más pueda ver las fichas. Anotala en un lugar seguro.</p>
+      <div class="mfield"><label>Tu nombre</label><input id="s_nom" placeholder="Ej.: Laura Pérez" autocomplete="off"></div>
+      <div class="mfield"><label>Tu especialidad</label><input id="s_esp" list="dl_esp" placeholder="Elegí de la lista o escribila" autocomplete="off">${dlEsp}</div>
+      <div class="mfield"><label>Contraseña</label><input type="password" id="s_p1" autocomplete="new-password"></div>
+      <div class="mfield"><label>Repetí la contraseña</label><input type="password" id="s_p2" autocomplete="new-password"></div>
+      <div class="err" id="lerr"></div>
+      <button class="btn" style="width:100%;justify-content:center;height:44px">Crear y entrar</button>`;
+    f.onsubmit=()=>{crear();return false};
+    setTimeout(()=>document.getElementById('s_nom').focus(),50);
+  }else{
+    document.getElementById('lockpie').textContent='';
+    f.innerHTML=`<div class="logo" style="margin-bottom:22px">${ic('lock')}</div>
+      <h1>Hola${primerNombre()?', '+esc(primerNombre()):''}</h1><p class="sub">Escribí tu contraseña para continuar.</p>
+      <div class="mfield"><label>Contraseña</label><input type="password" id="pass" autocomplete="current-password"></div>
+      <div class="err" id="lerr"></div>
+      <button class="btn" style="width:100%;justify-content:center;height:44px">Entrar</button>
+      <div style="text-align:center;margin-top:14px"><button type="button" class="btn link" style="font-size:13px" onclick="olvide()">Me olvidé la contraseña</button></div>`;
+    f.onsubmit=()=>{entrar();return false};
+    setTimeout(()=>document.getElementById('pass').focus(),50);
+  }
+}
+async function crear(){const v=id=>document.getElementById(id).value,e=document.getElementById('lerr');
+  if(!v('s_nom').trim()){e.textContent='Escribí tu nombre.';return}
+  if(!v('s_esp').trim()){e.textContent='Escribí tu especialidad.';return}
+  if(v('s_p1').length<4){e.textContent='La contraseña tiene que tener al menos 4 caracteres.';return}
+  if(v('s_p1')!==v('s_p2')){e.textContent='Las dos contraseñas no coinciden.';return}
+  try{const j=await api('POST','/api/crear',{nombre:v('s_nom').trim(),especialidad:v('s_esp').trim(),pass:v('s_p1')});setTok(j.token);await abrirApp()}catch(x){e.textContent=x.message}}
+async function entrar(){const e=document.getElementById('lerr'),p=document.getElementById('pass');
+  e.textContent='';
+  try{const j=await api('POST','/api/login',{pass:p.value});setTok(j.token);await abrirApp()}catch(x){e.textContent=x.message;p.value='';p.focus()}}
+function olvide(){abrir(`<div class="mh"><h2>Poner una contraseña nueva</h2></div><div class="mb">
+  <p>Pedile el <b>código de recuperación</b> a quien te instaló el programa. Tus pacientes y fichas no se pierden.</p>
+  <div class="mfield"><label>Código de recuperación</label><input id="r_c" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" style="text-transform:uppercase"></div>
+  <div class="mfield"><label>Contraseña nueva</label><input type="password" id="r_n1" autocomplete="new-password"></div>
+  <div class="mfield"><label>Repetí la contraseña nueva</label><input type="password" id="r_n2" autocomplete="new-password"></div>
+  <div class="err" id="r_err" style="color:var(--pink);font-size:13px;font-weight:700;min-height:20px"></div></div>
+  <div class="mf"><button class="btn sec" onclick="cerrar()">Cancelar</button><button class="btn" onclick="recuperarPass()">Cambiar y entrar</button></div>`)}
+async function recuperarPass(){const v=id=>document.getElementById(id).value,e=document.getElementById('r_err');e.textContent='';
+  if(v('r_n1').length<4){e.textContent='La contraseña nueva tiene que tener al menos 4 caracteres.';return}
+  if(v('r_n1')!==v('r_n2')){e.textContent='Las dos contraseñas no coinciden.';return}
+  e.textContent='Verificando…';
+  try{const j=await api('POST','/api/recuperar-pass',{codigo:v('r_c'),nueva:v('r_n1')});setTok(j.token);cerrar();await abrirApp();toast('Listo, ya tenés contraseña nueva.')}catch(x){e.textContent=x.message}}
+function bloquear(){setTok(null);db=null;document.getElementById('view').innerHTML='';mostrarLock()}
+
+async function abrirApp(){
+  EST=await api('GET','/api/estado');
+  db=await api('GET','/api/datos')||VACIO();
+  normalizar();
+  document.getElementById('lock').hidden=true;document.getElementById('app').hidden=false;
+  pintarPerfil();
+  pintarCopia();ir('inicio');avisoVencimiento();
+  if(!EST.hayDatos&&EST.copiaEnDrive)ofrecerRecuperar();
+}
+
+/* inactividad: se bloquea sola a los 20 minutos */
+let ultAct=Date.now();
+['mousemove','keydown','click','scroll'].forEach(e=>document.addEventListener(e,()=>ultAct=Date.now(),{passive:true}));
+setInterval(()=>{if(TOKEN&&Date.now()-ultAct>20*60*1000)bloquear()},30000);
+let VER0=null;
+
+/* ---------- copia de seguridad ---------- */
+function cuando(isoTs){if(!isoTs)return '';const d=new Date(isoTs);const h=pad(d.getHours())+':'+pad(d.getMinutes());
+  const dd=new Date(d);dd.setHours(0,0,0,0);const dif=Math.round((hoy-dd)/864e5);
+  return (dif===0?'hoy':dif===1?'ayer':fCorta(iso(dd)))+' a las '+h}
+function estadoCopia(){
+  if(EST.sinDrive)return{k:'warn',t:'Falta conectar Google Drive',s:'Las fichas están guardadas solo en esta compu.'};
+  if(EST.error)return{k:'warn',t:'No se pudo copiar a Google Drive',s:EST.error};
+  if(EST.ultimaCopia)return{k:'ok',t:'Copia de seguridad al día',s:'Guardada en Google Drive '+cuando(EST.ultimaCopia)+'.'};
+  return{k:'off',t:'Copia de seguridad',s:'Todavía no se hizo ninguna.'};
+}
+function pintarCopia(){const e=estadoCopia(),b=document.getElementById('bk');if(!b)return;
+  b.className='bk '+(e.k==='ok'?'':e.k);
+  b.innerHTML=`${ic(e.k==='ok'?'cloud':'warn','sm')}<div><b>${esc(e.t)}</b>${e.k==='ok'?'En Google Drive, '+esc(cuando(EST.ultimaCopia)):e.k==='warn'?'Tocá para ver qué hacer':'—'}</div>`;
+  if(vista==='config'&&document.getElementById('cfgDrive'))document.getElementById('cfgDrive').innerHTML=cardDrive()}
+
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),3200)}
+function waNum(tel){let d=String(tel||'').replace(/\D/g,'');
+  if(d.startsWith('54'))d=d.slice(2);if(d.startsWith('9')&&d.length===11)d=d.slice(1);if(d.startsWith('0'))d=d.slice(1);
+  if(d.length===12){for(const k of [2,3,4]){if(d.substr(k,2)==='15'){d=d.slice(0,k)+d.slice(k+2);break}}}
+  return d.length===10?'549'+d:''}
+function wa(texto,tel){window.open('https://wa.me/'+waNum(tel)+'?text='+encodeURIComponent(texto),'_blank')}
+function cerrar(){document.getElementById('modal').hidden=true}
+function abrir(html,ancho){const mb=document.getElementById('mbox');mb.className='mbox'+(ancho?' ancho':'');mb.innerHTML=html;document.getElementById('modal').hidden=false;const f=document.querySelector('#mbox input,#mbox select,#mbox textarea');if(f)f.focus()}
+function confirmar(titulo,texto,boton,fn,peligro){window._conf=fn;abrir(`<div class="mh"><h2>${titulo}</h2></div><div class="mb"><p>${texto}</p></div>
+  <div class="mf"><button class="btn sec" onclick="cerrar()">Cancelar</button><button class="btn ${peligro?'danger':''}" onclick="cerrar();window._conf()">${boton}</button></div>`)}
+
+const pac=id=>db.P.find(p=>p.id==id);
+const ultima=pid=>db.E.filter(e=>e.pid==pid&&vino(e)).map(e=>e.fecha).sort().pop();
+const diasDesde=s=>s?Math.round((hoy-parse(s))/864e5):null;
+
+let vista='inicio',filtro='',tabF='historia',esp='',semana=0;
+const ESP={cumple:'Cumplen años en los próximos 7 días',sinturno:'Hace más de 30 días que no vienen y no tienen turno',alta:'Dados de alta',aut:'Autorización por vencer'};
+const sinTurno=p=>{if(!activo(p))return false;const d=diasDesde(ultima(p.id));return d!==null&&d>30&&!db.T.some(t=>t.pid==p.id&&t.fecha>=iso(hoy))};
+function verLista(k){esp=k;filtro='';ir('pacientes')}
+let ARG;function ir(v,arg){if(!db)return;ARG=arg;refrescarHoy();if(extenderFijos())guardar();vista=v;
+  document.getElementById('today').textContent=may(fLarga(hoy))+' de '+hoy.getFullYear();
+  document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('on',b.dataset.v===v||(v==='ficha'&&b.dataset.v==='pacientes')));
+  document.getElementById('cntT').textContent=db.T.filter(t=>t.fecha===iso(hoy)).length||'';
+  document.getElementById('view').innerHTML=({inicio,pacientes,agenda,ficha,config})[v](arg);
+  if(v==='pacientes')tabla();window.scrollTo(0,0)}
+function buscarGlobal(q){filtro=q;if(vista!=='pacientes'){esp='';ir('pacientes')}else{const i=document.getElementById('q');if(i)i.value=q;tabla()}}
+
+/* ---------- INICIO ---------- */
+function inicio(){
+  const tHoy=db.T.filter(t=>t.fecha===iso(hoy)&&pac(t.pid)).sort((a,b)=>a.hora.localeCompare(b.hora));
+  const tSem=db.T.filter(t=>t.fecha>=iso(hoy)&&t.fecha<=iso(addDays(6))).length;
+  const cumples=db.P.map(p=>({p,d:diasCumple(p.nac)})).filter(x=>x.d<=7).sort((a,b)=>a.d-b.d);
+  const ausentes=db.P.filter(activo).map(p=>({p,d:diasDesde(ultima(p.id))})).filter(x=>x.d!==null&&x.d>30&&!db.T.some(t=>t.pid==x.p.id&&t.fecha>=iso(hoy))).sort((a,b)=>b.d-a.d);
+  const h=new Date().getHours(),saludo=h<13?'Buen día':h<20?'Buenas tardes':'Buenas noches';
+  const vacio=!db.P.length?`<div class="card" style="padding:22px 24px;margin-bottom:18px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+    <div class="chip c-blue" style="width:44px;height:44px">${ic('users')}</div><div style="flex:1;min-width:220px"><b>Todavía no cargaste pacientes.</b><div style="color:var(--muted)">Empezá cargando el primero; después le podés sumar sesiones, turnos y fotos de las hojas en papel.</div></div>
+    <button class="btn" onclick="nuevoPaciente()">${ic('plus','sm')}Cargar paciente</button></div>`:'';
+  const borr=db.E.filter(esBorr),pb=[...new Set(borr.map(e=>e.pid))].map(pac).filter(Boolean);
+  const avisoBorr=borr.length?`<div class="card" style="padding:16px 20px;margin-bottom:18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+    <div class="chip c-amber">${ic('note','sm')}</div><div style="flex:1;min-width:220px"><b>Tenés ${borr.length} sesi${borr.length>1?'ones':'ón'} en borrador sin confirmar</b><div style="color:var(--muted);font-size:14px">${pb.map(p=>`<button class="btn link" style="font-size:14px" onclick="tabF='historia';ir('ficha',${p.id})">${esc(nom(p))}</button>`).join(' · ')}</div></div></div>`:'';
+  const O=OPC(),sc=O.cobro?db.E.filter(e=>e.pago&&!e.cobrado&&pac(e.pid)):[];
+  const pa=db.P.filter(p=>activo(p)&&autAviso(p));
+  const avisoCob=sc.length?`<div class="card" style="padding:16px 20px;margin-bottom:18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+    <div class="chip c-amber">${ic('clock','sm')}</div><div style="flex:1;min-width:220px"><b>${sc.length} sesi${sc.length>1?'ones':'ón'} sin cobrar</b><div style="color:var(--muted);font-size:14px">${[...new Set(sc.map(e=>e.pid))].map(pac).map(p=>`<button class="btn link" style="font-size:14px" onclick="tabF='historia';ir('ficha',${p.id})">${esc(nom(p))} (${sc.filter(e=>e.pid==p.id).length})</button>`).join(' · ')}</div></div></div>`:'';
+  const avisoAut=pa.length?`<div class="card" style="padding:16px 20px;margin-bottom:18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+    <div class="chip c-amber">${ic('warn','sm')}</div><div style="flex:1;min-width:220px"><b>Autorizaciones de obra social por terminar</b><div style="color:var(--muted);font-size:14px">${pa.map(p=>`<button class="btn link" style="font-size:14px" onclick="tabF='historia';ir('ficha',${p.id})">${esc(nom(p))}</button> <span>(${esc(autAviso(p))})</span>`).join(' · ')}</div></div></div>`:'';
+  return `
+  <div class="ph"><div><h1>${saludo}${primerNombre()?', '+esc(primerNombre()):''}</h1><p>Este es el resumen de tu día.</p></div>
+    <button class="btn" onclick="nuevoTurno()">${ic('plus','sm')}Nuevo turno</button></div>
+  ${vacio}${avisoBorr}${avisoAut}${avisoCob}
+  <div class="grid kpis">
+    <button class="card kpi" onclick="semana=0;ir('agenda')"><div class="chip c-blue">${ic('cal')}</div><div><div class="l">Turnos de hoy</div><div class="n">${tHoy.length}</div><div class="d">${tSem} en los próximos 7 días</div></div></button>
+    <button class="card kpi" onclick="verLista('cumple')"><div class="chip c-pink">${ic('cake')}</div><div><div class="l">Cumpleaños</div><div class="n">${cumples.length}</div><div class="d">en los próximos 7 días</div></div></button>
+    <button class="card kpi" onclick="verLista('')"><div class="chip c-teal">${ic('users')}</div><div><div class="l">Pacientes</div><div class="n">${db.P.filter(activo).length}</div><div class="d">${db.P.filter(p=>!activo(p)).length?db.P.filter(p=>!activo(p)).length+' dados de alta':db.E.length+' sesiones registradas'}</div></div></button>
+    <button class="card kpi" onclick="verLista('sinturno')"><div class="chip c-amber">${ic('clock')}</div><div><div class="l">Sin turno</div><div class="n">${ausentes.length}</div><div class="d">hace más de 30 días que no vienen</div></div></button>
+  </div>
+  <div class="grid cols" style="margin-top:18px;align-items:start">
+    <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('cal','sm')}</span>Turnos de hoy</h2><button class="btn link" onclick="semana=0;ir('agenda')">Ver agenda</button></div>
+      <div class="card-b">${tHoy.length?tHoy.map(filaTurno).join(''):'<div class="empty">No hay turnos para hoy.</div>'}</div>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="card-h"><h2><span class="chip c-pink">${ic('cake','sm')}</span>Próximos cumpleaños</h2></div>
+        <div class="card-b">${cumples.length?cumples.map(({p,d})=>`<div class="row"><div class="av pink">${ini(p)}</div>
+          <div class="grow" style="cursor:pointer" onclick="tabF='historia';ir('ficha',${p.id})"><div class="t">${esc(nom(p))}</div><div class="s">Cumple ${edad(p.nac)+(d===0?0:1)} años · ${d===0?'hoy':d===1?'mañana':fLarga(addDays(d))}</div></div>
+          ${d===0?'<span class="pill pink">Hoy</span>':''}
+          <button class="btn sm sec icon" title="Saludar por WhatsApp" onclick="saludar(${p.id})">${ic('msg','sm')}</button></div>`).join(''):'<div class="empty">Nadie cumple años esta semana.</div>'}</div>
+      </div>
+      <div class="card"><div class="card-h"><h2><span class="chip c-amber">${ic('clock','sm')}</span>Hace más de un mes sin venir</h2></div>
+        <div class="card-b">${ausentes.length?ausentes.map(({p,d})=>`<div class="row"><div class="av">${ini(p)}</div>
+          <div class="grow" style="cursor:pointer" onclick="tabF='historia';ir('ficha',${p.id})"><div class="t">${esc(nom(p))}</div><div class="s">Última sesión hace ${d} días</div></div>
+          <button class="btn sm sec" onclick="nuevoTurno(${p.id})">Dar turno</button></div>`).join(''):'<div class="empty">Todos vinieron en el último mes.</div>'}</div>
+      </div>
+    </div>
+  </div>`;
+}
+function filaTurno(t){const p=pac(t.pid);if(!p)return '';return `<div class="row">
+  <div class="hora">${t.hora}</div><div class="av">${ini(p)}</div>
+  <div class="grow"><div class="t">${esc(nom(p))}${t.serie?' <span class="pill teal">Fijo</span>':''}</div><div class="s">${esc(p.motivo)}</div></div>
+  <span class="pill hide-m">${esc(p.modal)}</span>
+  <div class="acts"><button class="btn sm sec" title="Mandar recordatorio por WhatsApp" onclick="recordar('${t.id}')">${ic('msg','sm')}Recordar</button>
+  <button class="btn sm sec" title="Cambiar día u hora de este turno" onclick="moverTurno('${t.id}')">Cambiar</button>
+  <button class="btn sm sec" onclick="tabF='historia';ir('ficha',${p.id})">Ficha</button>
+  <button class="btn sm sec icon" title="Cancelar turno" onclick="cancelarTurno('${t.id}')">${ic('x','sm')}</button></div></div>`}
+function recordar(tid){const t=db.T.find(x=>x.id===tid),p=pac(t.pid);const d=parse(t.fecha);
+  const quien=p.tutor?p.tutor.split(' ')[0]:p.nombre;
+  wa(`Hola ${quien}, te recuerdo el turno${espec()?' de '+espec().toLowerCase():''}${p.tutor?' de '+p.nombre:''} el ${fLarga(d)} a las ${t.hora} hs. Cualquier cosa avisame. Saludos, ${primerNombre()}.`,p.tel)}
+function saludar(pid){const p=pac(pid);const d=diasCumple(p.nac);
+  wa(p.tutor&&edad(p.nac)<18?`¡Hola ${p.tutor.split(' ')[0]}! ${d===0?'Hoy':'Ya'} ${p.nombre} cumple ${edad(p.nac)+(d===0?0:1)} años. Mandale un abrazo grande de mi parte. ¡Feliz cumple!`:`¡Feliz cumpleaños, ${p.nombre}! Que tengas un hermoso día. Un abrazo, ${primerNombre()}.`,p.tel)}
+function cancelarTurno(tid){const t=db.T.find(x=>x.id===tid),p=pac(t.pid);
+  if(t.serie&&db.S.find(x=>x.id===t.serie)){abrir(`<div class="mh"><h2>Cancelar turno</h2></div><div class="mb">
+    <p>Es un <b>turno fijo</b> de <b>${esc(nom(p))}</b>. ¿Qué querés cancelar?</p></div>
+    <div class="mf"><button class="btn sec" onclick="cerrar()">Volver</button><button class="btn sec" onclick="cancelarFijo('${tid}',false)">Solo el ${fCorta(t.fecha)}</button><button class="btn danger" onclick="cancelarFijo('${tid}',true)">Este y todos los siguientes</button></div>`);return}
+  confirmar('Cancelar turno',`¿Cancelar el turno de <b>${esc(nom(p))}</b> del ${fLarga(parse(t.fecha))} a las ${t.hora}?`,'Cancelar turno',()=>{
+    db.T=db.T.filter(x=>x.id!==tid);guardar();toast('Turno cancelado.');ir(vista,vista==='ficha'?p.id:undefined)},true)}
+
+/* ---------- turnos fijos ----------
+   db.S = [{id,pid,desde,hora,cada(semanas),hasta|null,saltear:[fechas canceladas]}]
+   Se generan los turnos reales (db.T con serie) hasta 12 semanas adelante. */
+const fijosDe=pid=>db.S.filter(x=>x.pid==pid&&(!x.hasta||x.hasta>=iso(hoy)));
+const textoFijo=x=>(x.cada==2?'cada 2 semanas, los ':'todos los ')+(DIAS[parse(x.desde).getDay()]+'s').replace(/ss$/,'s')+' a las '+x.hora;
+let _fijosDia='';
+function extenderFijos(forzar){if(!db||!db.S||(!forzar&&_fijosDia===iso(hoy)))return false;_fijosDia=iso(hoy);
+  let cambio=false;const tope=iso(addDays(84)),hoyS=iso(hoy);
+  for(const x of db.S){if(!pac(x.pid))continue;const d=parse(x.desde);
+    while(iso(d)<=tope&&(!x.hasta||iso(d)<=x.hasta)){const f=iso(d);
+      if(f>=hoyS&&!(x.saltear||[]).includes(f)&&!db.T.some(t=>t.serie===x.id&&t.fecha===f)){db.T.push({id:uid(),pid:x.pid,fecha:f,hora:x.hora,serie:x.id});cambio=true}
+      d.setDate(d.getDate()+7*(x.cada||1))}}
+  return cambio}
+function cancelarFijo(tid,siguientes){const t=db.T.find(x=>x.id===tid),x=db.S.find(s=>s.id===t.serie),p=pac(t.pid);cerrar();
+  if(siguientes){const ant=parse(t.fecha);ant.setDate(ant.getDate()-1);x.hasta=iso(ant);db.T=db.T.filter(y=>!(y.serie===x.id&&y.fecha>=t.fecha));
+    if(x.hasta<x.desde)db.S=db.S.filter(s=>s.id!==x.id);toast('Turno fijo cancelado desde el '+fCorta(t.fecha)+'.')}
+  else{x.saltear=(x.saltear||[]).concat(t.fecha);db.T=db.T.filter(y=>y.id!==tid);toast('Turno del '+fCorta(t.fecha)+' cancelado. El turno fijo sigue.')}
+  guardar();ir(vista,vista==='ficha'?p.id:undefined)}
+/* cambiar un solo turno (si es de un turno fijo, ese día queda como excepción) */
+function moverTurno(tid){const t=db.T.find(x=>x.id===tid),p=pac(t.pid);
+  abrir(`<div class="mh"><h2>Cambiar turno</h2></div><div class="mb">
+  <p><b>${esc(nom(p))}</b> · ${may(fLarga(parse(t.fecha)))} a las ${t.hora}${t.serie?'<br><span style="color:var(--muted);font-size:13px">Es un turno fijo: se cambia <b>solo este día</b>. Para cambiarlo siempre, usá "Editar" en la ficha, pestaña Turnos.</span>':''}</p>
+  <div class="frow"><div class="mfield"><label>Nuevo día</label><input type="date" id="m_f" value="${t.fecha}"></div><div class="mfield"><label>Nueva hora</label><input type="time" id="m_h" value="${t.hora}"></div></div></div>
+  <div class="mf"><button class="btn sec" onclick="cerrar()">Cancelar</button><button class="btn" onclick="guardarMover('${tid}')">Guardar</button></div>`)}
+function guardarMover(tid){const t=db.T.find(x=>x.id===tid),f=document.getElementById('m_f').value,h=document.getElementById('m_h').value;
+  if(!f||!h){toast('Elegí día y hora.');return}
+  if(f===t.fecha&&h===t.hora){cerrar();return}
+  const x=t.serie&&db.S.find(s=>s.id===t.serie);
+  if(x&&!(x.saltear||[]).includes(t.fecha))x.saltear=(x.saltear||[]).concat(t.fecha);
+  const choca=db.T.find(y=>y.id!==tid&&y.fecha===f&&y.hora===h);
+  t.fecha=f;t.hora=h;if(x)t.movido=true;guardar();cerrar();
+  toast('Turno cambiado al '+fLarga(parse(f))+' a las '+h+'.'+(choca?' Ojo: a esa hora ya tenías a '+nom(pac(choca.pid))+'.':''));
+  ir(vista,vista==='ficha'?t.pid:undefined)}
+/* editar el turno fijo desde una fecha en adelante (lo anterior no se toca) */
+function proxFijo(x){const d=parse(x.desde);while(iso(d)<iso(hoy))d.setDate(d.getDate()+7*(x.cada||1));return iso(d)}
+function editarFijo(sid){const x=db.S.find(s=>s.id===sid),p=pac(x.pid);
+  abrir(`<div class="mh"><h2>Editar turno fijo</h2></div><div class="mb">
+  <p><b>${esc(nom(p))}</b> · hoy: ${textoFijo(x)}</p>
+  <div class="mfield"><label>A partir del <span class="opt">el día de la semana sale de esta fecha</span></label><input type="date" id="ef_f" value="${proxFijo(x)}"></div>
+  <div class="frow"><div class="mfield"><label>Hora</label><input type="time" id="ef_h" value="${x.hora}"></div>
+  <div class="mfield"><label>Cada cuánto</label><select id="ef_c"><option value="1" ${x.cada!=2?'selected':''}>Todas las semanas</option><option value="2" ${x.cada==2?'selected':''}>Cada 2 semanas</option></select></div></div>
+  <div class="mfield"><label>Hasta <span class="opt">opcional</span></label><input type="date" id="ef_hasta" value="${x.hasta||''}"></div>
+  <p style="color:var(--muted);font-size:13px">Los turnos anteriores a esa fecha quedan como estaban.</p></div>
+  <div class="mf"><button class="btn sec" onclick="cerrar()">Cancelar</button><button class="btn" onclick="guardarFijo('${sid}')">Guardar</button></div>`)}
+function guardarFijo(sid){const x=db.S.find(s=>s.id===sid),g=k=>document.getElementById(k).value;
+  const f=g('ef_f'),h=g('ef_h'),cada=+g('ef_c')||1,hasta=g('ef_hasta')||null;
+  if(!f||!h){toast('Elegí la fecha y la hora.');return}
+  if(f<iso(hoy)){toast('La fecha tiene que ser de hoy en adelante.');return}
+  if(hasta&&hasta<f){toast('La fecha "hasta" es anterior al primer turno.');return}
+  // corta el viejo el día anterior y borra sus turnos desde esa fecha (salvo los que se movieron a mano)
+  const ant=parse(f);ant.setDate(ant.getDate()-1);x.hasta=iso(ant);
+  db.T=db.T.filter(y=>!(y.serie===sid&&y.fecha>=f&&!y.movido));
+  if(x.hasta<x.desde)db.S=db.S.filter(s=>s.id!==sid);
+  const nid=uid();db.S.push({id:nid,pid:x.pid,desde:f,hora:h,cada,hasta,saltear:[]});
+  extenderFijos(true);guardar();cerrar();
+  toast('Turno fijo cambiado: '+textoFijo(db.S[db.S.length-1])+', desde el '+fCorta(f)+'.');tabF='turnos';ir('ficha',x.pid)}
+function quitarFijo(sid){const x=db.S.find(s=>s.id===sid),p=pac(x.pid);
+  confirmar('Quitar turno fijo','¿Quitar el turno fijo de <b>'+esc(nom(p))+'</b> ('+textoFijo(x)+')? Se borran los turnos que vienen desde hoy.','Quitar',()=>{
+    const ay=iso(addDays(-1));x.hasta=ay;db.T=db.T.filter(y=>!(y.serie===sid&&y.fecha>=iso(hoy)));
+    if(x.hasta<x.desde)db.S=db.S.filter(s=>s.id!==sid);guardar();toast('Turno fijo quitado.');ir('ficha',p.id)},true)}
+
+/* ---------- PACIENTES ---------- */
+function pacientes(){
+  const nAlta=db.P.filter(p=>!activo(p)).length;
+  return `<div class="ph"><div><h1>Pacientes</h1><p>${db.P.length-nAlta} en tratamiento${nAlta?' · '+nAlta+' dados de alta':''}</p></div>
+    <div class="acts"><button class="btn" onclick="nuevoPaciente()">${ic('plus','sm')}Nuevo paciente</button></div></div>
+  <div class="toolbar"><label class="field-s">${ic('search','sm')}<input id="q" placeholder="Buscar por nombre, DNI u obra social" value="${esc(filtro)}" oninput="filtro=this.value;tabla()"></label>${esp?`<button class="fchip" onclick="esp='';ir('pacientes')" title="Quitar filtro">${ESP[esp]}<span>×</span></button>`:nAlta?`<button class="btn sm sec" onclick="esp='alta';ir('pacientes')">Ver dados de alta (${nAlta})</button>`:''}</div>
+  <div class="card" style="overflow:hidden"><table><thead><tr><th>Paciente</th><th>Edad</th><th class="hide-m">Obra social</th><th class="hide-m">Motivo de consulta</th><th class="hide-m">Última sesión</th><th class="hide-m">Próximo turno</th></tr></thead><tbody id="tb"></tbody></table></div>`
+}
+function tabla(){const q=filtro.toLowerCase();const tb=document.getElementById('tb');if(!tb)return;
+  const L=db.P.filter(p=>(nom(p)+' '+p.dni+' '+p.obra).toLowerCase().includes(q)&&(esp!=='cumple'||diasCumple(p.nac)<=7)&&(esp!=='sinturno'||sinTurno(p))&&(esp!=='aut'||(activo(p)&&autAviso(p)))&&(esp==='alta'?!activo(p):(activo(p)||q!==''))).sort((a,b)=>(a.apellido+a.nombre).localeCompare(b.apellido+b.nombre));
+  tb.innerHTML=L.length?L.map(p=>{const u=ultima(p.id),dc=diasCumple(p.nac);
+    const prox=db.T.filter(t=>t.pid==p.id&&t.fecha>=iso(hoy)).sort((a,b)=>(a.fecha+a.hora).localeCompare(b.fecha+b.hora))[0];
+    return `<tr onclick="tabF='historia';ir('ficha',${p.id})">
+    <td><div class="pname"><div class="av ${dc<=7?'pink':''}">${ini(p)}</div><div><b>${esc(p.apellido)}, ${esc(p.nombre)}</b><small>DNI ${esc(p.dni)||'—'}</small></div>${activo(p)?'':'<span class="pill">Alta</span>'}${dc<=7?`<span class="pill pink">${ic('cake','sm')}${dc===0?'Hoy':'En '+dc+' d'}</span>`:''}</div></td>
+    <td class="num">${edad(p.nac)}</td><td class="hide-m"><span class="pill blue">${esc(p.obra)}</span></td><td class="hide-m" style="color:var(--muted)">${esc(p.motivo)}</td>
+    <td class="hide-m num">${u?fCorta(u)+(diasDesde(u)>30?' <span class="pill amber">'+diasDesde(u)+' d</span>':''):'—'}</td>
+    <td class="hide-m num">${prox?fCorta(prox.fecha)+' · '+prox.hora:`<button class="btn sm sec" onclick="event.stopPropagation();nuevoTurno(${p.id})">${ic('plus','sm')}Dar turno</button>`}</td></tr>`}).join(''):`<tr><td colspan="6" class="empty" style="text-align:center">${db.P.length?'No se encontró ningún paciente.':'Todavía no hay pacientes cargados.'}</td></tr>`}
+
+function formPaciente(p){p=p||{};const v=k=>esc(p[k]||'');const mods=['Consultorio','A domicilio','Online'];
+  const lleno=(...ks)=>ks.some(k=>p[k])?' open':'';
+  const op='<span class="opt">opcional</span>';
+  return `<div class="mh"><h2>${p.id?'Editar datos':'Nuevo paciente'}</h2></div><div class="mb">
+  <div class="frow"><div class="mfield"><label>Nombre</label><input id="n_nom" value="${v('nombre')}"></div><div class="mfield"><label>Apellido</label><input id="n_ape" value="${v('apellido')}"></div></div>
+  <div class="frow"><div class="mfield"><label>Fecha de nacimiento</label><input type="date" id="n_nac" value="${v('nac')}"></div><div class="mfield"><label>DNI</label><input id="n_dni" value="${v('dni')}"></div></div>
+  <div class="frow"><div class="mfield"><label>Teléfono (para WhatsApp)</label><input id="n_tel" value="${v('tel')}" placeholder="Ej.: 3521 555555"></div><div class="mfield"><label>Atención</label><select id="n_mod">${mods.map(m=>`<option ${p.modal===m?'selected':''}>${m}</option>`).join('')}</select></div></div>
+  <div class="frow"><div class="mfield"><label>Obra social</label><input id="n_obra" value="${v('obra')}" placeholder="Particular, PAMI, APROSS…"></div><div class="mfield"><label>N° de afiliado</label><input id="n_afil" value="${v('afil')}"></div></div>
+  <div class="mfield"><label>Motivo de consulta</label><input id="n_mot" value="${v('motivo')}"></div>
+  <p style="font-size:13px;color:var(--muted);margin:4px 0 10px">Lo de abajo es opcional: completá solo lo que te sirva.</p>
+  <details class="mas"${lleno('tutor','telResp')}><summary>Responsable (si es menor) ${op}</summary><div class="in">
+    <div class="frow"><div class="mfield"><label>Nombre</label><input id="n_tut" value="${v('tutor')}" placeholder="Ej.: Laura (mamá)"></div><div class="mfield"><label>Teléfono del responsable</label><input id="n_telr" value="${v('telResp')}" placeholder="Si es distinto al del paciente"></div></div></div></details>
+  <details class="mas"${lleno('deriva','diag')}><summary>Derivación y diagnóstico ${op}</summary><div class="in">
+    <div class="mfield"><label>Quién lo derivó</label><input id="n_der" value="${v('deriva')}" placeholder="Médico, otro profesional, la escuela…"></div>
+    <div class="mfield"><label>Diagnóstico médico</label><input id="n_diag" value="${v('diag')}"></div></div></details>
+  <details class="mas"${lleno('escuela','grado','integradora')}><summary>Escuela ${op}</summary><div class="in">
+    <div class="frow"><div class="mfield"><label>Escuela</label><input id="n_esc" value="${v('escuela')}"></div><div class="mfield"><label>Grado / sala</label><input id="n_gra" value="${v('grado')}"></div></div>
+    <div class="mfield"><label>Maestra integradora</label><input id="n_int" value="${v('integradora')}" placeholder="Nombre, o dejalo vacío si no tiene"></div></div></details>
+  <details class="mas"${lleno('autSes','autHasta')}><summary>Autorización de la obra social ${op}</summary><div class="in">
+    <div class="frow"><div class="mfield"><label>Sesiones autorizadas</label><input type="number" min="0" id="n_as" value="${v('autSes')}"></div><div class="mfield"><label>N° de autorización</label><input id="n_an" value="${v('autNum')}"></div></div>
+    <div class="frow"><div class="mfield"><label>Desde</label><input type="date" id="n_ad" value="${v('autDesde')}"></div><div class="mfield"><label>Hasta</label><input type="date" id="n_ah" value="${v('autHasta')}"></div></div></div></details>
+  </div>
+  <div class="mf"><button class="btn sec" onclick="cerrar()">Cancelar</button><button class="btn" onclick="guardarPaciente(${p.id||0})">Guardar</button></div>`}
+function nuevoPaciente(){abrir(formPaciente(),true)}
+function editarPaciente(id){abrir(formPaciente(pac(id)),true)}
+function guardarPaciente(id){const v=k=>document.getElementById(k).value.trim();
+  if(!v('n_nom')||!v('n_ape')||!v('n_nac')){toast('Completá nombre, apellido y fecha de nacimiento.');return}
+  const datos={nombre:v('n_nom'),apellido:v('n_ape'),nac:v('n_nac'),dni:v('n_dni'),tel:v('n_tel'),obra:v('n_obra')||'Particular',afil:v('n_afil'),tutor:v('n_tut'),motivo:v('n_mot'),modal:v('n_mod'),
+    telResp:v('n_telr'),deriva:v('n_der'),diag:v('n_diag'),escuela:v('n_esc'),grado:v('n_gra'),integradora:v('n_int'),autSes:v('n_as'),autNum:v('n_an'),autDesde:v('n_ad'),autHasta:v('n_ah')};
+  if(id){Object.assign(pac(id),datos)}else{id=Math.max(Date.now(),db.P.reduce((m,p)=>Math.max(m,p.id),0)+1);db.P.push({id,alta:iso(hoy),...datos})}
+  guardar();cerrar();toast('Datos guardados.');tabF=tabF||'historia';ir('ficha',id)}
+/* autorización de la obra social: sesiones usadas dentro del período */
+function autUso(p){if(!p.autSes&&!p.autHasta)return null;
+  const us=db.E.filter(e=>e.pid==p.id&&vino(e)&&(!p.autDesde||e.fecha>=p.autDesde)&&(!p.autHasta||e.fecha<=p.autHasta)).length;
+  return {us,tot:+p.autSes||0,resta:p.autSes?(+p.autSes)-us:null,dias:p.autHasta?Math.round((parse(p.autHasta)-hoy)/864e5):null}}
+function autAviso(p){const a=autUso(p);if(!a)return '';
+  if(a.dias!==null&&a.dias<0)return 'venció el '+fCorta(p.autHasta);
+  if(a.resta!==null&&a.resta<=0)return 'usó las '+a.tot+' sesiones';
+  if(a.resta!==null&&a.resta<=2)return 'le queda'+(a.resta>1?'n ':' ')+a.resta+' sesi'+(a.resta>1?'ones':'ón');
+  if(a.dias!==null&&a.dias<=15)return 'vence el '+fCorta(p.autHasta);
+  return ''}
+
+/* ---------- FICHA ---------- */
+const PARTES=[['trab','Qué se trabajó'],['resp','Cómo respondió'],['casa','Tareas para la casa']];
+const ANAM_INF=[['embarazo','Embarazo'],['parto','Parto y nacimiento'],['desarrollo','Desarrollo (motor y del lenguaje)'],['alimentacion','Alimentación (lactancia, masticación, deglución)'],['sueno','Sueño'],['audicion','Audición (otitis, estudios)'],
+  ['familia','Antecedentes familiares'],['medicacion','Medicación'],['alergias','Alergias'],['operaciones','Operaciones (amígdalas, adenoides, otras)'],['otros','Otros datos']];
+const ANAM_GEN=[['personales','Antecedentes personales (enfermedades, tratamientos anteriores)'],['familia','Antecedentes familiares'],['medicacion','Medicación'],['alergias','Alergias'],['operaciones','Operaciones o internaciones'],
+  ['habitos','Hábitos (sueño, alimentación, actividad física)'],['estudios','Estudios previos'],['otros','Otros datos']];
+/* la entrevista inicial cambia según la especialidad; lo ya cargado de otra lista se sigue mostrando */
+function anamCampos(a){const base=/fono|psicoped|terapia ocup|estimulaci|pediatr/i.test(espec())?ANAM_INF:ANAM_GEN;
+  const ya=new Set(base.map(x=>x[0]));const extra=[...ANAM_INF,...ANAM_GEN].filter(([k])=>!ya.has(k)&&a&&a[k]&&(ya.add(k),true));return [...base,...extra]}
+function textoSesion(t){return esc(t).replace(new RegExp('^('+PARTES.map(x=>x[1]).join('|')+'):','gm'),'<span class="et">$1:</span>')}
+function pillPago(e,ficha){if(!e.pago)return '';const c=e.cobrado;
+  return `<button class="pill ${c?'teal':'amber'}" style="border:0;cursor:pointer" title="${c?'Marcar como no cobrada':'Marcar como cobrada'}" onclick="cobrar('${e.id}')">${esc(e.pago)} · ${c?'cobrada':'sin cobrar'}</button>`}
+function cobrar(id){const e=db.E.find(x=>x.id===id);if(!e)return;e.cobrado=!e.cobrado;e.cobradoEl=e.cobrado?iso(hoy):undefined;guardar();toast(e.cobrado?'Marcada como cobrada.':'Marcada como sin cobrar.');ir(vista,vista==='ficha'?e.pid:undefined)}
+function modoPartes(on){db.cfg.partes=on;guardar();ir('ficha',fichaId)}
+let fichaId=null;
+
+function ficha(id){const p=pac(id);if(!p)return pacientes();fichaId=id;const O=OPC();
+  if((tabF==='anam'&&!O.anam)||(tabF==='evalu'&&!O.evalu))tabF='historia';
+  const E=db.E.filter(e=>e.pid==id).sort((a,b)=>b.fecha.localeCompare(a.fecha)||String(b.creado||'').localeCompare(String(a.creado||'')));
+  const T=db.T.filter(t=>t.pid==id&&t.fecha>=iso(hoy)).sort((a,b)=>(a.fecha+a.hora).localeCompare(b.fecha+b.hora));
+  const A=db.A.filter(a=>a.pid==id).sort((a,b)=>String(b.subido).localeCompare(String(a.subido)));
+  const Ob=db.Ob.filter(o=>o.pid==id),V=db.V.filter(v=>v.pid==id);
+  const dc=diasCumple(p.nac);
+  const tab=(k,l)=>`<button class="tab ${tabF===k?'on':''}" onclick="tabF='${k}';ir('ficha',${id})">${l}</button>`;
+  let cuerpo='';
+  if(tabF==='historia'){
+    const ultPago=(E.find(e=>e.pago)||{}).pago||'';
+    const escribir=O.partes?PARTES.map(([k,l])=>`<div class="parte"><small>${l}</small><textarea id="evo_${k}"></textarea></div>`).join('')
+      :`<textarea id="evo" placeholder="Qué trabajaron, observaciones, avances, tareas para casa…"></textarea>`;
+    cuerpo=`<div class="compose"><div class="modo"><label>Registrar sesión</label>
+      <div class="seg noprint" title="Cómo querés escribir la sesión"><button class="${O.partes?'':'on'}" onclick="modoPartes(false)">Texto libre</button><button class="${O.partes?'on':''}" onclick="modoPartes(true)">Por partes</button></div></div>
+      ${escribir}
+      ${O.asist||O.cobro?`<div class="extras">${O.asist?`<select id="evo_as" title="Asistencia"><option value="">Asistencia (opcional)</option>${Object.entries(ASIST).map(([k,l])=>`<option value="${k}">${l}</option>`).join('')}</select>`:''}
+        ${O.cobro?`<select id="evo_pg" title="Cobro"><option value="">Cobro (opcional)</option>${['Particular','Obra social'].map(x=>`<option ${x===ultPago?'selected':''}>${x}</option>`).join('')}</select>
+        <label class="chk" style="margin:0"><input type="checkbox" id="evo_cb">Ya está cobrada</label>`:''}</div>`:''}
+      <div class="fr"><input type="date" id="evof" value="${iso(hoy)}"><button class="btn sec" onclick="guardarEvo(${p.id},false)">Guardar borrador</button><button class="btn" onclick="guardarEvo(${p.id},true)">${ic('lock','sm')}Guardar y confirmar</button>
+      <span class="note">El borrador se puede corregir. Confirmada, ya no se puede cambiar.</span></div></div>
+    <div>${E.length?E.map(e=>{const d=parse(e.fecha),b=esBorr(e);return `<div class="evo"><div class="f"><b>${fCorta(e.fecha)}</b><small>${DIAS[d.getDay()]}</small></div>
+      <div><p>${textoSesion(e.texto)}</p><div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
+        ${e.asist?`<span class="pill ${e.asist==='vino'?'':'amber'}">${ASIST[e.asist]}</span>`:''}${pillPago(e)}
+        ${b?`<span class="pill amber">${ic('note','sm')}Borrador</span>
+        <button class="btn sm sec noprint" onclick="editarEvo('${e.id}')">Corregir</button><button class="btn sm noprint" onclick="confirmarEvo('${e.id}')">${ic('lock','sm')}Confirmar</button>`
+        :`<span class="pill teal">${ic('lock','sm')}Confirmada${e.confirmado?' el '+fCorta(e.confirmado.slice(0,10)):''}</span>`}</div></div></div>`}).join(''):'<div class="empty" style="padding:18px 20px">Todavía no hay sesiones registradas.</div>'}</div>`}
+  if(tabF==='anam'){const a=p.anam||{};
+    cuerpo=`<div class="blq"><h3>Primera consulta (entrevista inicial)</h3><p class="sub">Todo es opcional: completá solo lo que te sirva. Se puede corregir cuando quieras.</p>
+      <div class="frow"><div class="mfield"><label>Fecha de la entrevista</label><input type="date" id="an_fecha" value="${esc(a.fecha||'')}"></div><div class="mfield"><label>Quién dio los datos</label><input id="an_quien" value="${esc(a.quien||'')}" placeholder="Ej.: la mamá"></div></div>
+      ${anamCampos(a).map(([k,l])=>`<div class="mfield"><label>${l}</label><textarea id="an_${k}">${esc(a[k]||'')}</textarea></div>`).join('')}
+      <button class="btn" onclick="guardarAnam(${p.id})">Guardar primera consulta</button>${a.editado?`<span class="note" style="margin-left:10px;color:var(--faint);font-size:12px">Guardada ${esc(cuando(a.editado))}</span>`:''}</div>`}
+  if(tabF==='evalu'){
+    const grupos={};V.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).forEach(v=>(grupos[v.test]=grupos[v.test]||[]).push(v));
+    cuerpo=`<div class="blq"><h3>Objetivos del tratamiento</h3><p class="sub">Tocá el estado para pasarlo de "En proceso" a "Logrado".</p>
+      ${Ob.length?Ob.map(o=>`<div class="obj"><div class="grow"><b>${esc(o.texto)}</b><div class="ev-serie">Desde ${fCorta(o.desde)}${o.logrado?' · logrado el '+fCorta(o.logrado):''}</div></div>
+        <button class="pill ${o.logrado?'teal':'amber'}" onclick="togObj('${o.id}')">${o.logrado?'Logrado':'En proceso'}</button>
+        <button class="btn sm sec icon noprint" title="Borrar objetivo" onclick="borrarObj('${o.id}')">${ic('x','sm')}</button></div>`).join(''):'<div class="empty" style="padding:6px 0">Todavía no cargaste objetivos.</div>'}
+      <div class="addrow noprint"><input id="ob_t" placeholder="Escribí un objetivo nuevo" onkeydown="if(event.key==='Enter')nuevoObj(${p.id})"><button class="btn sec" onclick="nuevoObj(${p.id})">${ic('plus','sm')}Agregar</button></div></div>
+    <div class="blq"><h3>Evaluaciones y tests<button class="btn sm sec noprint" onclick="nuevaEval(${p.id})">${ic('plus','sm')}Cargar evaluación</button></h3><p class="sub">Si cargás el mismo test más de una vez, se ve cómo fue cambiando el puntaje.</p>
+      ${Object.keys(grupos).length?Object.entries(grupos).map(([t,L])=>`<div class="obj" style="display:block">
+        <div class="ev-t">${esc(t)}</div><div class="ev-serie">${L.filter(v=>v.puntaje).map(v=>esc(v.puntaje)).join(' → ')||'Sin puntaje'}</div>
+        ${L.slice().reverse().map(v=>`<div style="display:flex;gap:10px;align-items:flex-start;margin-top:8px"><div class="grow" style="flex:1;font-size:14px"><b>${fCorta(v.fecha)}</b>${v.puntaje?' · Puntaje: '+esc(v.puntaje):''}${v.obs?`<div style="color:var(--ink2);white-space:pre-wrap">${esc(v.obs)}</div>`:''}</div>
+          <button class="btn sm sec icon noprint" title="Borrar" onclick="borrarEval('${v.id}')">${ic('x','sm')}</button></div>`).join('')}</div>`).join(''):'<div class="empty" style="padding:6px 0">Todavía no cargaste evaluaciones.</div>'}</div>`}
+  if(tabF==='turnos')cuerpo=`<div class="card-b">${fijosDe(p.id).map(x=>`<div class="row"><div class="hora">${x.hora}</div><div class="grow"><div class="t">Turno fijo: ${textoFijo(x)}</div><div class="s">Desde el ${fCorta(x.desde)}${x.hasta?' hasta el '+fCorta(x.hasta):''}</div></div>
+      <div class="acts"><button class="btn sm sec" onclick="editarFijo('${x.id}')">Editar</button><button class="btn sm sec" onclick="quitarFijo('${x.id}')">Quitar turno fijo</button></div></div>`).join('')}${T.length?T.map(t=>`<div class="row"><div class="hora">${t.hora}</div><div class="grow"><div class="t">${may(fLarga(parse(t.fecha)))}${t.serie?' <span class="pill teal">Fijo</span>':''}</div><div class="s">${esc(p.modal)}</div></div>
+      <div class="acts"><button class="btn sm sec" onclick="recordar('${t.id}')">${ic('msg','sm')}Recordar</button><button class="btn sm sec" onclick="moverTurno('${t.id}')">Cambiar</button><button class="btn sm sec icon" title="Cancelar turno" onclick="cancelarTurno('${t.id}')">${ic('x','sm')}</button></div></div>`).join(''):'<div class="empty">No tiene turnos próximos.</div>'}
+      <div style="padding:10px 0 16px"><button class="btn sm" onclick="nuevoTurno(${p.id})">${ic('plus','sm')}Dar turno</button></div></div>`;
+  if(tabF==='archivos')cuerpo=`<div class="card-b">
+      ${A.length?A.map(a=>{const u=urlAdj(a),img=/^image\//.test(a.tipo||'')||/\.(jpe?g|png|gif|webp)$/i.test(a.nombre);
+        return `<div class="file">${img?`<img class="thumb" src="${u}" alt="">`:`<div class="chip c-blue" style="width:44px;height:44px">${ic('file','sm')}</div>`}
+        <div class="grow"><div><b>${esc(a.nombre)}</b></div><div class="s">Agregado el ${fCorta(a.fecha)}</div></div>
+        <a class="btn sm sec" href="${u}" target="_blank">Abrir</a></div>`}).join(''):'<div class="empty">Todavía no hay archivos. Podés sumar fotos de las hojas en papel, estudios o derivaciones.</div>'}
+      <div style="padding:10px 0 16px"><label class="btn sm sec">${ic('clip','sm')}Agregar fotos o PDF<input type="file" multiple hidden accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx" onchange="subir(${p.id},this.files)"></label></div></div>`;
+  const au=autUso(p),av=autAviso(p);
+  const dd=(t,v)=>v?`<dt>${t}</dt><dd>${esc(v)}</dd>`:'';
+  return `<button class="btn link back noprint" onclick="ir('pacientes')">${ic('left','sm')}Volver a pacientes</button>
+  <div class="card" style="margin-bottom:18px"><div class="fhead"><div class="av ${dc<=7?'pink':''}">${ini(p)}</div>
+    <div style="flex:1;min-width:200px"><h1>${esc(nom(p))}</h1>
+      <div class="tags"><span class="pill blue">${edad(p.nac)} años</span>${activo(p)?'':`<span class="pill">Dado de alta${p.fechaAlta?' el '+fCorta(p.fechaAlta):''}</span>`}${p.obra?`<span class="pill">${esc(p.obra)}</span>`:''}${p.modal?`<span class="pill teal">${esc(p.modal)}</span>`:''}${dc===0?`<span class="pill pink">${ic('cake','sm')}Cumple hoy</span>`:dc<=7?`<span class="pill pink">${ic('cake','sm')}Cumple en ${dc} días</span>`:''}</div></div>
+    <div class="acts noprint"><button class="btn sec" onclick="formInforme(${p.id})">${ic('file','sm')}Informe</button><button class="btn sec" onclick="imprimirHistoria(${p.id})">${ic('print','sm')}Imprimir historia</button><button class="btn" onclick="nuevoTurno(${p.id})">${ic('plus','sm')}Dar turno</button></div></div>
+    <div class="tabs">${tab('historia','Historia clínica ('+E.length+')')}${O.anam?tab('anam','Primera consulta'):''}${O.evalu?tab('evalu','Objetivos y evaluaciones'+(Ob.length+V.length?' ('+(Ob.length+V.length)+')':'')):''}${tab('turnos','Turnos ('+T.length+')')}${tab('archivos','Archivos ('+A.length+')')}</div></div>
+  <div class="grid cols" style="align-items:start">
+    <div class="card">${cuerpo}</div>
+    <div class="card side-data"><div class="card-h"><h2><span class="chip c-blue">${ic('user','sm')}</span>Datos del paciente</h2><button class="btn link noprint" onclick="editarPaciente(${p.id})">Editar</button></div>
+      <dl><dt>Motivo de consulta</dt><dd>${esc(p.motivo)||'—'}</dd>
+      ${dd('Diagnóstico médico',p.diag)}${dd('Derivado por',p.deriva)}
+      <dt>Fecha de nacimiento</dt><dd>${fCorta(p.nac)}</dd>
+      <dt>DNI</dt><dd>${esc(p.dni)||'—'}</dd>
+      <dt>Teléfono</dt><dd>${esc(p.tel)||'—'}</dd>
+      <dt>Obra social · N° de afiliado</dt><dd>${esc(p.obra)}${p.afil?' · '+esc(p.afil):''}</dd>
+      ${au?`<dt>Autorización${p.autNum?' N° '+esc(p.autNum):''}</dt><dd>${au.tot?au.us+' de '+au.tot+' sesiones usadas':au.us+' sesiones'}${p.autHasta?' · hasta el '+fCorta(p.autHasta):''}${av?`<div class="aviso-aut">${may(av)}</div>`:''}</dd>`:''}
+      ${dd('Responsable',p.tutor)}${dd('Teléfono del responsable',p.telResp)}
+      ${p.escuela||p.grado?`<dt>Escuela</dt><dd>${esc([p.escuela,p.grado].filter(Boolean).join(' · '))}</dd>`:''}${dd('Maestra integradora',p.integradora)}
+      ${!activo(p)&&p.motivoAlta?dd('Motivo del alta',p.motivoAlta):''}</dl>
+      <div style="padding:0 20px 18px" class="noprint">${activo(p)?`<button class="btn sm sec" onclick="darAlta(${p.id})">Dar de alta</button>`:`<button class="btn sm sec" onclick="reactivar(${p.id})">Volver a tratamiento</button>`} <button class="btn sm sec" onclick="eliminarPaciente(${p.id})">Eliminar paciente</button></div></div>
+  </div>`}
+const esBorr=e=>e.estado==='borrador';
+const AVISO_CONF='Revisá que el texto, la fecha y la asistencia estén bien: <b>una vez confirmada, la sesión ya no se puede corregir ni borrar</b>. El cobro sí se puede marcar después.';
+function leerCompose(){const O=OPC(),g=id=>{const x=document.getElementById(id);return x?x.value.trim():''};
+  let t;if(O.partes)t=PARTES.map(([k,l])=>g('evo_'+k)?l+': '+g('evo_'+k):'').filter(Boolean).join('\n\n');else t=g('evo');
+  const as=g('evo_as'),pg=g('evo_pg'),cb=document.getElementById('evo_cb');
+  if(!t&&as&&as!=='vino')t=ASIST[as]+'.';
+  return {t,as,pg,cb:!!(cb&&cb.checked)}}
+function guardarEvo(pid,conf){const c=leerCompose(),f=document.getElementById('evof').value||iso(hoy);
+  if(!c.t){toast('Escribí algo sobre la sesión.');return}
+  const nueva={id:uid(),pid,fecha:f,texto:c.t,creado:new Date().toISOString()};
+  if(c.as)nueva.asist=c.as;if(c.pg&&(vino(nueva)||c.cb)){nueva.pago=c.pg;if(c.cb){nueva.cobrado=true;nueva.cobradoEl=iso(hoy)}}
+  const fin=()=>{db.E.push(nueva);guardar();tabF='historia';ir('ficha',pid)};
+  if(!conf){nueva.estado='borrador';fin();toast('Borrador guardado. Lo podés corregir hasta confirmarlo.');return}
+  confirmar('Confirmar sesión del '+fCorta(f),AVISO_CONF,'Confirmar',()=>{nueva.confirmado=new Date().toISOString();fin();toast('Sesión confirmada.')})}
+function editarEvo(id){const e=db.E.find(x=>x.id===id);if(!e||!esBorr(e))return;const O=OPC();
+  abrir(`<div class="mh"><h2>Corregir borrador</h2></div><div class="mb">
+  <div class="frow"><div class="mfield"><label>Fecha</label><input type="date" id="ee_f" value="${e.fecha}"></div>
+  ${O.asist||e.asist?`<div class="mfield"><label>Asistencia <span class="opt">opcional</span></label><select id="ee_as"><option value="">—</option>${Object.entries(ASIST).map(([k,l])=>`<option value="${k}" ${e.asist===k?'selected':''}>${l}</option>`).join('')}</select></div>`:''}</div>
+  <div class="mfield"><label>Sesión</label><textarea id="ee_t" style="min-height:160px">${esc(e.texto)}</textarea></div></div>
+  <div class="mf"><button class="btn sec" style="margin-right:auto;color:var(--pink)" onclick="borrarEvo('${id}')">Borrar borrador</button><button class="btn sec" onclick="cerrar()">Cancelar</button><button class="btn" onclick="guardarEdicion('${id}')">Guardar cambios</button></div>`)}
+function guardarEdicion(id){const e=db.E.find(x=>x.id===id),t=document.getElementById('ee_t').value.trim(),f=document.getElementById('ee_f').value,as=document.getElementById('ee_as');
+  if(!t){toast('La sesión no puede quedar vacía. Si no la querés, borrala.');return}
+  e.texto=t;if(f)e.fecha=f;if(as){if(as.value)e.asist=as.value;else delete e.asist}e.editado=new Date().toISOString();guardar();cerrar();toast('Borrador corregido.');ir('ficha',e.pid)}
+function borrarEvo(id){const e=db.E.find(x=>x.id===id);
+  confirmar('Borrar borrador','¿Borrar este borrador del '+fCorta(e.fecha)+'? No se puede deshacer.','Borrar',()=>{db.E=db.E.filter(x=>x.id!==id);guardar();toast('Borrador borrado.');ir('ficha',e.pid)},true)}
+function confirmarEvo(id){const e=db.E.find(x=>x.id===id);
+  confirmar('Confirmar sesión del '+fCorta(e.fecha),AVISO_CONF,'Confirmar',()=>{delete e.estado;e.confirmado=new Date().toISOString();guardar();toast('Sesión confirmada.');ir('ficha',e.pid)})}
+
+/* primera consulta */
+function guardarAnam(pid){const p=pac(pid),a={},g=id=>document.getElementById(id).value.trim();
+  a.fecha=document.getElementById('an_fecha').value;a.quien=g('an_quien');anamCampos(p.anam).forEach(([k])=>{a[k]=g('an_'+k)});
+  for(const k in a)if(!a[k])delete a[k];a.editado=new Date().toISOString();p.anam=a;guardar();toast('Primera consulta guardada.');ir('ficha',pid)}
+/* objetivos y evaluaciones */
+function nuevoObj(pid){const i=document.getElementById('ob_t'),t=i.value.trim();if(!t){i.focus();return}
+  db.Ob.push({id:uid(),pid,texto:t,desde:iso(hoy)});guardar();ir('ficha',pid);setTimeout(()=>{const x=document.getElementById('ob_t');if(x)x.focus()},30)}
+function togObj(id){const o=db.Ob.find(x=>x.id===id);if(o.logrado)delete o.logrado;else o.logrado=iso(hoy);guardar();ir('ficha',o.pid)}
+function borrarObj(id){const o=db.Ob.find(x=>x.id===id);confirmar('Borrar objetivo','¿Borrar <b>'+esc(o.texto)+'</b>?','Borrar',()=>{db.Ob=db.Ob.filter(x=>x.id!==id);guardar();ir('ficha',o.pid)},true)}
+function nuevaEval(pid){const tests=[...new Set(db.V.map(v=>v.test))].sort();
+  abrir(`<div class="mh"><h2>Cargar evaluación</h2></div><div class="mb">
+  <div class="frow"><div class="mfield"><label>Test o protocolo</label><input id="ev_t" list="ev_l" placeholder="Nombre del test, escala o evaluación"><datalist id="ev_l">${tests.map(t=>`<option value="${esc(t)}">`).join('')}</datalist></div><div class="mfield"><label>Fecha</label><input type="date" id="ev_f" value="${iso(hoy)}"></div></div>
+  <div class="mfield"><label>Puntaje o resultado <span class="opt">opcional</span></label><input id="ev_p" placeholder="Ej.: 18/40, percentil 25, normal"></div>
+  <div class="mfield"><label>Observaciones <span class="opt">opcional</span></label><textarea id="ev_o"></textarea></div></div>
+  <div class="mf"><button class="btn sec" onclick="cerrar()">Cancelar</button><button class="btn" onclick="guardarEval(${pid})">Guardar</button></div>`)}
+function guardarEval(pid){const g=id=>document.getElementById(id).value.trim();
+  if(!g('ev_t')){toast('Escribí el nombre del test.');return}
+  db.V.push({id:uid(),pid,test:g('ev_t'),fecha:g('ev_f')||iso(hoy),puntaje:g('ev_p'),obs:g('ev_o')});guardar();cerrar();toast('Evaluación guardada.');tabF='evalu';ir('ficha',pid)}
+function borrarEval(id){const v=db.V.find(x=>x.id===id);confirmar('Borrar evaluación','¿Borrar <b>'+esc(v.test)+'</b> del '+fCorta(v.fecha)+'?','Borrar',()=>{db.V=db.V.filter(x=>x.id!==id);guardar();ir('ficha',v.pid)},true)}
+/* eliminar: solo si no tiene sesiones confirmadas (la historia clínica se conserva) */
+function eliminarPaciente(pid){const p=pac(pid);if(!p)return;
+  const nC=db.E.filter(e=>e.pid==pid&&e.estado!=='borrador').length;
+  const nT=db.T.filter(t=>t.pid==pid).length,nB=db.E.filter(e=>e.pid==pid&&e.estado==='borrador').length,nA=db.A.filter(a=>a.pid==pid).length;
+  const extra=[nC?nC+' sesi'+(nC>1?'ones confirmadas':'ón confirmada'):'',nT?nT+' turno'+(nT>1?'s':''):'',nB?nB+' borrador'+(nB>1?'es':''):'',nA?nA+' archivo'+(nA>1?'s':''):''].filter(Boolean).join(', ');
+  abrir(`<div class="mh"><h2>Eliminar paciente</h2></div><div class="mb">
+    <p>¿Eliminar a <b>${esc(nom(p))}</b>${extra?' junto con '+extra:''}? <b>No se puede deshacer.</b></p>
+    ${nC?`<p>Tiene <b>sesiones confirmadas</b>: si es un paciente real que atendiste, mejor <b>dalo de alta</b> (su historia clínica queda guardada). Eliminalo solo si lo cargaste de prueba o por error.</p>
+    <div class="mfield"><label>Para confirmar, escribí ELIMINAR</label><input id="el_ok" autocomplete="off" style="text-transform:uppercase"></div>`:''}</div>
+    <div class="mf"><button class="btn sec" onclick="cerrar()">Cancelar</button><button class="btn danger" onclick="confirmarEliminar(${pid},${nC?1:0})">Eliminar</button></div>`)}
+function confirmarEliminar(pid,fuerte){
+  if(fuerte&&(document.getElementById('el_ok').value||'').trim().toUpperCase()!=='ELIMINAR'){toast('Escribí ELIMINAR para confirmar.');return}
+  for(const k of ['P','T','E','Ob','V','A','S'])db[k]=db[k].filter(x=>k==='P'?x.id!=pid:x.pid!=pid);
+  cerrar();guardar();toast('Paciente eliminado.');ir('pacientes')}
+/* alta */
+function darAlta(pid){const p=pac(pid);abrir(`<div class="mh"><h2>Dar de alta a ${esc(nom(p))}</h2></div><div class="mb">
+  <p>Pasa a la lista de "dados de alta": deja de aparecer en los avisos, pero su historia queda guardada y lo podés volver a activar cuando quieras.</p>
+  <div class="mfield"><label>Fecha del alta</label><input type="date" id="al_f" value="${iso(hoy)}"></div>
+  <div class="mfield"><label>Motivo <span class="opt">opcional</span></label><input id="al_m" placeholder="Ej.: alta por objetivos cumplidos, abandono, se mudó"></div></div>
+  <div class="mf"><button class="btn sec" onclick="cerrar()">Cancelar</button><button class="btn" onclick="guardarAlta(${pid})">Dar de alta</button></div>`)}
+function guardarAlta(pid){const p=pac(pid);p.estado='alta';p.fechaAlta=document.getElementById('al_f').value||iso(hoy);p.motivoAlta=document.getElementById('al_m').value.trim();
+  guardar();cerrar();toast('Paciente dado de alta.');ir('ficha',pid)}
+function reactivar(pid){const p=pac(pid);delete p.estado;delete p.fechaAlta;delete p.motivoAlta;guardar();toast('Volvió a tratamiento.');ir('ficha',pid)}
+
+/* ---------- IMPRESIÓN: historia completa e informes ---------- */
+function imprimir(html){const d=document.getElementById('print');d.innerHTML=html;document.body.classList.add('imp');
+  setTimeout(()=>{window.print()},60)}
+window.addEventListener('afterprint',()=>{document.body.classList.remove('imp');document.getElementById('print').innerHTML=''});
+function encabezado(titulo){const mat=esc(espec())+(db.cfg.matricula?' · M.P. '+esc(db.cfg.matricula):'');
+  return `<div class="ph1"><div><b>${esc(EST.nombre||'')}</b><br>${mat}</div><div>${fCorta(iso(hoy))}</div></div><h1>${titulo}</h1>`}
+const fila=(k,v)=>v?`<tr><td class="k">${k}</td><td>${esc(v)}</td></tr>`:'';
+function tablaDatos(p,extra){return `<table>${fila('Paciente',nom(p))}${fila('Fecha de nacimiento',fCorta(p.nac)+' ('+edad(p.nac)+' años)')}${fila('DNI',p.dni)}
+  ${fila('Obra social',p.obra+(p.afil?' · N° de afiliado '+p.afil:''))}${fila('Responsable',p.tutor)}${extra.includes('esc')?fila('Escuela',[p.escuela,p.grado].filter(Boolean).join(' · '))+fila('Maestra integradora',p.integradora):''}
+  ${fila('Motivo de consulta',p.motivo)}${fila('Diagnóstico médico',p.diag)}${fila('Derivado por',p.deriva)}${fila('Inicio del tratamiento',p.alta?fCorta(p.alta):'')}</table>`}
+function firma(){return `<div class="firma"><div>${esc(EST.nombre||'')}<br>${esc(espec())}${db.cfg.matricula?' · M.P. '+esc(db.cfg.matricula):''}</div></div>`}
+function bloqueObjetivos(pid){const Ob=db.Ob.filter(o=>o.pid==pid);if(!Ob.length)return '';
+  return `<h2>Objetivos del tratamiento</h2><table>${Ob.map(o=>`<tr><td>${esc(o.texto)}</td><td style="width:170px">${o.logrado?'Logrado ('+fCorta(o.logrado)+')':'En proceso'}</td></tr>`).join('')}</table>`}
+function bloqueEval(pid,d,h){const V=db.V.filter(v=>v.pid==pid&&(!d||v.fecha>=d)&&(!h||v.fecha<=h)).sort((a,b)=>a.fecha.localeCompare(b.fecha));if(!V.length)return '';
+  return `<h2>Evaluaciones</h2>${V.map(v=>`<div class="ses"><b>${fCorta(v.fecha)}</b> ${esc(v.test)}${v.puntaje?' — '+esc(v.puntaje):''}${v.obs?`<p>${esc(v.obs)}</p>`:''}</div>`).join('')}`}
+function bloqueSesiones(L){return L.map(e=>`<div class="ses"><b>${fCorta(e.fecha)}</b>${e.asist&&e.asist!=='vino'?' <i>'+ASIST[e.asist]+'</i>':''}${esBorr(e)?' <i>(borrador)</i>':''}<p>${esc(e.texto)}</p></div>`).join('')}
+function imprimirHistoria(pid){const p=pac(pid),a=p.anam||{};
+  const E=db.E.filter(e=>e.pid==pid).sort((x,y)=>x.fecha.localeCompare(y.fecha));
+  const an=anamCampos(a).filter(([k])=>a[k]);
+  imprimir(`${encabezado('Historia clínica')}${tablaDatos(p,['esc'])}
+    ${an.length||a.fecha?`<h2>Primera consulta${a.fecha?' ('+fCorta(a.fecha)+')':''}${a.quien?' — datos aportados por '+esc(a.quien):''}</h2><table>${an.map(([k,l])=>`<tr><td class="k">${l}</td><td style="white-space:pre-wrap">${esc(a[k])}</td></tr>`).join('')}</table>`:''}
+    ${bloqueObjetivos(pid)}${bloqueEval(pid)}
+    <h2>Sesiones (${E.length})</h2>${E.length?bloqueSesiones(E):'<p>Sin sesiones registradas.</p>'}
+    ${!activo(p)?`<h2>Alta</h2><p>${fCorta(p.fechaAlta)}${p.motivoAlta?' — '+esc(p.motivoAlta):''}</p>`:''}${firma()}`)}
+const PARA={obra:'Obra social',escuela:'Escuela',medico:'Médico',otro:'Otro'};
+function formInforme(pid){const p=pac(pid);const desde=(p.autDesde&&activo(p))?p.autDesde:(p.alta||iso(addDays(-90)));
+  const ch=(id,l,s,on=true)=>`<label class="chk"><input type="checkbox" id="${id}" ${on?'checked':''}><span>${l}${s?`<small>${s}</small>`:''}</span></label>`;
+  abrir(`<div class="mh"><h2>Informe de ${esc(nom(p))}</h2></div><div class="mb">
+  <div class="frow"><div class="mfield"><label>Para</label><select id="in_para">${Object.entries(PARA).map(([k,l])=>`<option value="${k}">${l}</option>`).join('')}</select></div>
+    <div class="mfield"><label>Dirigido a <span class="opt">opcional</span></label><input id="in_dest" placeholder="Ej.: APROSS, Esc. Rivadavia, Dr. Pérez"></div></div>
+  <div class="frow"><div class="mfield"><label>Período desde</label><input type="date" id="in_d" value="${desde}"></div><div class="mfield"><label>Hasta</label><input type="date" id="in_h" value="${iso(hoy)}"></div></div>
+  <div class="mfield"><label>Qué incluir</label>
+    ${ch('in_asis','Cantidad de sesiones y asistencia','Sesiones del período, faltas y autorización')}
+    ${ch('in_obj','Objetivos del tratamiento','',db.Ob.some(o=>o.pid==pid))}
+    ${ch('in_ev','Evaluaciones del período','',db.V.some(v=>v.pid==pid))}
+    ${ch('in_ses','Detalle de cada sesión','Fecha y texto de cada sesión del período',false)}</div>
+  <div class="mfield"><label>Evolución y sugerencias <span class="opt">opcional</span></label><textarea id="in_txt" style="min-height:120px" placeholder="Lo que quieras contar con tus palabras: cómo avanzó, qué falta, qué sugerís."></textarea></div></div>
+  <div class="mf"><button class="btn sec" onclick="cerrar()">Cancelar</button><button class="btn" onclick="armarInforme(${pid})">${ic('print','sm')}Ver e imprimir</button></div>`,true)}
+function armarInforme(pid){const p=pac(pid),g=id=>document.getElementById(id),v=id=>g(id).value.trim(),on=id=>g(id).checked;
+  const para=v('in_para'),dest=v('in_dest'),d=v('in_d'),h=v('in_h'),txt=v('in_txt');
+  const E=db.E.filter(e=>e.pid==pid&&(!d||e.fecha>=d)&&(!h||e.fecha<=h)).sort((x,y)=>x.fecha.localeCompare(y.fecha));
+  const fue=E.filter(vino).length,fa=E.filter(e=>e.asist==='aviso').length,fs=E.filter(e=>e.asist==='sinaviso').length,au=autUso(p);
+  const html=`${encabezado(espec()?'Informe de '+espec().toLowerCase():'Informe profesional')}
+    <p>${dest?'<b>Para:</b> '+esc(dest)+' ('+PARA[para].toLowerCase()+')<br>':para!=='otro'?'<b>Para:</b> '+PARA[para]+'<br>':''}<b>Período:</b> ${d?'del '+fCorta(d)+' ':''}al ${fCorta(h||iso(hoy))}</p>
+    <h2>Datos del paciente</h2>${tablaDatos(p,para==='escuela'?['esc']:[])}
+    ${on('in_asis')?`<h2>Asistencia</h2><table>${fila('Sesiones realizadas',String(fue))}${fa?fila('Faltas con aviso',String(fa)):''}${fs?fila('Faltas sin aviso',String(fs)):''}
+      ${para==='obra'&&au?fila('Autorización',(p.autNum?'N° '+p.autNum+' · ':'')+(au.tot?au.us+' de '+au.tot+' sesiones utilizadas':'')+(p.autHasta?' · vigente hasta el '+fCorta(p.autHasta):'')):''}</table>`:''}
+    ${on('in_obj')?bloqueObjetivos(pid):''}${on('in_ev')?bloqueEval(pid,d,h):''}
+    ${txt?`<h2>Evolución y sugerencias</h2><p>${esc(txt)}</p>`:''}
+    ${on('in_ses')&&E.length?`<h2>Detalle de sesiones</h2>${bloqueSesiones(E)}`:''}${firma()}`;
+  cerrar();imprimir(html)}
+
+const urlAdj=a=>urlAdjNube(a);
+async function subir(pid,files){files=[...files];if(!files.length)return;
+  toast('Guardando '+files.length+' archivo'+(files.length>1?'s':'')+'…');
+  let ok=0;
+  for(const f of files){
+    if(f.size>40*1024*1024){toast(f.name+' es demasiado grande (máximo 40 MB).');continue}
+    try{const j=await api('POST','/api/adjunto?pid='+pid+'&nombre='+encodeURIComponent(f.name),f,true);
+      db.A.push({id:uid(),pid,archivo:j.archivo,nombre:f.name,tipo:f.type,fecha:iso(hoy),subido:new Date().toISOString()});ok++}
+    catch(e){toast('No se pudo guardar '+f.name+': '+e.message)}}
+  if(ok){await guardar();toast(ok===1?'Archivo guardado.':ok+' archivos guardados.')}
+  tabF='archivos';ir('ficha',pid)}
+
+/* ---------- AGENDA ---------- */
+let agVista='lista',mesOff=0;try{agVista=localStorage.getItem('mas-agenda')||'lista'}catch(e){}
+function setAgVista(v){agVista=v;try{localStorage.setItem('mas-agenda',v)}catch(e){}ir('agenda')}
+const selVista=()=>`<div class="seg" title="Cómo ver la agenda"><button class="${agVista==='lista'?'on':''}" onclick="setAgVista('lista')">Lista</button><button class="${agVista==='cal'?'on':''}" onclick="setAgVista('cal')">Calendario</button></div>`;
+const MESES_C=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+function calendario(){
+  const m0=new Date(hoy.getFullYear(),hoy.getMonth()+mesOff,1),mes=m0.getMonth();
+  const ini=new Date(m0);ini.setDate(1-((m0.getDay()+6)%7));   // arranca en lunes
+  const porDia={};for(const t of db.T){if(pac(t.pid))(porDia[t.fecha]=porDia[t.fecha]||[]).push(t)}
+  let celdas='',d=new Date(ini),nMes=0;
+  for(let i=0;i<42;i++){const f=iso(d),T=(porDia[f]||[]).sort((a,b)=>a.hora.localeCompare(b.hora)),fuera=d.getMonth()!==mes,esHoy=f===iso(hoy);
+    if(!fuera)nMes+=T.length;
+    celdas+=`<button class="cal-d${fuera?' fuera':''}${esHoy?' hoy':''}${T.length?' con':''}" onclick="verDia('${f}')"><span class="cal-n">${d.getDate()}</span>
+      <span class="cal-t">${T.slice(0,3).map(t=>`<span class="cal-i${t.serie?' fijo':''}"><b>${t.hora}</b> ${esc(pac(t.pid).nombre)}</span>`).join('')}${T.length>3?`<span class="cal-mas">+${T.length-3} más</span>`:''}</span>
+      ${T.length?`<span class="cal-c">${T.length}</span>`:''}</button>`;
+    d.setDate(d.getDate()+1);if(i===34&&d.getMonth()!==mes)break}
+  return `<div class="ph"><div><h1>Agenda</h1><p>${MESES_C[mes]} ${m0.getFullYear()} · ${nMes} turno${nMes===1?'':'s'}</p></div><div class="acts">${selVista()}
+    <div class="wk"><button class="btn sec icon" title="Mes anterior" onclick="mesOff--;ir('agenda')">${ic('left','sm')}</button>${mesOff!==0?`<button class="btn sec" onclick="mesOff=0;ir('agenda')">Hoy</button>`:''}<button class="btn sec icon" title="Mes siguiente" onclick="mesOff++;ir('agenda')">${ic('right','sm')}</button></div>
+    <button class="btn" onclick="nuevoTurno()">${ic('plus','sm')}Nuevo turno</button></div></div>
+    <div class="card cal"><div class="cal-h">${['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(x=>`<span>${x}</span>`).join('')}</div><div class="cal-g">${celdas}</div></div>`}
+function verDia(f){const T=db.T.filter(t=>t.fecha===f&&pac(t.pid)).sort((a,b)=>a.hora.localeCompare(b.hora));
+  abrir(`<div class="mh"><h2>${may(fLarga(parse(f)))}</h2></div><div class="mb">
+    ${T.length?T.map(t=>{const p=pac(t.pid);return `<div class="row"><div class="hora">${t.hora}</div><div class="grow"><div class="t">${esc(nom(p))}${t.serie?' <span class="pill teal">Fijo</span>':''}</div><div class="s">${esc(p.motivo)}</div></div>
+      <div class="acts"><button class="btn sm sec" title="Recordatorio por WhatsApp" onclick="recordar('${t.id}')">${ic('msg','sm')}</button><button class="btn sm sec" onclick="moverTurno('${t.id}')">Cambiar</button><button class="btn sm sec" onclick="cerrar();tabF='historia';ir('ficha',${p.id})">Ficha</button><button class="btn sm sec icon" title="Cancelar turno" onclick="cancelarTurno('${t.id}')">${ic('x','sm')}</button></div></div>`}).join(''):'<div class="empty">No hay turnos este día.</div>'}</div>
+    <div class="mf"><button class="btn sec" onclick="cerrar()">Cerrar</button><button class="btn" onclick="nuevoTurno(undefined,'${f}')">${ic('plus','sm')}Dar turno este día</button></div>`,true)}
+function agenda(){if(agVista==='cal')return calendario();let h='';const base=semana*7;
+  for(let i=base;i<base+7;i++){const d=addDays(i),T=db.T.filter(t=>t.fecha===iso(d)&&pac(t.pid)).sort((a,b)=>a.hora.localeCompare(b.hora));
+    if(d.getDay()===0&&!T.length)continue;
+    h+=`<div class="card"><div class="card-h"><div class="day-h">${may(fLarga(d))}${i===0?'<span class="pill blue">Hoy</span>':i===1?'<span class="pill">Mañana</span>':''}</div><span class="meta">${T.length?T.length+' turno'+(T.length>1?'s':''):'Libre'}</span></div>
+      ${T.length?`<div class="card-b">${T.map(filaTurno).join('')}</div>`:''}</div>`}
+  const tit=semana===0?'Próximos 7 días':'Del '+fCorta(iso(addDays(base)))+' al '+fCorta(iso(addDays(base+6)));
+  return `<div class="ph"><div><h1>Agenda</h1><p>${tit}</p></div><div class="acts">${selVista()}
+    <div class="wk"><button class="btn sec icon" title="Semana anterior" onclick="semana--;ir('agenda')">${ic('left','sm')}</button>${semana!==0?`<button class="btn sec" onclick="semana=0;ir('agenda')">Hoy</button>`:''}<button class="btn sec icon" title="Semana siguiente" onclick="semana++;ir('agenda')">${ic('right','sm')}</button></div>
+    <button class="btn" onclick="nuevoTurno()">${ic('plus','sm')}Nuevo turno</button></div></div><div class="grid">${h}</div>`}
+
+function nuevoTurno(pid,fecha){if(!db.P.length){toast('Primero cargá un paciente.');nuevoPaciente();return}
+  abrir(`<div class="mh"><h2>Nuevo turno</h2></div><div class="mb">
+  <div class="mfield"><label>Paciente</label><select id="t_p">${db.P.slice().sort((a,b)=>(a.apellido+a.nombre).localeCompare(b.apellido+b.nombre)).map(p=>`<option value="${p.id}" ${p.id==pid?'selected':''}>${esc(p.apellido)}, ${esc(p.nombre)}</option>`).join('')}</select></div>
+  <div class="frow"><div class="mfield"><label>Día</label><input type="date" id="t_f" value="${fecha||iso(addDays(1))}"></div><div class="mfield"><label>Hora</label><input type="time" id="t_h" value="10:00"></div></div>
+  <label class="chk"><input type="checkbox" id="t_fijo" onchange="document.getElementById('t_fx').hidden=!this.checked"><span>Turno fijo<small>Se repite el mismo día y a la misma hora.</small></span></label>
+  <div id="t_fx" hidden><div class="frow"><div class="mfield"><label>Cada cuánto</label><select id="t_cada"><option value="1">Todas las semanas</option><option value="2">Cada 2 semanas</option></select></div>
+  <div class="mfield"><label>Hasta <span class="opt">opcional</span></label><input type="date" id="t_hasta"></div></div></div></div>
+  <div class="mf"><button class="btn sec" onclick="cerrar()">Cancelar</button><button class="btn" onclick="guardarTurno()">Guardar turno</button></div>`)}
+function guardarTurno(){const p=+document.getElementById('t_p').value,f=document.getElementById('t_f').value,h=document.getElementById('t_h').value;
+  if(!f||!h){toast('Elegí día y hora.');return}
+  const choca=db.T.find(t=>t.fecha===f&&t.hora===h);
+  if(document.getElementById('t_fijo').checked){const hasta=document.getElementById('t_hasta').value||null;
+    if(hasta&&hasta<f){toast('La fecha "hasta" es anterior al primer turno.');return}
+    const sid=uid();db.S.push({id:sid,pid:p,desde:f,hora:h,cada:+document.getElementById('t_cada').value||1,hasta,saltear:[]});
+    db.T.push({id:uid(),pid:p,fecha:f,hora:h,serie:sid});extenderFijos(true);guardar();cerrar();
+    toast('Turno fijo guardado: '+textoFijo(db.S[db.S.length-1])+'.'+(choca?' Ojo: el '+fCorta(f)+' a esa hora ya tenías a '+nom(pac(choca.pid))+'.':''));
+    if(vista==='ficha'){tabF='turnos';ir('ficha',p)}else ir(vista);return}
+  db.T.push({id:uid(),pid:p,fecha:f,hora:h});guardar();cerrar();
+  toast(choca?'Turno guardado. Ojo: a esa hora ya tenías a '+nom(pac(choca.pid))+'.':'Turno guardado.');
+  if(vista==='ficha'){tabF='turnos';ir('ficha',p)}else ir(vista)}
+
+/* ---------- CONFIGURACIÓN ---------- */
+function cardDrive(){const e=estadoCopia();
+  let cuerpo;
+  if(EST.sinDrive){cuerpo=`<div class="estado warn">${ic('warn','sm')}Todavía no está conectado Google Drive</div>
+    <p>Mientras tanto las fichas se guardan solo en esta computadora. Para que se haga la copia sola:</p>
+    <ol><li>Instalá <b>Google Drive para computadoras</b> (<a href="https://www.google.com/drive/download/" target="_blank">descargar</a>) y entrá con tu cuenta de Google.</li>
+    <li>Cuando aparezca la unidad <b>Google Drive</b> con la carpeta <b>Mi unidad</b>, volvé acá y tocá <b>Buscar Google Drive</b>.</li></ol>
+    <div class="acts"><button class="btn" onclick="accionDrive('buscar-drive')">${ic('search','sm')}Buscar Google Drive</button><button class="btn sec" onclick="accionDrive('elegir-drive')">Elegir carpeta a mano</button></div>`}
+  else{cuerpo=`<div class="estado ${e.k==='ok'?'ok':'warn'}">${ic(e.k==='ok'?'cloud':'warn','sm')}${esc(e.t)}</div><p>${esc(e.s)}</p>
+    <p style="margin-bottom:6px;font-size:13px;color:var(--muted)">Carpeta de las copias en tu Google Drive:</p><div class="path">${esc(EST.drive)}</div>
+    <p style="font-size:13px;color:var(--muted)">Cada vez que guardás algo se actualiza la copia. Además queda una copia por día de los últimos 4 meses, por si alguna vez hay que volver atrás.</p>
+    <div class="acts"><button class="btn" onclick="accionDrive('copiar')">${ic('cloud','sm')}Hacer copia ahora</button><button class="btn sec" onclick="api('POST','/api/abrir-carpeta')">Ver carpeta</button><button class="btn sec" onclick="accionDrive('elegir-drive')">Cambiar carpeta</button></div>`}
+  return `<div class="card-h"><h2><span class="chip c-teal">${ic('cloud','sm')}</span>Copia de seguridad en Google Drive</h2></div><div class="cfg">${cuerpo}</div>`}
+function config(){return `<div class="ph"><div><h1>Configuración</h1><p>Copia de seguridad, tus datos y contraseña.</p></div></div>
+  <div class="grid cfg-grid">
+    <div class="grid">
+      <div class="card" id="cfgDrive">${cardDrive()}</div>
+      <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('cfg','sm')}</span>Qué usar en las fichas</h2></div><div class="cfg">
+        <p>Todo es opcional. Apagá lo que no uses y deja de aparecer (lo que ya cargaste no se borra).</p>
+        ${[['anam','Primera consulta','Entrevista inicial: embarazo, parto, desarrollo, alimentación, sueño, audición, antecedentes.'],
+           ['evalu','Objetivos y evaluaciones','Objetivos con "en proceso / logrado" y tests con puntaje.'],
+           ['asist','Asistencia','Vino / faltó con aviso / faltó sin aviso, en cada sesión.'],
+           ['cobro','Cobro','Particular u obra social, y si ya se cobró. Avisa en el Inicio lo que falta cobrar.']]
+          .map(([k,l,d])=>`<label class="chk"><input type="checkbox" ${OPC()[k]?'checked':''} onchange="setOpc('${k}',this.checked)"><span>${l}<small>${d}</small></span></label>`).join('')}</div></div>
+      <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('up','sm')}</span>Recuperar una copia</h2></div><div class="cfg">
+        <p>Si cambiaste de computadora o se borró algo, podés traer la última copia guardada en Google Drive.${EST.copiaEnDrive?' La copia más nueva es de '+esc(cuando(EST.copiaEnDrive))+'.':''}</p>
+        <div class="acts"><button class="btn sec" ${EST.copiaEnDrive?'':'disabled'} onclick="ofrecerRecuperar()">Recuperar copia de Google Drive</button></div></div></div>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('user','sm')}</span>Tus datos</h2></div><div class="cfg">
+        <div class="mfield" style="margin-top:10px"><label>Tu nombre</label><input id="c_nom" value="${esc(EST.nombre)}"></div>
+        <div class="mfield"><label>Tu especialidad</label><input id="c_esp" list="dl_esp" value="${esc(espec())}">${dlEsp}</div>
+        <div class="mfield"><label>Frase de la pantalla de entrada <span class="opt">elegí una o escribí la tuya</span></label><input id="c_slo" list="dl_slo" value="${esc(slogan())}" maxlength="90"><datalist id="dl_slo">${SLOGANS.map(x=>`<option value="${esc(x)}">`).join('')}</datalist></div>
+        <div class="mfield"><label>Matrícula <span class="opt">opcional, sale en los informes</span></label><input id="c_mat" value="${esc(db.cfg.matricula||'')}"></div>
+        <button class="btn sec" onclick="guardarNombre()">Guardar</button></div></div>
+      <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('lock','sm')}</span>Cambiar contraseña</h2></div><div class="cfg">
+        <div class="mfield" style="margin-top:10px"><label>Contraseña actual</label><input type="password" id="c_a"></div>
+        <div class="mfield"><label>Contraseña nueva</label><input type="password" id="c_n1"></div>
+        <div class="mfield"><label>Repetí la nueva</label><input type="password" id="c_n2"></div>
+        <button class="btn sec" onclick="cambiarPass()">Cambiar contraseña</button></div></div>
+      <div class="card"><div class="cfg" style="padding-top:18px"><p style="margin-top:0">Al cerrar el programa se hace una última copia en Google Drive.</p>
+        <button class="btn sec" onclick="salir()">Cerrar el programa</button>
+        <p style="font-size:12px;color:var(--faint);margin:14px 0 0">Versión ${esc(EST.version||'')}</p></div></div>
+    </div>
+  </div>`}
+async function accionDrive(a){try{toast(a==='elegir-drive'?'Se abrió una ventana para elegir la carpeta (puede quedar detrás).':'Un momento…');EST=await api('POST','/api/'+a);pintarCopia();
+  const e=estadoCopia();toast(e.k==='ok'?'Listo: la copia está en Google Drive.':EST.sinDrive?'No se encontró Google Drive en esta compu.':e.t+'.');ir('config')}catch(x){toast(x.message)}}
+function setOpc(k,v){db.cfg[k]=v;guardar();toast(v?'Activado.':'Desactivado. Lo cargado no se borra.')}
+async function guardarNombre(){const n=document.getElementById('c_nom').value.trim();if(!n){toast('Escribí tu nombre.');return}
+  db.cfg.matricula=document.getElementById('c_mat').value.trim();guardar();
+  try{EST=await api('POST','/api/perfil',{nombre:n,especialidad:document.getElementById('c_esp').value.trim(),slogan:document.getElementById('c_slo').value.trim()});pintarPerfil();toast('Guardado.')}catch(x){toast(x.message)}}
+async function cambiarPass(){const v=id=>document.getElementById(id).value;
+  if(v('c_n1').length<4){toast('La contraseña nueva tiene que tener al menos 4 caracteres.');return}
+  if(v('c_n1')!==v('c_n2')){toast('Las contraseñas nuevas no coinciden.');return}
+  try{await api('POST','/api/cambiar-pass',{actual:v('c_a'),nueva:v('c_n1')});toast('Contraseña cambiada.');ir('config')}catch(x){toast(x.message)}}
+function ofrecerRecuperar(){
+  confirmar('Recuperar copia de Google Drive',`Se va a traer la copia guardada ${esc(cuando(EST.copiaEnDrive))} (pacientes, sesiones, turnos y archivos).${EST.hayDatos?' <b>Lo que hay ahora en esta compu se reemplaza</b> (igual queda guardado aparte por las dudas).':''}`,'Recuperar',async()=>{
+    try{EST=await api('POST','/api/recuperar');db=await api('GET','/api/datos')||VACIO();normalizar();
+      pintarCopia();toast('Copia recuperada: '+db.P.length+' pacientes.');ir('inicio')}catch(x){toast(x.message)}})}
+function salir(){confirmar('Cerrar el programa','Se hace una última copia en Google Drive y se cierra. Para volver a abrirlo, usá el ícono "MAS Consultorios" del escritorio.','Cerrar',async()=>{
+  try{await cola;await api('POST','/api/salir')}catch(e){}setTok(null);
+  document.body.innerHTML='<div style="display:grid;place-items:center;min-height:100vh;color:var(--muted);font-size:16px">MAS Consultorios está cerrado. Ya podés cerrar esta ventana.</div>';setTimeout(()=>window.close(),600)})}
+
+function tema(k){if(k==='petroleo')delete document.documentElement.dataset.t;else document.documentElement.dataset.t=k;
+  document.querySelectorAll('.temas button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));try{localStorage.setItem('mas-tema',k)}catch(e){}}
+document.querySelectorAll('.temas button').forEach(b=>b.onclick=()=>tema(b.dataset.k));
+let _t='petroleo';try{_t=localStorage.getItem('mas-tema')||'petroleo'}catch(e){}tema(_t);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')cerrar()});
+
+
+/* ================================================================
+   MAS Consultorios ONLINE — los datos viven en el Google Drive de cada profesional.
+   Se agrega DESPUÉS de src/app.js: las funciones con el mismo nombre reemplazan
+   a las del programa local. Los datos son el mismo JSON {v,P,E,T,A,V,Ob,S,cfg}.
+   - Entrar: Google (Supabase guarda solo la identidad para la licencia).
+   - Licencia: por mail, tabla lic_licencias tipo 'online' (función licencia_online).
+   - Drive: permiso drive.file (la app solo ve lo que ella misma creó).
+   ================================================================ */
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const DAPI='https://www.googleapis.com/drive/v3',UAPI='https://www.googleapis.com/upload/drive/v3';
+const SCOPES='https://www.googleapis.com/auth/drive.file email';
+let GTOK=null,GEXP=0,EMAIL='',LIC=null,tokCli=null,tokCb=null;
+let CARP=null,HIST=null,ADJ=null,ARCH=null,VERS=null,BASE='null',ULT=null,PEND=false,GUARDANDO=false,ERRG=null,ultHist=0;
+const lsGet=k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}};
+const lsSet=(k,v)=>{try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}};
+const $id=id=>document.getElementById(id);
+
+function msj(e){const m=(e&&e.message)||String(e||'');
+  if(m==='reconectar')return 'Hay que reconectar Google.';
+  if(!navigator.onLine||/failed to fetch|network|load failed/i.test(m))return 'No hay conexión a internet.';
+  return m||'Error inesperado.'}
+const esRed=e=>!navigator.onLine||/failed to fetch|network|load failed/i.test((e&&e.message)||'');
+async function api(){throw new Error('No disponible en la versión online.')}
+
+/* ---------- fusión (compu, tablet y celu guardando a la vez) ---------- */
+const LISTAS=['P','E','T','A','V','Ob','S'];
+function fusLista(b,m,s){const ib=new Map(),im=new Map();(b||[]).forEach(x=>ib.set(String(x.id),x));(m||[]).forEach(x=>im.set(String(x.id),x));
+  const out=new Map();(s||[]).forEach(x=>out.set(String(x.id),x));
+  for(const[k,x]of im){if(!ib.has(k))out.set(k,x);else if(JSON.stringify(x)!==JSON.stringify(ib.get(k)))out.set(k,x)}
+  for(const k of ib.keys())if(!im.has(k)){const sx=out.get(k);if(sx&&JSON.stringify(sx)===JSON.stringify(ib.get(k)))out.delete(k)}
+  return [...out.values()]}
+function fusionar(base,mio,suyo){base=base||VACIO();mio=mio||VACIO();suyo=suyo||VACIO();
+  const out=Object.assign({},suyo);for(const k of LISTAS)out[k]=fusLista(base[k],mio[k],suyo[k]);
+  const bc=base.cfg||{},mc=mio.cfg||{},sc=suyo.cfg||{},cfg=Object.assign({},sc);
+  for(const k of new Set([...Object.keys(mc),...Object.keys(bc)])){if(JSON.stringify(mc[k])!==JSON.stringify(bc[k])){if(k in mc)cfg[k]=mc[k];else delete cfg[k]}}
+  out.cfg=cfg;out.v=suyo.v||mio.v||1;return out}
+
+/* ---------- Google: identidad (Supabase) + permiso de Drive ---------- */
+function iniciarTokenCliente(){if(tokCli||!window.google||!google.accounts||!google.accounts.oauth2)return;
+  tokCli=google.accounts.oauth2.initTokenClient({client_id:GOOGLE_CLIENT_ID,scope:SCOPES,
+    callback:r=>{const cb=tokCb;tokCb=null;if(r&&r.access_token){GTOK=r.access_token;GEXP=Date.now()+((+r.expires_in||3600)-120)*1000;cb&&cb.ok()}else cb&&cb.err(new Error((r&&r.error)||'Google no dio permiso.'))},
+    error_callback:e=>{const cb=tokCb;tokCb=null;cb&&cb.err(new Error(e&&e.type==='popup_closed'?'Se cerró la ventana de Google.':'No se pudo conectar con Google.'))}})}
+function pedirToken(primera){iniciarTokenCliente();
+  return new Promise((ok,err)=>{if(!tokCli){err(new Error('Google todavía no cargó. Probá de nuevo en unos segundos.'));return}
+    tokCb={ok,err};tokCli.requestAccessToken({prompt:primera?'consent':'',login_hint:EMAIL||undefined})})}
+async function g(metodo,url,cuerpo,headers){
+  if(!GTOK||Date.now()>GEXP){GTOK=null;throw new Error('reconectar')}
+  const r=await fetch(url,{method:metodo,headers:Object.assign({Authorization:'Bearer '+GTOK},headers||{}),body:cuerpo});
+  if(r.status===401){GTOK=null;throw new Error('reconectar')}
+  if(!r.ok){let t='';try{t=(await r.text()).slice(0,200)}catch(e){}throw new Error('Google Drive '+r.status+(t?': '+t:''))}
+  if(r.status===204)return null;
+  return (r.headers.get('content-type')||'').includes('json')?r.json():r}
+const qEsc=s=>String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+async function buscarArch(q,campos){const j=await g('GET',DAPI+'/files?spaces=drive&pageSize=1000&orderBy=name%20desc&fields='+encodeURIComponent('files('+(campos||'id,name,version,modifiedTime')+')')+'&q='+encodeURIComponent(q+' and trashed=false'));return j.files||[]}
+async function carpeta(nombre,padre){
+  const f=await buscarArch(`name='${qEsc(nombre)}' and mimeType='application/vnd.google-apps.folder'`+(padre?` and '${padre}' in parents`:` and 'root' in parents`));
+  if(f.length)return f[0].id;
+  const j=await g('POST',DAPI+'/files?fields=id',JSON.stringify({name:nombre,mimeType:'application/vnd.google-apps.folder',parents:[padre||'root']}),{'Content-Type':'application/json'});
+  return j.id}
+async function subirDrive(meta,blob,id,campos){const b='mas'+Math.random().toString(36).slice(2);
+  const cuerpo=new Blob([`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${b}\r\nContent-Type: ${blob.type||'application/octet-stream'}\r\n\r\n`,blob,`\r\n--${b}--`]);
+  return g(id?'PATCH':'POST',UAPI+'/files'+(id?'/'+id:'')+'?uploadType=multipart&fields='+(campos||'id,version,modifiedTime'),cuerpo,{'Content-Type':'multipart/related; boundary='+b})}
+const jsonBlob=s=>new Blob([s],{type:'application/json'});
+
+/* ---------- guardar y traer ---------- */
+function guardar(){PEND=true;pintarCopia();cola=cola.then(subirDatos).catch(()=>{});return cola}
+async function leerRemoto(){const r=await g('GET',DAPI+'/files/'+ARCH+'?alt=media');const t=await r.text();let d=null;try{d=JSON.parse(t)}catch(e){}return d}
+async function subirDatos(){
+  if(!PEND||!db||!CARP)return;
+  for(let i=0;i<6;i++){
+    const envio=JSON.stringify(db);PEND=false;GUARDANDO=true;
+    try{
+      if(ARCH){const m=await g('GET',DAPI+'/files/'+ARCH+'?fields=version');
+        if(String(m.version)!==String(VERS)){   // otro aparato guardó: se fusiona y se reintenta
+          const suyo=(await leerRemoto())||VACIO(),mio=JSON.parse(envio);
+          db=fusionar(mio,db,fusionar(JSON.parse(BASE),mio,suyo));normalizar();BASE=JSON.stringify(suyo);VERS=m.version;PEND=true;GUARDANDO=false;continue}}
+      const r=await subirDrive(ARCH?{}:{name:'datos.json',parents:[CARP]},jsonBlob(envio),ARCH);
+      ARCH=r.id;VERS=r.version;ULT=r.modifiedTime;BASE=envio;ERRG=null;GUARDANDO=false;
+      guardarHistorial(envio);
+      if(JSON.stringify(db)===envio){pintarCopia();return}
+      PEND=true;
+    }catch(e){GUARDANDO=false;PEND=true;
+      if(e.message==='reconectar'){ERRG='reconectar';pintarCopia();avisoReconectar();return}
+      if(esRed(e)){ERRG='sin-red';pintarCopia();return}
+      ERRG='error';pintarCopia();toast('No se pudo guardar: '+msj(e));return}
+  }
+  pintarCopia()}
+/* copia del día en la carpeta "historial" (como mucho cada 10 minutos) + limpieza de las de más de 120 días */
+async function guardarHistorial(envio){if(Date.now()-ultHist<10*60000)return;ultHist=Date.now();
+  try{if(!HIST)HIST=await carpeta('historial',CARP);
+    const nom='datos-'+iso(new Date())+'.json',ya=await buscarArch(`name='${nom}' and '${HIST}' in parents`,'id');
+    await subirDrive(ya.length?{}:{name:nom,parents:[HIST]},jsonBlob(envio),ya.length?ya[0].id:null,'id');
+    const k='mas-poda-'+EMAIL;if(lsGet(k)===iso(new Date()))return;lsSet(k,iso(new Date()));
+    const lim='datos-'+iso(addDays(-120))+'.json',todos=await buscarArch(`'${HIST}' in parents`,'id,name');
+    for(const f of todos)if(f.name<lim)await g('DELETE',DAPI+'/files/'+f.id)}catch(e){}}
+async function revisarDrive(){
+  if(!db||!ARCH||PEND||GUARDANDO||document.hidden||!GTOK||Date.now()>GEXP)return;
+  try{const m=await g('GET',DAPI+'/files/'+ARCH+'?fields=version,modifiedTime');if(String(m.version)===String(VERS))return;
+    const suyo=(await leerRemoto())||VACIO();if(PEND||GUARDANDO)return;
+    db=fusionar(JSON.parse(BASE),db,suyo);normalizar();BASE=JSON.stringify(suyo);VERS=m.version;ULT=m.modifiedTime;
+    perfilDesdeDb();if(JSON.stringify(db)!==BASE)guardar();repintar()}catch(e){}}
+function repintar(forzar){pintarCopia();if(!db)return;
+  if(!forzar){if(!$id('modal').hidden)return;const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&a.closest('#view'))return}
+  const y=window.scrollY;ir(vista,ARG);window.scrollTo(0,y)}
+setInterval(revisarDrive,20000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){revisarDrive();if(PEND&&GTOK)guardar()}});
+window.addEventListener('online',()=>{if(PEND&&GTOK)guardar()});
+setInterval(()=>{if(PEND&&!GUARDANDO&&GTOK&&Date.now()<GEXP)guardar()},15000);
+window.addEventListener('beforeunload',e=>{if(PEND||GUARDANDO){e.preventDefault();e.returnValue=''}});
+
+/* reconectar Google cuando vence el permiso (cada ~1 h): hace falta un toque de la persona */
+function avisoReconectar(){let b=$id('reco');if(!b){b=document.createElement('div');b.id='reco';b.className='reco';document.body.appendChild(b)}
+  b.innerHTML=`<span>${ic('warn','sm')}Google pide confirmar de nuevo para seguir guardando.</span><button class="btn sm" onclick="reconectar()">Reconectar</button>`;b.hidden=false}
+async function reconectar(){try{await pedirToken(false);const b=$id('reco');if(b)b.hidden=true;ERRG=null;pintarCopia();if(PEND)guardar();toast('Listo, conectado.')}catch(e){toast(msj(e))}}
+setInterval(()=>{if(db&&GTOK&&Date.now()>GEXP-60000){GTOK=null;avisoReconectar()}},30000);
+
+/* ---------- estado (abajo a la izquierda) ---------- */
+function estadoCopia(){
+  if(ERRG==='reconectar'&&PEND)return{k:'warn',t:'Falta reconectar Google',s:'Tocá "Reconectar" para seguir guardando. Lo cargado no se perdió.'};
+  if(ERRG==='sin-red'&&PEND)return{k:'warn',t:'Sin conexión',s:'Lo que cargues queda en esta pantalla y se guarda solo cuando vuelva internet. No cierres la ventana.'};
+  if(ERRG==='error'&&PEND)return{k:'warn',t:'No se pudo guardar',s:'Se vuelve a intentar solo en unos segundos.'};
+  if(PEND||GUARDANDO)return{k:'ok',t:'Guardando…',s:'Guardando en tu Google Drive.'};
+  return{k:'ok',t:'Guardado en tu Drive',s:ULT?'Último guardado '+cuando(ULT)+'.':'Todo lo que cargás se guarda solo en tu Google Drive.'}}
+function pintarCopia(){const e=estadoCopia(),b=$id('bk');if(!b)return;
+  b.className='bk '+(e.k==='ok'?'':e.k);
+  b.innerHTML=`${ic(e.k==='ok'?'cloud':'warn','sm')}<div><b>${esc(e.t)}</b>${e.k==='ok'?(ULT&&!PEND?esc(may(cuando(ULT))):'Compu, tablet y celular'):'Tocá para ver'}</div>`;
+  if(vista==='config'&&$id('cfgDrive'))$id('cfgDrive').innerHTML=cardDrive()}
+
+/* ---------- pantallas de entrada ---------- */
+function setTok(t){TOKEN=t}
+function lockArte(pie){$id('app').hidden=true;$id('lock').hidden=false;cerrar();pintarSlogan();$id('lockpie').textContent=pie||''}
+function pantalla(icono,titulo,texto,botones){lockArte();
+  $id('lockf').innerHTML=`<div class="logo" style="margin-bottom:22px">${ic(icono)}</div><h1>${titulo}</h1><p class="sub">${texto}</p><div class="err" id="lerr"></div>${botones||''}`;
+  $id('lockf').onsubmit=()=>false}
+const btnGrande=(txt,fn,sec)=>`<button type="button" class="btn${sec?' sec':''}" style="width:100%;justify-content:center;height:44px;margin-top:8px" onclick="${fn}">${txt}</button>`;
+/* 1) sin sesión: botón oficial de Google */
+function mostrarLock(){
+  pantalla('user','Entrá con Google','Usá la cuenta de Google donde querés guardar tus pacientes. Tus datos quedan en <b>tu</b> Google Drive.',`<div id="gbtn" style="display:flex;justify-content:center;margin-top:6px;min-height:44px"></div>`);
+  const pintarBoton=()=>{if(!window.google||!google.accounts||!google.accounts.id){setTimeout(pintarBoton,300);return}
+    google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:conCredencial,auto_select:false,ux_mode:'popup'});
+    google.accounts.id.renderButton($id('gbtn'),{theme:'filled_blue',size:'large',shape:'rectangular',text:'continue_with',locale:'es',width:300})};
+  pintarBoton()}
+async function conCredencial(r){const e=$id('lerr');if(e)e.textContent='Entrando…';
+  const{data,error}=await sb.auth.signInWithIdToken({provider:'google',token:r.credential});
+  if(error){if(e)e.textContent='No se pudo entrar: '+error.message;return}
+  EMAIL=(data.user&&data.user.email||'').toLowerCase();await despuesDeEntrar(true)}
+/* 2) con sesión: licencia y después Drive */
+async function despuesDeEntrar(primera){
+  const{data,error}=await sb.rpc('licencia_online');
+  if(error){pantalla('warn','No se pudo verificar','Revisá la conexión a internet.',btnGrande('Probar de nuevo','despuesDeEntrar()'));return}
+  LIC=data||{};const quien=`<b>${esc(EMAIL)}</b>`;
+  if(LIC.estado==='sin-sesion'){await sb.auth.signOut();mostrarLock();return}
+  if(LIC.estado==='sin-licencia'){pantalla('lock','Sin licencia',`La cuenta ${quien} no tiene una licencia de MAS Consultorios Online. Pedísela a quien te dio MAS Consultorios.`,btnGrande('Probar de nuevo','despuesDeEntrar()')+btnGrande('Usar otra cuenta de Google','cambiarCuenta()',true));return}
+  if(LIC.estado==='suspendida'){pantalla('warn','Licencia suspendida',`Comunicate con quien te dio MAS Consultorios. <b>Tus pacientes están en tu Google Drive</b> y no se borran.`,btnGrande('Probar de nuevo','despuesDeEntrar()')+btnGrande('Usar otra cuenta de Google','cambiarCuenta()',true));return}
+  if(LIC.estado==='vencida'){pantalla('warn','Tu abono venció',`Venció el ${LIC.vence?fCorta(LIC.vence):''}. Comunicate para renovarlo. <b>Tus pacientes están en tu Google Drive</b> y no se borran.`,btnGrande('Probar de nuevo','despuesDeEntrar()')+btnGrande('Usar otra cuenta de Google','cambiarCuenta()',true));return}
+  const n=(lsGet('mas-nombre-'+EMAIL)||'').split(/\s+/)[0];
+  pantalla('cloud',`Hola${n?', '+esc(n):''}`,`Tocá para abrir tus pacientes desde tu Google Drive (${quien}).`,
+    btnGrande('Abrir mis datos','abrirDatos('+(lsGet('mas-drive-ok-'+EMAIL)?'false':'true')+')')+btnGrande('Usar otra cuenta de Google','cambiarCuenta()',true))}
+async function abrirDatos(primera){const e=$id('lerr');e.textContent='Conectando con Google Drive…';
+  try{await pedirToken(primera);
+    const u=await (await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+GTOK}})).json();
+    if((u.email||'').toLowerCase()!==EMAIL){GTOK=null;e.textContent='En la ventana de Google elegí la cuenta '+EMAIL+'.';return}
+    lsSet('mas-drive-ok-'+EMAIL,'1');e.textContent='Abriendo tus datos…';await abrirApp()}
+  catch(x){e.textContent=msj(x)}}
+async function cambiarCuenta(){await sb.auth.signOut().catch(()=>{});GTOK=null;EMAIL='';try{google.accounts.id.disableAutoSelect()}catch(e){}mostrarLock()}
+function bloquear(){GTOK=null;db=null;CARP=ARCH=null;PEND=false;$id('view').innerHTML='';
+  if(EMAIL)despuesDeEntrar();else mostrarLock()}
+function olvide(){}async function recuperarPass(){}async function entrar(){}
+
+/* ---------- abrir: carpeta "MAS Consultorios" en su Drive ---------- */
+function perfilDesdeDb(){const p=(db.cfg&&db.cfg.perfil)||{};EST=Object.assign({version:VERSION_ONLINE},p);pintarPerfil();lsSet('mas-nombre-'+EMAIL,p.nombre||'')}
+async function abrirApp(){
+  CARP=await carpeta('MAS Consultorios');HIST=null;ADJ=null;
+  const f=await buscarArch(`name='datos.json' and '${CARP}' in parents`);
+  if(f.length){ARCH=f[0].id;VERS=f[0].version;ULT=f[0].modifiedTime;db=(await leerRemoto())||VACIO()}
+  else{ARCH=null;VERS=null;ULT=null;db=VACIO()}
+  normalizar();BASE=ARCH?JSON.stringify(db):'null';PEND=false;ERRG=null;
+  if(!db.cfg.perfil||!db.cfg.perfil.nombre){mostrarBienvenida();return}
+  entrarApp()}
+function entrarApp(){perfilDesdeDb();setTok('online');
+  $id('lock').hidden=true;$id('app').hidden=false;ultAct=Date.now();pintarCopia();ir('inicio');
+  if(LIC&&LIC.vence){const d=Math.round((parse(LIC.vence)-hoy)/864e5);if(d<=5)setTimeout(()=>toast(d<=0?'Tu abono vence hoy. Comunicate para renovarlo.':'Tu abono vence el '+fCorta(LIC.vence)+' (en '+d+' día'+(d>1?'s':'')+').'),1500)}}
+function mostrarBienvenida(){
+  pantalla('user','Empecemos','Contanos quién sos. Tus pacientes se van a guardar en tu Google Drive, en la carpeta <b>MAS Consultorios</b>.',
+    `<div class="mfield"><label>Tu nombre</label><input id="s_nom" placeholder="Ej.: Laura Pérez" autocomplete="off"></div>
+     <div class="mfield"><label>Tu especialidad</label><input id="s_esp" list="dl_esp" placeholder="Elegí de la lista o escribila" autocomplete="off">${dlEsp}</div>
+     ${btnGrande('Empezar','crear()')}`);setTimeout(()=>$id('s_nom').focus(),50)}
+async function crear(){const v=id=>$id(id).value.trim(),e=$id('lerr');
+  if(!v('s_nom')){e.textContent='Escribí tu nombre.';return}if(!v('s_esp')){e.textContent='Escribí tu especialidad.';return}
+  db.cfg.perfil={nombre:v('s_nom'),especialidad:v('s_esp')};e.textContent='Guardando…';
+  guardar();await cola;if(ERRG){e.textContent='No se pudo guardar en tu Drive: '+estadoCopia().s;return}
+  entrarApp()}
+
+/* ---------- archivos (fotos y PDF) en "MAS Consultorios/adjuntos" ---------- */
+const URLS={};let pidiendo=new Set();
+function urlAdjNube(a){if(!a.driveId)return '';if(URLS[a.driveId])return URLS[a.driveId];
+  if(!pidiendo.has(a.driveId)){pidiendo.add(a.driveId);
+    g('GET',DAPI+'/files/'+a.driveId+'?alt=media').then(r=>r.blob()).then(b=>{URLS[a.driveId]=URL.createObjectURL(b);if(vista==='ficha'&&tabF==='archivos')repintar()}).catch(()=>{}).finally(()=>pidiendo.delete(a.driveId))}
+  return ''}
+const nombreLimpio=n=>(n||'archivo').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w.\-]+/g,'_').replace(/_+/g,'_').slice(-80)||'archivo';
+async function achicar(f){
+  if(!/^image\/(jpeg|png|webp)$/.test(f.type)||f.size<700*1024)return f;
+  try{const bmp=await createImageBitmap(f),k=Math.min(1,2000/Math.max(bmp.width,bmp.height)),c=document.createElement('canvas');
+    c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',0.85));
+    return b&&b.size<f.size?new File([b],f.name.replace(/\.\w+$/,'')+'.jpg',{type:'image/jpeg'}):f}catch(e){return f}}
+async function subir(pid,files){files=[...files];if(!files.length)return;
+  toast('Guardando '+files.length+' archivo'+(files.length>1?'s':'')+' en tu Drive…');let ok=0;
+  try{if(!ADJ)ADJ=await carpeta('adjuntos',CARP)}catch(e){toast(msj(e));if(e.message==='reconectar')avisoReconectar();return}
+  for(const f0 of files){
+    if(f0.size>40*1024*1024){toast(f0.name+' es demasiado grande (máximo 40 MB).');continue}
+    const f=await achicar(f0),ts=new Date(),archivo=ts.getFullYear()+pad(ts.getMonth()+1)+pad(ts.getDate())+'-'+pad(ts.getHours())+pad(ts.getMinutes())+pad(ts.getSeconds())+'-'+nombreLimpio(f.name);
+    try{const r=await subirDrive({name:'p'+pid+'-'+archivo,parents:[ADJ]},f,null,'id');
+      db.A.push({id:uid(),pid,archivo,driveId:r.id,nombre:f0.name,tipo:f.type,fecha:iso(hoy),subido:new Date().toISOString()});ok++}
+    catch(e){toast('No se pudo guardar '+f0.name+': '+msj(e));if(e.message==='reconectar'){avisoReconectar();break}}}
+  if(ok){guardar();toast(ok===1?'Archivo guardado.':ok+' archivos guardados.')}
+  tabF='archivos';ir('ficha',pid)}
+
+/* ---------- CONFIGURACIÓN ---------- */
+function cardDrive(){const e=estadoCopia();
+  return `<div class="card-h"><h2><span class="chip c-teal">${ic('cloud','sm')}</span>Tus datos en tu Google Drive</h2></div><div class="cfg">
+    <div class="estado ${e.k==='ok'?'ok':'warn'}">${ic(e.k==='ok'?'cloud':'warn','sm')}${esc(e.t)}</div><p>${esc(e.s)}</p>
+    <p style="font-size:13px;color:var(--muted)">Todo se guarda solo en la carpeta <b>MAS Consultorios</b> de tu Google Drive (${esc(EMAIL)}). Los datos son tuyos: nadie más los ve. Queda además una copia por día de los últimos 4 meses.</p>
+    <div class="acts">${CARP?`<a class="btn sec" href="https://drive.google.com/drive/folders/${CARP}" target="_blank">${ic('cloud','sm')}Ver carpeta</a>`:''}<button class="btn sec" onclick="descargarCopia()">${ic('file','sm')}Descargar una copia</button><button class="btn sec" onclick="verDias()">Volver a un día anterior</button></div></div>`}
+function config(){const P=(db.cfg.perfil||{});return `<div class="ph"><div><h1>Configuración</h1><p>Tus datos, tu licencia y cómo usarlo en otros aparatos.</p></div></div>
+  <div class="grid cfg-grid">
+    <div class="grid">
+      <div class="card" id="cfgDrive">${cardDrive()}</div>
+      <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('cfg','sm')}</span>Qué usar en las fichas</h2></div><div class="cfg">
+        <p>Todo es opcional. Apagá lo que no uses y deja de aparecer (lo que ya cargaste no se borra).</p>
+        ${[['anam','Primera consulta','Entrevista inicial: embarazo, parto, desarrollo, alimentación, sueño, audición, antecedentes.'],
+           ['evalu','Objetivos y evaluaciones','Objetivos con "en proceso / logrado" y tests con puntaje.'],
+           ['asist','Asistencia','Vino / faltó con aviso / faltó sin aviso, en cada sesión.'],
+           ['cobro','Cobro','Particular u obra social, y si ya se cobró. Avisa en el Inicio lo que falta cobrar.']]
+          .map(([k,l,d])=>`<label class="chk"><input type="checkbox" ${OPC()[k]?'checked':''} onchange="setOpc('${k}',this.checked)"><span>${l}<small>${d}</small></span></label>`).join('')}</div></div>
+      <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('up','sm')}</span>Usarlo en la tablet o el celular</h2></div><div class="cfg">
+        <ol><li>Abrí esta misma dirección en la tablet o el celular:<div class="path">${esc(location.origin+location.pathname)}</div></li>
+        <li>Tocá <b>Continuar con Google</b> con la misma cuenta (${esc(EMAIL)}).</li>
+        <li>Para tenerlo como app: en Android, menú <b>⋮</b> → <b>Agregar a la pantalla principal</b>. En iPad o iPhone (Safari): <b>Compartir</b> → <b>Agregar a inicio</b>.</li></ol></div></div>
+      <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('up','sm')}</span>Traer los datos del programa de la compu</h2></div><div class="cfg">
+        <p>Si antes usabas MAS Consultorios instalado en la compu, elegí el archivo <b>datos.json</b> (está en la carpeta <i>MAS Consultorios - Copias</i> de tu Google Drive, o en la compu).</p>
+        <div class="acts"><label class="btn sec">${ic('clip','sm')}Elegir datos.json<input type="file" hidden accept=".json,application/json" onchange="importarLocal(this.files[0]);this.value=''"></label></div></div></div>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('user','sm')}</span>Tus datos</h2></div><div class="cfg">
+        <div class="mfield" style="margin-top:10px"><label>Tu nombre</label><input id="c_nom" value="${esc(P.nombre)}"></div>
+        <div class="mfield"><label>Tu especialidad</label><input id="c_esp" list="dl_esp" value="${esc(P.especialidad)}">${dlEsp}</div>
+        <div class="mfield"><label>Frase de la pantalla de entrada <span class="opt">elegí una o escribí la tuya</span></label><input id="c_slo" list="dl_slo" value="${esc(slogan())}" maxlength="90"><datalist id="dl_slo">${SLOGANS.map(x=>`<option value="${esc(x)}">`).join('')}</datalist></div>
+        <div class="mfield"><label>Matrícula <span class="opt">opcional, sale en los informes</span></label><input id="c_mat" value="${esc(db.cfg.matricula||'')}"></div>
+        <button class="btn sec" onclick="guardarNombre()">Guardar</button></div></div>
+      <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('lock','sm')}</span>Tu licencia</h2></div><div class="cfg">
+        <p style="margin-top:10px">Cuenta: <b>${esc(EMAIL)}</b>${LIC&&LIC.vence?`<br>Abono pago hasta el <b>${fCorta(LIC.vence)}</b>`:''}</p></div></div>
+      <div class="card"><div class="cfg" style="padding-top:18px"><p style="margin-top:0">Si usás un aparato que no es tuyo, salí al terminar.</p>
+        <button class="btn sec" onclick="salir()">Salir</button>
+        <p style="font-size:12px;color:var(--faint);margin:14px 0 0">Versión ${esc(VERSION_ONLINE)}</p></div></div>
+    </div>
+  </div>`}
+async function accionDrive(){}
+async function guardarNombre(){const n=$id('c_nom').value.trim();if(!n){toast('Escribí tu nombre.');return}
+  db.cfg.matricula=$id('c_mat').value.trim();
+  db.cfg.perfil=Object.assign({},db.cfg.perfil,{nombre:n,especialidad:$id('c_esp').value.trim(),slogan:$id('c_slo').value.trim()});
+  guardar();perfilDesdeDb();toast('Guardado.')}
+async function cambiarPass(){}
+function descargarCopia(){const b=new Blob([JSON.stringify(db)],{type:'application/json'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download='MAS Consultorios - copia '+iso(new Date())+'.json';document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);toast('Copia descargada (sin las fotos ni los PDF).')}
+async function verDias(){let L;
+  try{if(!HIST)HIST=await carpeta('historial',CARP);L=await buscarArch(`'${HIST}' in parents`,'id,name')}catch(e){toast(msj(e));return}
+  L=L.filter(f=>/^datos-\d{4}-\d\d-\d\d\.json$/.test(f.name)).sort((a,b)=>b.name.localeCompare(a.name));
+  if(!L.length){toast('Todavía no hay copias de días anteriores.');return}
+  abrir(`<div class="mh"><h2>Volver a un día anterior</h2></div><div class="mb">
+    <p>Se trae todo como estaba al final del día que elijas. Lo de ahora queda guardado en la copia de hoy, por si te arrepentís.</p>
+    <div class="mfield"><label>Día</label><select id="d_dia">${L.map(f=>{const d=f.name.slice(6,16);return `<option value="${f.id}">${may(fLarga(parse(d)))} (${fCorta(d)})</option>`}).join('')}</select></div></div>
+    <div class="mf"><button class="btn sec" onclick="cerrar()">Cancelar</button><button class="btn danger" onclick="volverDia()">Volver a ese día</button></div>`)}
+async function volverDia(){const id=$id('d_dia').value;cerrar();await cola;
+  try{const d=await (await g('GET',DAPI+'/files/'+id+'?alt=media')).json();
+    if(!d||!Array.isArray(d.P))throw new Error('La copia está dañada.');
+    ultHist=0;await guardarHistorial(JSON.stringify(db));     // lo de ahora queda en la copia de hoy
+    const m=await g('GET',DAPI+'/files/'+ARCH+'?fields=version');VERS=m.version;BASE=JSON.stringify(await leerRemoto()||VACIO());
+    db=d;normalizar();guardar();await cola;perfilDesdeDb();toast('Listo: volviste a esa copia. '+db.P.length+' pacientes.');ir('inicio')}
+  catch(e){toast(msj(e))}}
+function importarLocal(file){if(!file)return;const rd=new FileReader();
+  rd.onload=()=>{let d;try{d=JSON.parse(rd.result)}catch(e){toast('Ese archivo no es una copia de MAS Consultorios.');return}
+    if(!d||!Array.isArray(d.P)){toast('Ese archivo no es una copia de MAS Consultorios.');return}
+    const hacer=()=>{const perfil=db.cfg.perfil;d.cfg=Object.assign({},d.cfg||{},{perfil});(d.A||[]).forEach(a=>{if(!a.driveId)a.sinArchivo=true});
+      db=d;normalizar();guardar();toast('Listo: '+db.P.length+' pacientes. Las fotos y PDF de la compu no se traen.');ir('inicio')};
+    if(db.P.length)confirmar('Traer datos de la compu',`Ya tenés <b>${db.P.length} pacientes</b> acá. Se van a <b>reemplazar</b> por los ${d.P.length} del archivo (lo de ahora queda en la copia de hoy).`,'Reemplazar',hacer,true);
+    else hacer()};
+  rd.readAsText(file)}
+function ofrecerRecuperar(){verDias()}
+function salir(){confirmar('Salir','Se cierra tu sesión en este aparato. Tus datos siguen en tu Google Drive.','Salir',async()=>{
+  try{await cola}catch(e){}
+  if(PEND){toast('Todavía hay cambios sin guardar. Esperá a que se guarden.');return}
+  try{if(GTOK)google.accounts.oauth2.revoke(GTOK,()=>{})}catch(e){}
+  await cambiarCuenta();db=null;setTok(null)})}
+
+/* ---------- arranque ---------- */
+(async function(){
+  EST={version:VERSION_ONLINE};
+  const{data}=await sb.auth.getSession();
+  if(data&&data.session){EMAIL=(data.session.user.email||'').toLowerCase();await despuesDeEntrar(false);return}
+  mostrarLock();
+})();
+
+</script>
+</body>
+</html>
