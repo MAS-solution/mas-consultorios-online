@@ -369,6 +369,14 @@ details.mas .in{padding:14px 14px 2px}
 .cp-row .s{font-size:12px;color:var(--muted);white-space:nowrap}
 @media (max-width:600px){.file{flex-wrap:wrap}.file .acts{width:100%;justify-content:flex-start}}
 
+/* aviso de versión nueva */
+.nov-h{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.nov{list-style:none;margin:0;padding:0}
+.nov li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line2);font-size:14px}
+.nov li:first-child{border-top:0}
+.nov .chip{width:32px;height:32px;flex-shrink:0}
+.nov-t{font-size:15px;margin:14px 0 4px}
+
 .reco{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:10px 12px;display:flex;gap:10px;align-items:center;max-width:calc(100vw - 32px);font-size:14px}
 .reco[hidden]{display:none}.reco span{display:flex;gap:6px;align-items:center}
 </style>
@@ -442,7 +450,7 @@ details.mas .in{padding:14px 14px 2px}
 </svg>
 
 <script>
-const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.19-1338";
+const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.19-1342";
 let hoy=new Date();hoy.setHours(0,0,0,0);
 const refrescarHoy=()=>{hoy=new Date();hoy.setHours(0,0,0,0)};
 const pad=n=>String(n).padStart(2,'0');
@@ -607,7 +615,7 @@ async function abrirApp(){
   normalizar();
   document.getElementById('lock').hidden=true;document.getElementById('app').hidden=false;
   pintarPerfil();
-  pintarCopia();ir('inicio');avisoVencimiento();
+  pintarCopia();ir('inicio');avisoVencimiento();avisoNovedades();
   if(!EST.hayDatos&&EST.copiaEnDrive)ofrecerRecuperar();
 }
 
@@ -1059,6 +1067,21 @@ function armarInforme(pid){const p=pac(pid),g=id=>document.getElementById(id),v=
     ${on('in_ses')&&E.length?`<h2>Detalle de sesiones</h2>${bloqueSesiones(E)}`:''}${firma()}`;
   cerrar();imprimir(html)}
 
+/* ---------- NOVEDADES: aviso de versión nueva (una vez por cuenta, queda en db.cfg.novVista) ---------- */
+const NOVEDADES=[
+  {n:1,fecha:'2026-11-19',titulo:'Archivos ordenados en carpetas',items:[
+    ['folder','<b>Carpetas</b> en la pestaña Archivos de cada paciente: Informes de especialistas, Pedidos médicos y Facturación. Podés crear las tuyas con el botón <b>Carpetas</b>.'],
+    ['up','Al subir un archivo elegís en qué carpeta guardarlo (<b>Guardar en</b>).'],
+    ['right','<b>Mover</b> un archivo de una carpeta a otra.'],
+    ['x','<b>Borrar</b> un archivo si lo subiste por error (te pide confirmación).']]}];
+function avisoNovedades(){const ult=NOVEDADES[NOVEDADES.length-1].n,vista=+db.cfg.novVista||0;if(vista>=ult)return;
+  if(!db.P.length){db.cfg.novVista=ult;guardar();return}
+  const L=NOVEDADES.filter(x=>x.n>vista);
+  setTimeout(()=>abrir(`<div class="mh nov-h"><span class="pill teal">Versión nueva</span><h2>${L.length===1?esc(L[0].titulo):'Novedades'}</h2></div><div class="mb">
+    ${L.map(x=>`${L.length>1?`<h3 class="nov-t">${esc(x.titulo)}</h3>`:''}<ul class="nov">${x.items.map(([i,t])=>`<li><span class="chip c-teal">${ic(i,'sm')}</span><div>${t}</div></li>`).join('')}</ul>`).join('')}</div>
+    <div class="mf"><button class="btn" onclick="cerrarNovedades()">Entendido</button></div>`),500)}
+function cerrarNovedades(){db.cfg.novVista=NOVEDADES[NOVEDADES.length-1].n;guardar();cerrar()}
+
 /* ---------- ARCHIVOS: carpetas, mover y borrar ---------- */
 const CARP_DEF=['Informes de especialistas','Pedidos médicos','Facturación'];
 const carpetas=()=>Array.isArray(db.cfg.carpetas)?db.cfg.carpetas:CARP_DEF.slice();
@@ -1441,7 +1464,7 @@ async function abrirApp(){
 function entrarApp(){perfilDesdeDb();setTok('online');
   document.querySelectorAll('.me button[onclick="bloquear()"]').forEach(b=>b.hidden=true);
   $id('lock').hidden=true;$id('app').hidden=false;ultAct=Date.now();pintarCopia();ir('inicio');
-  avisoVencimiento()}
+  avisoVencimiento();avisoNovedades()}
 function mostrarBienvenida(){
   pantalla('user','Empecemos','Contanos quién sos. Tus pacientes se van a guardar en tu Google Drive, en la carpeta <b>MAS Consultorios</b>.',
     `<div class="mfield"><label>Tu nombre</label><input id="s_nom" placeholder="Ej.: Laura Pérez" autocomplete="off"></div>
@@ -1449,7 +1472,7 @@ function mostrarBienvenida(){
      ${btnGrande('Empezar','crear()')}`);setTimeout(()=>$id('s_nom').focus(),50)}
 async function crear(){const v=id=>$id(id).value.trim(),e=$id('lerr');
   if(!v('s_nom')){e.textContent='Escribí tu nombre.';return}if(!v('s_esp')){e.textContent='Escribí tu especialidad.';return}
-  db.cfg.perfil={nombre:v('s_nom'),especialidad:v('s_esp')};e.textContent='Guardando…';
+  db.cfg.perfil={nombre:v('s_nom'),especialidad:v('s_esp')};db.cfg.novVista=NOVEDADES[NOVEDADES.length-1].n;e.textContent='Guardando…';
   guardar();await cola;if(ERRG){e.textContent='No se pudo guardar en tu Drive: '+estadoCopia().s;return}
   entrarApp()}
 
