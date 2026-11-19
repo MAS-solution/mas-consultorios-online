@@ -350,6 +350,25 @@ details.mas .in{padding:14px 14px 2px}
 .colores button i{width:22px;height:22px;border-radius:50%;flex:none}
 .colores button.on{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue);font-weight:700}
 
+/* archivos: carpetas */
+.carps{display:flex;flex-wrap:wrap;gap:6px;padding:14px 0 6px}
+.carps button{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:5px 12px;font-size:13px;font-weight:700;color:var(--ink2);display:inline-flex;align-items:center;gap:6px}
+.carps button .n{font-size:11px;color:var(--muted)}
+.carps button.on{background:var(--blue-soft);border-color:var(--blue);color:var(--blue)}
+.carps button.on .n{color:var(--blue)}
+.carps .mas{border-style:dashed;color:var(--muted)}
+.carp-h{display:flex;align-items:center;gap:7px;margin-top:14px;padding:6px 0;font-family:var(--fh);font-weight:600;font-size:13px;color:var(--ink2);border-bottom:1px solid var(--line)}
+.carp-h span{color:var(--muted);font-weight:400}
+.carp-h + .file{border-top:0}
+.file .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.subir{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:14px 0 16px;border-top:1px solid var(--line2);margin-top:8px}
+.subir .lbl{font-size:13px;color:var(--muted);font-weight:700}
+.subir select{height:34px;border:1px solid var(--line);border-radius:8px;padding:0 8px;background:var(--surface);max-width:220px}
+.cp-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.cp-row input{flex:1;min-width:0;height:38px;border:1px solid var(--line);border-radius:8px;padding:0 10px}
+.cp-row .s{font-size:12px;color:var(--muted);white-space:nowrap}
+@media (max-width:600px){.file{flex-wrap:wrap}.file .acts{width:100%;justify-content:flex-start}}
+
 .reco{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:10px 12px;display:flex;gap:10px;align-items:center;max-width:calc(100vw - 32px);font-size:14px}
 .reco[hidden]{display:none}.reco span{display:flex;gap:6px;align-items:center}
 </style>
@@ -419,10 +438,11 @@ details.mas .in{padding:14px 14px 2px}
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3 2 21h20zM12 10v5M12 18v1"/></symbol>
   <symbol id="i-right" viewBox="0 0 24 24"><path d="m12 5 7 7-7 7M5 12h14"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 5h7l2 3h9v12H3z"/></symbol>
 </svg>
 
 <script>
-const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.18-1703";
+const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.19-1338";
 let hoy=new Date();hoy.setHours(0,0,0,0);
 const refrescarHoy=()=>{hoy=new Date();hoy.setHours(0,0,0,0)};
 const pad=n=>String(n).padStart(2,'0');
@@ -892,12 +912,7 @@ function ficha(id){const p=pac(id);if(!p)return pacientes();fichaId=id;const O=O
       <div class="acts"><button class="btn sm sec" onclick="editarFijo('${x.id}')">Editar</button><button class="btn sm sec" onclick="quitarFijo('${x.id}')">Quitar turno fijo</button></div></div>`).join('')}${T.length?T.map(t=>`<div class="row"><div class="hora">${t.hora}</div><div class="grow"><div class="t">${may(fLarga(parse(t.fecha)))}${t.serie?' <span class="pill teal">Fijo</span>':''}</div><div class="s">${esc(p.modal)}</div></div>
       <div class="acts"><button class="btn sm sec" onclick="recordar('${t.id}')">${ic('msg','sm')}Recordar</button><button class="btn sm sec" onclick="moverTurno('${t.id}')">Cambiar</button><button class="btn sm sec icon" title="Cancelar turno" onclick="cancelarTurno('${t.id}')">${ic('x','sm')}</button></div></div>`).join(''):'<div class="empty">No tiene turnos próximos.</div>'}
       <div style="padding:10px 0 16px"><button class="btn sm" onclick="nuevoTurno(${p.id})">${ic('plus','sm')}Dar turno</button></div></div>`;
-  if(tabF==='archivos')cuerpo=`<div class="card-b">
-      ${A.length?A.map(a=>{const u=urlAdj(a),img=/^image\//.test(a.tipo||'')||/\.(jpe?g|png|gif|webp)$/i.test(a.nombre);
-        return `<div class="file">${img?`<img class="thumb" src="${u}" alt="">`:`<div class="chip c-blue" style="width:44px;height:44px">${ic('file','sm')}</div>`}
-        <div class="grow"><div><b>${esc(a.nombre)}</b></div><div class="s">Agregado el ${fCorta(a.fecha)}</div></div>
-        <a class="btn sm sec" href="${u}" target="_blank">Abrir</a></div>`}).join(''):'<div class="empty">Todavía no hay archivos. Podés sumar fotos de las hojas en papel, estudios o derivaciones.</div>'}
-      <div style="padding:10px 0 16px"><label class="btn sm sec">${ic('clip','sm')}Agregar fotos o PDF<input type="file" multiple hidden accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx" onchange="subir(${p.id},this.files)"></label></div></div>`;
+  if(tabF==='archivos')cuerpo=tabArchivos(p,A);
   const au=autUso(p),av=autAviso(p);
   const dd=(t,v)=>v?`<dt>${t}</dt><dd>${esc(v)}</dd>`:'';
   return `<button class="btn link back noprint" onclick="ir('pacientes')">${ic('left','sm')}Volver a pacientes</button>
@@ -1044,14 +1059,64 @@ function armarInforme(pid){const p=pac(pid),g=id=>document.getElementById(id),v=
     ${on('in_ses')&&E.length?`<h2>Detalle de sesiones</h2>${bloqueSesiones(E)}`:''}${firma()}`;
   cerrar();imprimir(html)}
 
+/* ---------- ARCHIVOS: carpetas, mover y borrar ---------- */
+const CARP_DEF=['Informes de especialistas','Pedidos médicos','Facturación'];
+const carpetas=()=>Array.isArray(db.cfg.carpetas)?db.cfg.carpetas:CARP_DEF.slice();
+const carpDe=a=>a.carpeta&&carpetas().includes(a.carpeta)?a.carpeta:'';
+let carpF='*';
+function tabArchivos(p,A){const C=carpetas(),cnt=c=>A.filter(a=>carpDe(a)===c).length,nO=cnt('');
+  if(carpF!=='*'&&carpF!==''&&!C.includes(carpF))carpF='*';if(carpF===''&&!nO)carpF='*';
+  const chip=(k,l,n)=>`<button class="${carpF===k?'on':''}" onclick="carpF=CARPS[${k==='*'?-1:k===''?-2:C.indexOf(k)}];ir('ficha',${p.id})">${esc(l)}${n?' <span class="n">'+n+'</span>':''}</button>`;
+  window.CARPS=Object.assign(C.slice(),{'-1':'*','-2':''});
+  const fila=a=>{const u=urlAdj(a),img=/^image\//.test(a.tipo||'')||/\.(jpe?g|png|gif|webp)$/i.test(a.nombre);
+    return `<div class="file">${img?`<img class="thumb" src="${u}" alt="">`:`<div class="chip c-blue" style="width:44px;height:44px">${ic('file','sm')}</div>`}
+      <div class="grow"><div><b>${esc(a.nombre)}</b></div><div class="s">Agregado el ${fCorta(a.fecha)}</div></div>
+      <div class="acts"><a class="btn sm sec" href="${u}" target="_blank">Abrir</a><button class="btn sm sec" onclick="moverArchivo('${a.id}')">Mover</button><button class="btn sm sec icon" title="Borrar archivo" onclick="borrarArchivo('${a.id}')">${ic('x','sm')}</button></div></div>`};
+  const grupo=(c,L)=>L.length?`<div class="carp-h">${ic('folder','sm')}${esc(c||'Sin carpeta')}<span>${L.length}</span></div>${L.map(fila).join('')}`:'';
+  let lista;
+  if(!A.length)lista='<div class="empty">Todavía no hay archivos. Podés sumar fotos de las hojas en papel, estudios, informes, pedidos médicos o facturas.</div>';
+  else if(carpF==='*')lista=[...C,''].map(c=>grupo(c,A.filter(a=>carpDe(a)===c))).join('');
+  else{const L=A.filter(a=>carpDe(a)===carpF);lista=L.length?L.map(fila).join(''):'<div class="empty">Esta carpeta está vacía.</div>'}
+  const dest=carpF==='*'?'':carpF;
+  return `<div class="card-b"><div class="carps noprint">${chip('*','Todos',A.length)}${C.map(c=>chip(c,c,cnt(c))).join('')}${nO?chip('','Sin carpeta',nO):''}
+      <button class="mas" onclick="editarCarpetas(${p.id})">${ic('folder','sm')}Carpetas</button></div>
+    <div class="flist">${lista}</div>
+    <div class="subir noprint"><label class="lbl" for="adj_c">Guardar en</label><select id="adj_c">${C.map(c=>`<option ${c===dest?'selected':''}>${esc(c)}</option>`).join('')}<option value="" ${dest===''?'selected':''}>Sin carpeta</option></select>
+      <label class="btn sm sec">${ic('clip','sm')}Agregar fotos o PDF<input type="file" multiple hidden accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx" onchange="subir(${p.id},this.files)"></label></div></div>`}
+const carpSubir=()=>{const e=document.getElementById('adj_c');return e?e.value:''};
+function moverArchivo(id){const a=db.A.find(x=>x.id===id);if(!a)return;const C=carpetas(),c=carpDe(a);
+  abrir(`<div class="mh"><h2>Mover archivo</h2></div><div class="mb"><p><b>${esc(a.nombre)}</b></p>
+    <div class="mfield"><label>Carpeta</label><select id="mv_c">${C.map(x=>`<option ${x===c?'selected':''}>${esc(x)}</option>`).join('')}<option value="" ${c?'':'selected'}>Sin carpeta</option></select></div></div>
+    <div class="mf"><button class="btn sec" onclick="cerrar()">Cancelar</button><button class="btn" onclick="guardarMoverArch('${id}')">Mover</button></div>`)}
+function guardarMoverArch(id){const a=db.A.find(x=>x.id===id),c=document.getElementById('mv_c').value;
+  if(c)a.carpeta=c;else delete a.carpeta;guardar();cerrar();toast(c?'Movido a '+c+'.':'Movido a Sin carpeta.');ir('ficha',a.pid)}
+function borrarArchivo(id){const a=db.A.find(x=>x.id===id);if(!a)return;
+  confirmar('Borrar archivo','¿Borrar <b>'+esc(a.nombre)+'</b> de la ficha? Usalo si lo subiste por error. <b>No se puede deshacer.</b>','Borrar',()=>{db.A=db.A.filter(x=>x.id!==id);guardar();toast('Archivo borrado.');ir('ficha',a.pid)},true)}
+function filaCarp(n,orig,txt){return `<div class="cp-row"><input value="${esc(n)}" data-orig="${esc(orig)}" maxlength="40"><span class="s">${txt}</span><button class="btn sm sec icon" title="Quitar carpeta" onclick="this.parentNode.remove()">${ic('x','sm')}</button></div>`}
+function editarCarpetas(pid){const C=carpetas(),uso=c=>db.A.filter(a=>a.carpeta===c).length;
+  abrir(`<div class="mh"><h2>Carpetas de archivos</h2></div><div class="mb">
+    <p class="sub">Son las mismas para todos los pacientes. Podés cambiarles el nombre o quitarlas: si quitás una, sus archivos pasan a "Sin carpeta" (no se borran).</p>
+    <div id="cp_l">${C.map(c=>filaCarp(c,c,uso(c)+' archivo'+(uso(c)===1?'':'s'))).join('')}</div>
+    <div class="cp-row"><input id="cp_n" maxlength="40" placeholder="Nueva carpeta (ej.: Estudios, Escuela)" onkeydown="if(event.key==='Enter')sumarCarpeta()"><button class="btn sm sec" onclick="sumarCarpeta()">${ic('plus','sm')}Agregar</button></div></div>
+    <div class="mf"><button class="btn sec" onclick="cerrar()">Cancelar</button><button class="btn" onclick="guardarCarpetas(${pid})">Guardar</button></div>`)}
+function sumarCarpeta(){const i=document.getElementById('cp_n'),n=i.value.trim();if(!n)return;
+  document.getElementById('cp_l').insertAdjacentHTML('beforeend',filaCarp(n,'','nueva'));i.value='';i.focus()}
+function guardarCarpetas(pid){if(document.getElementById('cp_n').value.trim())sumarCarpeta();
+  const filas=[...document.querySelectorAll('#cp_l input')].map(i=>({n:i.value.trim(),o:i.dataset.orig}));
+  const nuevas=[];for(const f of filas){if(!f.n){toast('Hay una carpeta sin nombre.');return}if(nuevas.some(x=>x.toLowerCase()===f.n.toLowerCase())){toast('Hay dos carpetas con el nombre "'+f.n+'".');return}nuevas.push(f.n)}
+  const ren={};filas.forEach(f=>{if(f.o)ren[f.o]=f.n});
+  for(const a of db.A){if(!a.carpeta)continue;if(Object.prototype.hasOwnProperty.call(ren,a.carpeta))a.carpeta=ren[a.carpeta];else delete a.carpeta}
+  if(Object.prototype.hasOwnProperty.call(ren,carpF))carpF=ren[carpF];
+  db.cfg.carpetas=nuevas;guardar();cerrar();toast('Carpetas guardadas.');tabF='archivos';ir('ficha',pid)}
+
 const urlAdj=a=>urlAdjNube(a);
-async function subir(pid,files){files=[...files];if(!files.length)return;
+async function subir(pid,files){files=[...files];if(!files.length)return;const carp=carpSubir();
   toast('Guardando '+files.length+' archivo'+(files.length>1?'s':'')+'…');
   let ok=0;
   for(const f of files){
     if(f.size>40*1024*1024){toast(f.name+' es demasiado grande (máximo 40 MB).');continue}
     try{const j=await api('POST','/api/adjunto?pid='+pid+'&nombre='+encodeURIComponent(f.name),f,true);
-      db.A.push({id:uid(),pid,archivo:j.archivo,nombre:f.name,tipo:f.type,fecha:iso(hoy),subido:new Date().toISOString()});ok++}
+      db.A.push({id:uid(),pid,archivo:j.archivo,nombre:f.name,tipo:f.type,fecha:iso(hoy),subido:new Date().toISOString(),...(carp?{carpeta:carp}:{})});ok++}
     catch(e){toast('No se pudo guardar '+f.name+': '+e.message)}}
   if(ok){await guardar();toast(ok===1?'Archivo guardado.':ok+' archivos guardados.')}
   tabF='archivos';ir('ficha',pid)}
@@ -1401,14 +1466,14 @@ async function achicar(f){
     c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
     const b=await new Promise(r=>c.toBlob(r,'image/jpeg',0.85));
     return b&&b.size<f.size?new File([b],f.name.replace(/\.\w+$/,'')+'.jpg',{type:'image/jpeg'}):f}catch(e){return f}}
-async function subir(pid,files){files=[...files];if(!files.length)return;
+async function subir(pid,files){files=[...files];if(!files.length)return;const carp=carpSubir();
   toast('Guardando '+files.length+' archivo'+(files.length>1?'s':'')+' en tu Drive…');let ok=0;
   try{if(!ADJ)ADJ=await carpeta('adjuntos',CARP)}catch(e){toast(msj(e));if(e.message==='reconectar')avisoReconectar();return}
   for(const f0 of files){
     if(f0.size>40*1024*1024){toast(f0.name+' es demasiado grande (máximo 40 MB).');continue}
     const f=await achicar(f0),ts=new Date(),archivo=ts.getFullYear()+pad(ts.getMonth()+1)+pad(ts.getDate())+'-'+pad(ts.getHours())+pad(ts.getMinutes())+pad(ts.getSeconds())+'-'+nombreLimpio(f.name);
     try{const r=await subirDrive({name:'p'+pid+'-'+archivo,parents:[ADJ]},f,null,'id');
-      db.A.push({id:uid(),pid,archivo,driveId:r.id,nombre:f0.name,tipo:f.type,fecha:iso(hoy),subido:new Date().toISOString()});ok++}
+      db.A.push({id:uid(),pid,archivo,driveId:r.id,nombre:f0.name,tipo:f.type,fecha:iso(hoy),subido:new Date().toISOString(),...(carp?{carpeta:carp}:{})});ok++}
     catch(e){toast('No se pudo guardar '+f0.name+': '+msj(e));if(e.message==='reconectar'){avisoReconectar();break}}}
   if(ok){guardar();toast(ok===1?'Archivo guardado.':ok+' archivos guardados.')}
   tabF='archivos';ir('ficha',pid)}
