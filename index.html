@@ -400,6 +400,17 @@ details.mas .in{padding:14px 14px 2px}
 .aq-r.off .aq-l{color:var(--faint);text-decoration:line-through}
 .aq-r .btn.icon{width:32px;padding:0;justify-content:center}
 .aq-sp{width:32px;flex-shrink:0}
+/* obras sociales */
+.os-l{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.os-it{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:0;border-top:1px solid var(--line2);background:#fff;text-align:left;cursor:pointer;font:inherit;color:var(--ink)}
+.os-it:first-child{border-top:0}.os-it:hover{background:var(--blue-soft)}
+.os-it small{display:block;color:var(--muted);font-size:12.5px}
+.os-mes{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}
+.os-mh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.os-mh input{border:1px solid var(--line);border-radius:8px;padding:5px 8px;font:inherit}
+.os-t{width:100%;border-collapse:collapse;font-size:14px}.os-t th,.os-t td{padding:6px 8px;border-bottom:1px solid var(--line2);text-align:left}.os-t .num{text-align:right}
+.os-cp{display:flex;gap:6px;align-items:flex-start}.os-cp input,.os-cp textarea{flex:1;min-width:0}.os-cp .btn{flex-shrink:0;height:38px}
+.os-cp textarea{min-height:70px}
 
 .reco{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:10px 12px;display:flex;gap:10px;align-items:center;max-width:calc(100vw - 32px);font-size:14px}
 .reco[hidden]{display:none}.reco span{display:flex;gap:6px;align-items:center}
@@ -474,7 +485,7 @@ details.mas .in{padding:14px 14px 2px}
 </svg>
 
 <script>
-const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.20-1043";
+const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.20-1241";
 let hoy=new Date();hoy.setHours(0,0,0,0);
 const refrescarHoy=()=>{hoy=new Date();hoy.setHours(0,0,0,0)};
 const pad=n=>String(n).padStart(2,'0');
@@ -988,7 +999,7 @@ function ficha(id){const p=pac(id);if(!p)return pacientes();fichaId=id;const O=O
       <dt>Fecha de nacimiento</dt><dd>${fCorta(p.nac)}</dd>
       <dt>DNI</dt><dd>${esc(p.dni)||'—'}</dd>
       <dt>Teléfono</dt><dd>${esc(p.tel)||'—'}</dd>
-      <dt>Obra social · N° de afiliado</dt><dd>${esc(p.obra)}${p.afil?' · '+esc(p.afil):''}</dd>
+      <dt>Obra social · N° de afiliado</dt><dd>${esc(p.obra)}${p.afil?' · '+esc(p.afil):''}${esPart(p.obra)?'':`<div class="noprint"><button class="btn link" style="font-size:13px;padding:0" onclick="formOS('${esc(osClave(p.obra))}')">${osTiene(p.obra)?'Datos de facturación':'Cargar datos de facturación'}</button></div>`}</dd>
       ${au?`<dt>Autorización${p.autNum?' N° '+esc(p.autNum):''}</dt><dd>${au.tot?au.us+' de '+au.tot+' sesiones usadas':au.us+' sesiones'}${p.autHasta?' · hasta el '+fCorta(p.autHasta):''}${av?`<div class="aviso-aut">${may(av)}</div>`:''}</dd>`:''}
       ${dd('Responsable',p.tutor)}${dd('Teléfono del responsable',p.telResp)}
       ${p.escuela||p.grado?`<dt>Escuela</dt><dd>${esc([p.escuela,p.grado].filter(Boolean).join(' · '))}</dd>`:''}${dd('Maestra integradora',p.integradora)}
@@ -1309,6 +1320,7 @@ function config(){return `<div class="ph"><div><h1>Configuración</h1><p>Copia d
            ['cobro','Cobro','Particular u obra social, y si ya se cobró. Avisa en el Inicio lo que falta cobrar.']]
           .map(([k,l,d])=>`<label class="chk"><input type="checkbox" ${OPC()[k]?'checked':''} onchange="setOpc('${k}',this.checked)"><span>${l}<small>${d}</small></span></label>`).join('')}</div></div>
       ${OPC().anam?`<div class="card" id="cfgAnam">${cardAnam()}</div>`:''}
+      <div class="card" id="cfgOS">${cardOS()}</div>
       <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('up','sm')}</span>Recuperar una copia</h2></div><div class="cfg">
         <p>Si cambiaste de computadora o se borró algo, podés traer la última copia guardada en Google Drive.${EST.copiaEnDrive?' La copia más nueva es de '+esc(cuando(EST.copiaEnDrive))+'.':''}</p>
         <div class="acts"><button class="btn sec" ${EST.copiaEnDrive?'':'disabled'} onclick="ofrecerRecuperar()">Recuperar copia de Google Drive</button></div></div></div>
@@ -1355,6 +1367,66 @@ function anamQuitar(i){const L=anamLista(),x=L[i],usada=db.P.some(p=>p.anam&&p.a
   const hacer=()=>{L.splice(i,1);anamGuardar(L,'Pregunta quitada.')};
   if(usada)confirmar('Quitar pregunta','<b>'+esc(x.l)+'</b> ya tiene respuestas en algunos pacientes: se van a seguir viendo en sus fichas. Si solo no la querés ver, mejor destildala.','Quitar',hacer,true);else hacer()}
 function anamReset(){confirmar('Volver a las de tu especialidad','Se vuelve a la lista original. Lo que cargaste no se borra.','Volver',()=>{delete db.cfg.anamQ;guardar();const c=document.getElementById('cfgAnam');if(c)c.innerHTML=cardAnam();toast('Listo.')})}
+/* ---------- OBRAS SOCIALES: datos de facturación (db.cfg.os = {clave:{n,razon,cuit,iva,dir,cod,valor,donde,dia,notas}}) ---------- */
+const osClave=n=>String(n||'').trim().toLowerCase();
+const esPart=n=>!osClave(n)||osClave(n)==='particular';
+const osDatos=n=>(db.cfg.os&&db.cfg.os[osClave(n)])||{};
+const osTiene=n=>{const d=osDatos(n);return !!(d.razon||d.cuit||d.valor||d.cod||d.donde||d.desc)};
+const cpBtn=id=>`<button type="button" class="btn sm sec" title="Copiar" onclick="copiarCampo('${id}')">Copiar</button>`;
+function copiarCampo(id){const x=document.getElementById(id),s=x?x.value.trim():'';if(!s){toast('No hay nada para copiar.');return}
+  const ok=()=>toast('Copiado. Ya lo podés pegar.'),viejo=()=>{x.select();try{document.execCommand('copy');ok()}catch(e){toast('No se pudo copiar: seleccionalo y copialo a mano.')}};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(s).then(ok,viejo);else viejo()}
+const OS_IVA=['IVA exento','IVA responsable inscripto','Monotributo','Consumidor final'];
+/* todas las obras sociales: las de los pacientes y las cargadas a mano */
+function obrasSociales(){const m={};
+  db.P.forEach(p=>{if(esPart(p.obra))return;const k=osClave(p.obra);m[k]=m[k]||{n:p.obra.trim(),pac:0};if(activo(p))m[k].pac++});
+  Object.entries(db.cfg.os||{}).forEach(([k,d])=>{m[k]=m[k]||{n:d.n||k,pac:0}});
+  return Object.values(m).sort((a,b)=>a.n.localeCompare(b.n))}
+const pesos=v=>'$ '+Math.round(Number(v)||0).toLocaleString('es-AR');
+/* sesiones a facturar de un mes (aaaa-mm): pacientes con esa obra social que vinieron, salvo las marcadas como particular */
+function osSesiones(n,mes){const k=osClave(n);
+  return db.P.filter(p=>osClave(p.obra)===k).map(p=>{const E=db.E.filter(e=>e.pid==p.id&&String(e.fecha).slice(0,7)===mes&&vino(e)&&e.pago!=='Particular').sort((a,b)=>a.fecha.localeCompare(b.fecha));
+    return {p,E}}).filter(x=>x.E.length).sort((a,b)=>(a.p.apellido+a.p.nombre).localeCompare(b.p.apellido+b.p.nombre))}
+function cardOS(){const L=obrasSociales();
+  return `<div class="card-h"><h2><span class="chip c-blue">${ic('file','sm')}</span>Obras sociales</h2></div><div class="cfg">
+    <p>Los datos para facturarle a cada obra social, y las sesiones de cada mes para presentar.</p>
+    ${L.length?`<div class="os-l">${L.map(o=>{const d=osDatos(o.n);return `<button class="os-it" onclick="formOS('${esc(osClave(o.n))}')"><span><b>${esc(o.n)}</b><small>${o.pac} paciente${o.pac===1?'':'s'} en tratamiento${d.valor?' · '+pesos(d.valor)+' por sesión':''}</small></span>${osTiene(o.n)?'<span class="pill teal">Con datos</span>':'<span class="pill amber">Sin datos</span>'}</button>`}).join('')}</div>`:'<p style="color:var(--muted)">Todavía no hay pacientes con obra social.</p>'}
+    <div class="addrow"><input id="os_n" placeholder="Agregar otra obra social" onkeydown="if(event.key==='Enter')osAgregar()"><button class="btn sec" onclick="osAgregar()">${ic('plus','sm')}Agregar</button></div></div>`}
+function osAgregar(){const n=document.getElementById('os_n').value.trim();if(!n){toast('Escribí el nombre.');return}if(esPart(n)){toast('Particular no es una obra social.');return}formOS(osClave(n),n)}
+function formOS(k,nuevo){const o=obrasSociales().find(x=>osClave(x.n)===k),n=o?o.n:(nuevo||k),d=osDatos(n),v=c=>esc(d[c]||'');
+  const m0=new Date(hoy.getFullYear(),hoy.getMonth()-(hoy.getDate()<=15?1:0),1),mes=m0.getFullYear()+'-'+pad(m0.getMonth()+1);
+  abrir(`<div class="mh"><h2>${esc(n)}</h2></div><div class="mb">
+  <p style="font-size:13px;color:var(--muted);margin:0 0 10px">Datos para hacerle la factura. Completá solo lo que uses.</p>
+  <div class="mfield"><label>Razón social</label><div class="os-cp"><input id="os_razon" value="${v('razon')}" placeholder="Como figura en la factura">${cpBtn('os_razon')}</div></div>
+  <div class="frow"><div class="mfield"><label>CUIT</label><div class="os-cp"><input id="os_cuit" value="${v('cuit')}" placeholder="30-12345678-9">${cpBtn('os_cuit')}</div></div><div class="mfield"><label>Condición frente al IVA</label><select id="os_iva"><option value="">—</option>${OS_IVA.map(x=>`<option ${d.iva===x?'selected':''}>${x}</option>`).join('')}</select></div></div>
+  <div class="mfield"><label>Domicilio fiscal</label><div class="os-cp"><input id="os_dir" value="${v('dir')}">${cpBtn('os_dir')}</div></div>
+  <div class="mfield"><label>Texto de la descripción <span class="opt">el que pegás en la factura</span></label><div class="os-cp"><textarea id="os_desc" placeholder="Ej.: Prestaciones de fonoaudiología, sesiones del mes de…">${v('desc')}</textarea>${cpBtn('os_desc')}</div></div>
+  <div class="frow"><div class="mfield"><label>Código de prestación</label><input id="os_cod" value="${v('cod')}" placeholder="Ej.: código del nomenclador"></div><div class="mfield"><label>Valor por sesión</label><input type="number" min="0" id="os_valor" value="${v('valor')}" oninput="osPintarMes('${esc(k)}')" placeholder="$"></div></div>
+  <div class="frow"><div class="mfield"><label>Dónde se presenta</label><input id="os_donde" value="${v('donde')}" placeholder="Mail, página, círculo, dirección…"></div><div class="mfield"><label>Se presenta hasta el día</label><input type="number" min="1" max="31" id="os_dia" value="${v('dia')}" placeholder="Ej.: 10 de cada mes"></div></div>
+  <div class="mfield"><label>Notas <span class="opt">qué papeles pide, a quién llamar…</span></label><textarea id="os_notas">${v('notas')}</textarea></div>
+  <div class="os-mes"><div class="os-mh"><b>Sesiones para facturar</b><input type="month" id="os_mes" value="${mes}" onchange="osPintarMes('${esc(k)}')"></div><div id="os_res"></div></div>
+  </div>
+  <div class="mf">${db.cfg.os&&db.cfg.os[k]?`<button class="btn link" style="margin-right:auto" onclick="osBorrar('${esc(k)}')">Borrar datos</button>`:''}<button class="btn sec" onclick="cerrar()">Cancelar</button><button class="btn" onclick="guardarOS('${esc(k)}')">Guardar</button></div>`,true);
+  window._osNombre=n;osPintarMes(k)}
+function osPintarMes(k){const n=window._osNombre,mes=document.getElementById('os_mes').value,box=document.getElementById('os_res');if(!box||!mes)return;
+  const R=osSesiones(n,mes),tot=R.reduce((s,x)=>s+x.E.length,0),val=Number(document.getElementById('os_valor').value)||0;
+  box.innerHTML=R.length?`<table class="os-t"><thead><tr><th>Paciente</th><th>N° afiliado</th><th class="num">Sesiones</th></tr></thead><tbody>${R.map(x=>`<tr><td>${esc(nom(x.p))}</td><td>${esc(x.p.afil)||'—'}</td><td class="num">${x.E.length}</td></tr>`).join('')}</tbody>
+    <tfoot><tr><td colspan="2"><b>Total</b></td><td class="num"><b>${tot}</b></td></tr>${val?`<tr><td colspan="2">A facturar (${tot} × ${pesos(val)})</td><td class="num"><b>${pesos(tot*val)}</b></td></tr>`:''}</tfoot></table>
+    <div class="acts" style="margin-top:8px"><button class="btn sm sec" onclick="imprimirOS('${esc(k)}')">${ic('print','sm')}Imprimir planilla</button></div>`
+    :'<p style="color:var(--muted);margin:6px 0 0">No hay sesiones de esta obra social en ese mes.</p>'}
+function leerOS(n){const g=id=>document.getElementById(id).value.trim(),d={n:n.trim()};
+  ['razon','cuit','iva','dir','desc','cod','valor','donde','dia','notas'].forEach(c=>{const x=g('os_'+c);if(x)d[c]=x});return d}
+function guardarOS(k){const d=leerOS(window._osNombre);db.cfg.os=Object.assign({},db.cfg.os);
+  if(Object.keys(d).length>1)db.cfg.os[k]=d;else delete db.cfg.os[k];guardar();cerrar();toast('Datos de facturación guardados.');osRefrescar()}
+function osBorrar(k){confirmar('Borrar datos de facturación','Se borran los datos de facturación de <b>'+esc(window._osNombre)+'</b>. Los pacientes y sus sesiones no se tocan.','Borrar',()=>{db.cfg.os=Object.assign({},db.cfg.os);delete db.cfg.os[k];guardar();cerrar();toast('Borrado.');osRefrescar()},true)}
+function osRefrescar(){const c=document.getElementById('cfgOS');if(c)c.innerHTML=cardOS();if(vista==='ficha')ir('ficha',fichaId)}
+function imprimirOS(k){const n=window._osNombre,d=leerOS(n),mes=document.getElementById('os_mes').value,[a,m]=mes.split('-').map(Number),R=osSesiones(n,mes),tot=R.reduce((s,x)=>s+x.E.length,0),val=Number(d.valor)||0;
+  imprimir(`${encabezado('Sesiones de '+MESES[m-1]+' '+a)}
+    <table>${fila('Obra social',n)}${fila('Razón social',d.razon)}${fila('CUIT',d.cuit)}${fila('Condición frente al IVA',d.iva)}${fila('Domicilio fiscal',d.dir)}${fila('Código de prestación',d.cod)}</table>
+    <table class="os-t" style="margin-top:14px"><thead><tr><th>Paciente</th><th>DNI</th><th>N° afiliado</th><th>Autorización</th><th>Fechas</th><th class="num">Sesiones</th></tr></thead><tbody>
+    ${R.map(x=>`<tr><td>${esc(nom(x.p))}</td><td>${esc(x.p.dni)||'—'}</td><td>${esc(x.p.afil)||'—'}</td><td>${esc(x.p.autNum)||'—'}</td><td>${x.E.map(e=>Number(e.fecha.slice(8))).join(', ')}</td><td class="num">${x.E.length}</td></tr>`).join('')}</tbody>
+    <tfoot><tr><td colspan="5"><b>Total de sesiones</b></td><td class="num"><b>${tot}</b></td></tr>${val?`<tr><td colspan="5"><b>Total a facturar</b> (${tot} × ${pesos(val)})</td><td class="num"><b>${pesos(tot*val)}</b></td></tr>`:''}</tfoot></table>`)}
+/* ---------- fin obras sociales ---------- */
 function setOpc(k,v){db.cfg[k]=v;guardar();if(k==='anam'&&vista==='config')ir('config');toast(v?'Activado.':'Desactivado. Lo cargado no se borra.')}
 async function guardarNombre(){const n=document.getElementById('c_nom').value.trim();if(!n){toast('Escribí tu nombre.');return}
   db.cfg.matricula=document.getElementById('c_mat').value.trim();guardar();
@@ -1664,6 +1736,7 @@ function config(){const P=(db.cfg.perfil||{});return `<div class="ph"><div><h1>C
            ['cobro','Cobro','Particular u obra social, y si ya se cobró. Avisa en el Inicio lo que falta cobrar.']]
           .map(([k,l,d])=>`<label class="chk"><input type="checkbox" ${OPC()[k]?'checked':''} onchange="setOpc('${k}',this.checked)"><span>${l}<small>${d}</small></span></label>`).join('')}</div></div>
       ${OPC().anam?`<div class="card" id="cfgAnam">${cardAnam()}</div>`:''}
+      <div class="card" id="cfgOS">${cardOS()}</div>
       <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('up','sm')}</span>Usarlo en la tablet o el celular</h2></div><div class="cfg">
         <ol><li>Abrí esta misma dirección en la tablet o el celular:<div class="path">${esc(location.origin+location.pathname)}</div></li>
         <li>Tocá <b>Continuar con Google</b> con la misma cuenta (${esc(EMAIL)}).</li>
