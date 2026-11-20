@@ -377,6 +377,21 @@ details.mas .in{padding:14px 14px 2px}
 .nov .chip{width:32px;height:32px;flex-shrink:0}
 .nov-t{font-size:15px;margin:14px 0 4px}
 
+/* equipo terapéutico (ficha, debajo de los datos del paciente) */
+.eq-b{border-top:1px solid var(--line);padding:14px 20px 16px}
+.eq-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.eq-h h3{margin:0;font-size:15px;display:flex;align-items:center;gap:10px}
+.eq-it{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line2)}
+.eq-it:first-of-type{border-top:0}
+.eq-it .grow{flex:1;min-width:0}
+.eq-it small{display:block;font-size:12px;color:var(--muted);font-weight:600}
+.eq-it b{display:block}
+.eq-it .eq-cel{font-size:13px;color:var(--ink2)}
+.eq-it .acts{display:flex;gap:6px;flex-shrink:0}
+.bk.bad{background:var(--pink-soft)}
+.bk.bad svg,.bk.bad b{color:var(--pink)}
+.estado.bad{color:var(--pink)}
+
 .reco{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:10px 12px;display:flex;gap:10px;align-items:center;max-width:calc(100vw - 32px);font-size:14px}
 .reco[hidden]{display:none}.reco span{display:flex;gap:6px;align-items:center}
 </style>
@@ -450,7 +465,7 @@ details.mas .in{padding:14px 14px 2px}
 </svg>
 
 <script>
-const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.19-1342";
+const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.20-1014";
 let hoy=new Date();hoy.setHours(0,0,0,0);
 const refrescarHoy=()=>{hoy=new Date();hoy.setHours(0,0,0,0)};
 const pad=n=>String(n).padStart(2,'0');
@@ -942,8 +957,36 @@ function ficha(id){const p=pac(id);if(!p)return pacientes();fichaId=id;const O=O
       ${dd('Responsable',p.tutor)}${dd('Teléfono del responsable',p.telResp)}
       ${p.escuela||p.grado?`<dt>Escuela</dt><dd>${esc([p.escuela,p.grado].filter(Boolean).join(' · '))}</dd>`:''}${dd('Maestra integradora',p.integradora)}
       ${!activo(p)&&p.motivoAlta?dd('Motivo del alta',p.motivoAlta):''}</dl>
-      <div style="padding:0 20px 18px" class="noprint">${activo(p)?`<button class="btn sm sec" onclick="darAlta(${p.id})">Dar de alta</button>`:`<button class="btn sm sec" onclick="reactivar(${p.id})">Volver a tratamiento</button>`} <button class="btn sm sec" onclick="eliminarPaciente(${p.id})">Eliminar paciente</button></div></div>
+      <div style="padding:0 20px 18px" class="noprint">${activo(p)?`<button class="btn sm sec" onclick="darAlta(${p.id})">Dar de alta</button>`:`<button class="btn sm sec" onclick="reactivar(${p.id})">Volver a tratamiento</button>`} <button class="btn sm sec" onclick="eliminarPaciente(${p.id})">Eliminar paciente</button></div>
+      ${cardEquipo(p)}</div>
   </div>`}
+
+/* ---------- EQUIPO TERAPÉUTICO: otros profesionales que atienden al paciente (p.eq = [{id,esp,nom,cel}]) ---------- */
+const ESP_EQ=['Fonoaudiología','Psicología','Psicopedagogía','Terapia ocupacional','Kinesiología','Psicomotricidad','Estimulación temprana','Musicoterapia','Acompañante terapéutico','Maestra integradora','Neurología','Psiquiatría','Pediatría','Otorrinolaringología','Nutrición','Médico de cabecera'];
+const equipo=p=>Array.isArray(p.eq)?p.eq:[];
+/* profesionales ya cargados en cualquier paciente, para no escribirlos de nuevo */
+function profConocidos(){const m={};db.P.forEach(p=>equipo(p).forEach(x=>{if(x.nom)m[x.nom.toLowerCase()]=x}));return Object.values(m).sort((a,b)=>a.nom.localeCompare(b.nom))}
+function cardEquipo(p){const L=equipo(p);
+  return `<div class="eq-b"><div class="eq-h"><h3><span class="chip c-teal">${ic('users','sm')}</span>Equipo terapéutico</h3><button class="btn link noprint" onclick="formEquipo(${p.id})">${ic('plus','sm')}Agregar</button></div>
+    ${L.length?L.map(x=>`<div class="eq-it"><div class="grow"><small>${esc(x.esp)||'Profesional'}</small><b>${esc(x.nom)}</b>${x.cel?`<span class="eq-cel">${esc(x.cel)}</span>`:''}</div>
+      <div class="acts noprint">${x.cel?`<button class="btn sm sec icon" title="Escribirle por WhatsApp" onclick="wa('',${JSON.stringify(x.cel).replace(/"/g,'&quot;')})">${ic('msg','sm')}</button>`:''}<button class="btn sm sec" onclick="formEquipo(${p.id},'${x.id}')">Editar</button></div></div>`).join('')
+      :'<div class="empty" style="padding:4px 0 2px">Psicopedagoga, terapista, neurólogo… quienes atienden también a este paciente.</div>'}</div>`}
+function formEquipo(pid,xid){const x=equipo(pac(pid)).find(e=>e.id===xid)||{};const C=profConocidos();
+  abrir(`<div class="mh"><h2>${xid?'Editar profesional':'Agregar al equipo terapéutico'}</h2></div><div class="mb">
+  <div class="mfield"><label>Nombre</label><input id="eq_n" list="dl_eqn" value="${esc(x.nom||'')}" placeholder="Ej.: Lic. María Pérez" oninput="autoEquipo()">
+    <datalist id="dl_eqn">${C.map(c=>`<option value="${esc(c.nom)}">${esc(c.esp||'')}</option>`).join('')}</datalist></div>
+  <div class="frow"><div class="mfield"><label>Especialidad</label><input id="eq_e" list="dl_eqe" value="${esc(x.esp||'')}" placeholder="Ej.: Psicopedagogía"><datalist id="dl_eqe">${ESP_EQ.map(e=>`<option value="${e}">`).join('')}</datalist></div>
+    <div class="mfield"><label>Celular <span class="opt">opcional</span></label><input id="eq_c" value="${esc(x.cel||'')}" placeholder="Ej.: 3521 555555" inputmode="tel"></div></div></div>
+  <div class="mf">${xid?`<button class="btn sec" style="margin-right:auto;color:var(--pink)" onclick="quitarEquipo(${pid},'${xid}')">Quitar</button>`:''}<button class="btn sec" onclick="cerrar()">Cancelar</button><button class="btn" onclick="guardarEquipo(${pid},'${xid||''}')">Guardar</button></div>`)}
+/* si elige un profesional que ya cargó en otro paciente, completa especialidad y celular */
+function autoEquipo(){const i=document.getElementById('eq_n'),n=i.value.trim().toLowerCase(),c=profConocidos().find(x=>x.nom.toLowerCase()===n);if(!c)return;i.value=c.nom;
+  const e=document.getElementById('eq_e'),t=document.getElementById('eq_c');if(!e.value)e.value=c.esp||'';if(!t.value)t.value=c.cel||''}
+function guardarEquipo(pid,xid){const p=pac(pid),g=k=>document.getElementById(k).value.trim();
+  const d={nom:g('eq_n'),esp:g('eq_e'),cel:g('eq_c')};if(!d.nom){toast('Escribí el nombre del profesional.');return}
+  if(!Array.isArray(p.eq))p.eq=[];const x=p.eq.find(e=>e.id===xid);
+  if(x)Object.assign(x,d);else p.eq.push({id:uid(),...d});guardar();cerrar();toast('Equipo terapéutico guardado.');ir('ficha',pid)}
+function quitarEquipo(pid,xid){const p=pac(pid),x=equipo(p).find(e=>e.id===xid);
+  confirmar('Quitar del equipo','¿Quitar a '+esc(x.nom)+' del equipo terapéutico de este paciente?','Quitar',()=>{p.eq=equipo(p).filter(e=>e.id!==xid);if(!p.eq.length)delete p.eq;guardar();toast('Quitado del equipo.');ir('ficha',pid)},true)}
 const esBorr=e=>e.estado==='borrador';
 const AVISO_CONF='Revisá que el texto, la fecha y la asistencia estén bien: <b>una vez confirmada, la sesión ya no se puede corregir ni borrar</b>. El cobro sí se puede marcar después.';
 function leerCompose(){const O=OPC(),g=id=>{const x=document.getElementById(id);return x?x.value.trim():''};
@@ -1073,7 +1116,11 @@ const NOVEDADES=[
     ['folder','<b>Carpetas</b> en la pestaña Archivos de cada paciente: Informes de especialistas, Pedidos médicos y Facturación. Podés crear las tuyas con el botón <b>Carpetas</b>.'],
     ['up','Al subir un archivo elegís en qué carpeta guardarlo (<b>Guardar en</b>).'],
     ['right','<b>Mover</b> un archivo de una carpeta a otra.'],
-    ['x','<b>Borrar</b> un archivo si lo subiste por error (te pide confirmación).']]}];
+    ['x','<b>Borrar</b> un archivo si lo subiste por error (te pide confirmación).']]},
+  {n:2,fecha:'2026-11-20',titulo:'Equipo terapéutico',items:[
+    ['users','En la ficha de cada paciente, debajo de sus datos, está el <b>Equipo terapéutico</b>: los otros profesionales que lo atienden.'],
+    ['user','De cada uno cargás <b>especialidad, nombre y celular</b>. Si ya lo cargaste en otro paciente, al escribir el nombre se completa solo.'],
+    ['msg','Con el botón de mensaje le escribís por <b>WhatsApp</b>.']]}];
 function avisoNovedades(){const ult=NOVEDADES[NOVEDADES.length-1].n,vista=+db.cfg.novVista||0;if(vista>=ult)return;
   if(!db.P.length){db.cfg.novVista=ult;guardar();return}
   const L=NOVEDADES.filter(x=>x.n>vista);
@@ -1298,6 +1345,7 @@ const $id=id=>document.getElementById(id);
 
 function msj(e){const m=(e&&e.message)||String(e||'');
   if(m==='reconectar')return 'Hay que reconectar Google.';
+  if(m==='drive-lleno')return 'Tu Google Drive está lleno.';
   if(!navigator.onLine||/failed to fetch|network|load failed/i.test(m))return 'No hay conexión a internet.';
   return m||'Error inesperado.'}
 const esRed=e=>!navigator.onLine||/failed to fetch|network|load failed/i.test((e&&e.message)||'');
@@ -1328,7 +1376,9 @@ async function g(metodo,url,cuerpo,headers){
   if(!GTOK||Date.now()>GEXP){olvidarTok();throw new Error('reconectar')}
   const r=await fetch(url,{method:metodo,headers:Object.assign({Authorization:'Bearer '+GTOK},headers||{}),body:cuerpo});
   if(r.status===401){olvidarTok();throw new Error('reconectar')}
-  if(!r.ok){let t='';try{t=(await r.text()).slice(0,200)}catch(e){}throw new Error('Google Drive '+r.status+(t?': '+t:''))}
+  if(!r.ok){let t='';try{t=(await r.text()).slice(0,400)}catch(e){}
+    if(/storageQuotaExceeded/i.test(t))throw new Error('drive-lleno');   // Drive sin espacio
+    throw new Error('Google Drive '+r.status+(t?': '+t.slice(0,200):''))}
   if(r.status===204)return null;
   if(url.includes('alt=media'))return r;  // descarga de archivo: se devuelve la respuesta tal cual (la lee quien llama)
   return (r.headers.get('content-type')||'').includes('json')?r.json():r}
@@ -1345,7 +1395,13 @@ async function subirDrive(meta,blob,id,campos){const b='mas'+Math.random().toStr
 const jsonBlob=s=>new Blob([s],{type:'application/json'});
 
 /* ---------- guardar y traer ---------- */
-function guardar(){PEND=true;pintarCopia();cola=cola.then(subirDatos).catch(()=>{});return cola}
+function guardar(){PEND=true;guardarPend();pintarCopia();cola=cola.then(subirDatos).catch(()=>{});return cola}
+/* respaldo en este aparato de lo que todavía no llegó al Drive (sin internet, Drive lleno, permiso vencido):
+   si se cierra la ventana no se pierde; al volver a entrar se fusiona con lo del Drive y se sube */
+const pendKey=()=>'mas-pend-'+EMAIL;
+function guardarPend(){if(!db||!EMAIL)return;try{localStorage.setItem(pendKey(),JSON.stringify({base:BASE,mio:db,t:Date.now()}))}catch(e){}}
+function borrarPend(){try{localStorage.removeItem(pendKey())}catch(e){}}
+function leerPend(){try{return JSON.parse(localStorage.getItem(pendKey())||'null')}catch(e){return null}}
 async function leerRemoto(){const r=await g('GET',DAPI+'/files/'+ARCH+'?alt=media');const t=await r.text();let d=null;try{d=JSON.parse(t)}catch(e){}return d}
 async function subirDatos(){
   if(!PEND||!db||!CARP)return;
@@ -1359,12 +1415,13 @@ async function subirDatos(){
       const r=await subirDrive(ARCH?{}:{name:'datos.json',parents:[CARP]},jsonBlob(envio),ARCH);
       ARCH=r.id;VERS=r.version;ULT=r.modifiedTime;BASE=envio;ERRG=null;GUARDANDO=false;
       guardarHistorial(envio);
-      if(JSON.stringify(db)===envio){pintarCopia();return}
+      if(JSON.stringify(db)===envio){borrarPend();LLENO_VISTO=false;pintarCopia();return}
       PEND=true;
     }catch(e){GUARDANDO=false;PEND=true;
       if(e.message==='reconectar'){ERRG='reconectar';pintarCopia();avisoReconectar();return}
+      if(e.message==='drive-lleno'){ERRG='lleno';pintarCopia();avisoLleno();return}
       if(esRed(e)){ERRG='sin-red';pintarCopia();return}
-      ERRG='error';pintarCopia();toast('No se pudo guardar: '+msj(e));return}
+      const ya=ERRG==='error';ERRG='error';pintarCopia();if(!ya)toast('No se pudo guardar: '+msj(e));return}
   }
   pintarCopia()}
 /* copia del día en la carpeta "historial" (como mucho cada 10 minutos) + limpieza de las de más de 120 días */
@@ -1396,12 +1453,35 @@ function avisoReconectar(){let b=$id('reco');if(!b){b=document.createElement('di
 async function reconectar(){try{await pedirToken(false);const b=$id('reco');if(b)b.hidden=true;ERRG=null;pintarCopia();if(PEND)guardar();toast('Listo, conectado.')}catch(e){toast(msj(e))}}
 setInterval(()=>{if(db&&GTOK&&Date.now()>GEXP-60000){GTOK=null;avisoReconectar()}},30000);
 
+/* ---------- Drive lleno o casi lleno ---------- */
+let LLENO_VISTO=false,LIBRE=null;
+const POCO_MB=500,mb=b=>b>=1024**3?(b/1024**3).toFixed(1).replace('.',',')+' GB':Math.max(0,Math.round(b/1024**2))+' MB';
+const COMO_LIBERAR=`<ul class="nov" style="margin-top:6px">
+    <li><span class="chip c-teal">${ic('x','sm')}</span><div>Vaciá la <b>papelera</b> de Google Drive (lo que está ahí también ocupa lugar).</div></li>
+    <li><span class="chip c-teal">${ic('folder','sm')}</span><div>Borrá archivos grandes que no uses: videos, fotos viejas o mails con adjuntos pesados (Gmail y Google Fotos comparten el mismo espacio).</div></li>
+    <li><span class="chip c-teal">${ic('cloud','sm')}</span><div>O comprale más espacio a Google (Google One).</div></li></ul>
+  <div class="acts" style="margin-top:12px"><a class="btn sec" href="https://drive.google.com/drive/quota" target="_blank">Ver qué ocupa lugar</a><a class="btn sec" href="https://drive.google.com/drive/trash" target="_blank">Abrir la papelera</a></div>`;
+function avisoLleno(){if(LLENO_VISTO)return;LLENO_VISTO=true;
+  abrir(`<div class="mh"><span class="pill pink">Importante</span><h2>Tu Google Drive está lleno</h2></div><div class="mb">
+    <p><b>Tus datos no se están guardando en el Drive.</b> Lo que cargues queda guardado en este aparato y se sube solo apenas haya lugar: no se pierde.</p>
+    <p>Para liberar espacio:</p>${COMO_LIBERAR}</div><div class="mf"><button class="btn" onclick="cerrar()">Entendido</button></div>`)}
+async function revisarEspacio(){if(!GTOK||Date.now()>GEXP)return;
+  try{const j=await g('GET',DAPI+'/about?fields=storageQuota'),q=j.storageQuota||{};
+    LIBRE=q.limit?(+q.limit)-(+q.usage||0):null;pintarCopia();
+    if(LIBRE!==null&&LIBRE<POCO_MB*1024**2&&ERRG!=='lleno'){const k='mas-poco-'+EMAIL;if(lsGet(k)===iso(new Date()))return;lsSet(k,iso(new Date()));
+      abrir(`<div class="mh"><span class="pill amber">Aviso</span><h2>Tu Google Drive está casi lleno</h2></div><div class="mb">
+        <p>Te quedan <b>${mb(LIBRE)}</b> libres. Cuando se llene, tus pacientes ya no se van a poder guardar en el Drive.</p><p>Conviene liberar espacio ahora:</p>${COMO_LIBERAR}</div>
+        <div class="mf"><button class="btn" onclick="cerrar()">Entendido</button></div>`)}}catch(e){}}
+setInterval(revisarEspacio,3600e3);
+
 /* ---------- estado (abajo a la izquierda) ---------- */
 function estadoCopia(){
+  if(ERRG==='lleno'&&PEND)return{k:'bad',t:'Tu Google Drive está lleno',s:'No se están guardando tus datos en el Drive. Lo que cargás queda en este aparato y se sube solo cuando liberes espacio.'};
   if(ERRG==='reconectar'&&PEND)return{k:'warn',t:'Falta reconectar Google',s:'Tocá "Reconectar" para seguir guardando. Lo cargado no se perdió.'};
-  if(ERRG==='sin-red'&&PEND)return{k:'warn',t:'Sin conexión',s:'Lo que cargues queda en esta pantalla y se guarda solo cuando vuelva internet. No cierres la ventana.'};
+  if(ERRG==='sin-red'&&PEND)return{k:'warn',t:'Sin conexión',s:'Lo que cargues queda guardado en este aparato y se sube solo cuando vuelva internet.'};
   if(ERRG==='error'&&PEND)return{k:'warn',t:'No se pudo guardar',s:'Se vuelve a intentar solo en unos segundos.'};
   if(PEND||GUARDANDO)return{k:'ok',t:'Guardando…',s:'Guardando en tu Google Drive.'};
+  if(LIBRE!==null&&LIBRE<POCO_MB*1024**2)return{k:'warn',t:'Tu Drive está casi lleno',s:'Te quedan '+mb(LIBRE)+' libres. Liberá espacio para que se siga guardando todo.'};
   return{k:'ok',t:'Guardado en tu Drive',s:ULT?'Último guardado '+cuando(ULT)+'.':'Todo lo que cargás se guarda solo en tu Google Drive.'}}
 function pintarCopia(){const e=estadoCopia(),b=$id('bk');if(!b)return;
   b.className='bk '+(e.k==='ok'?'':e.k);
@@ -1459,12 +1539,15 @@ async function abrirApp(){
   if(f.length){ARCH=f[0].id;VERS=f[0].version;ULT=f[0].modifiedTime;db=(await leerRemoto())||VACIO()}
   else{ARCH=null;VERS=null;ULT=null;db=VACIO()}
   normalizar();BASE=ARCH?JSON.stringify(db):'null';PEND=false;ERRG=null;
+  const pend=leerPend();
+  if(pend&&pend.mio){const remoto=JSON.parse(BASE);db=fusionar(pend.base?JSON.parse(pend.base):null,pend.mio,remoto);normalizar();
+    if(JSON.stringify(db)!==BASE){guardar();toast('Se recuperó lo que había quedado sin guardar en este aparato.')}else borrarPend()}
   if(!db.cfg.perfil||!db.cfg.perfil.nombre){mostrarBienvenida();return}
   entrarApp()}
 function entrarApp(){perfilDesdeDb();setTok('online');
   document.querySelectorAll('.me button[onclick="bloquear()"]').forEach(b=>b.hidden=true);
   $id('lock').hidden=true;$id('app').hidden=false;ultAct=Date.now();pintarCopia();ir('inicio');
-  avisoVencimiento();avisoNovedades()}
+  avisoVencimiento();avisoNovedades();revisarEspacio()}
 function mostrarBienvenida(){
   pantalla('user','Empecemos','Contanos quién sos. Tus pacientes se van a guardar en tu Google Drive, en la carpeta <b>MAS Consultorios</b>.',
     `<div class="mfield"><label>Tu nombre</label><input id="s_nom" placeholder="Ej.: Laura Pérez" autocomplete="off"></div>
@@ -1497,14 +1580,15 @@ async function subir(pid,files){files=[...files];if(!files.length)return;const c
     const f=await achicar(f0),ts=new Date(),archivo=ts.getFullYear()+pad(ts.getMonth()+1)+pad(ts.getDate())+'-'+pad(ts.getHours())+pad(ts.getMinutes())+pad(ts.getSeconds())+'-'+nombreLimpio(f.name);
     try{const r=await subirDrive({name:'p'+pid+'-'+archivo,parents:[ADJ]},f,null,'id');
       db.A.push({id:uid(),pid,archivo,driveId:r.id,nombre:f0.name,tipo:f.type,fecha:iso(hoy),subido:new Date().toISOString(),...(carp?{carpeta:carp}:{})});ok++}
-    catch(e){toast('No se pudo guardar '+f0.name+': '+msj(e));if(e.message==='reconectar'){avisoReconectar();break}}}
+    catch(e){if(e.message==='drive-lleno'){LLENO_VISTO=false;avisoLleno();break}
+      toast('No se pudo guardar '+f0.name+': '+msj(e));if(e.message==='reconectar'){avisoReconectar();break}}}
   if(ok){guardar();toast(ok===1?'Archivo guardado.':ok+' archivos guardados.')}
   tabF='archivos';ir('ficha',pid)}
 
 /* ---------- CONFIGURACIÓN ---------- */
 function cardDrive(){const e=estadoCopia();
   return `<div class="card-h"><h2><span class="chip c-teal">${ic('cloud','sm')}</span>Tus datos en tu Google Drive</h2></div><div class="cfg">
-    <div class="estado ${e.k==='ok'?'ok':'warn'}">${ic(e.k==='ok'?'cloud':'warn','sm')}${esc(e.t)}</div><p>${esc(e.s)}</p>
+    <div class="estado ${e.k==='ok'?'ok':e.k==='bad'?'bad':'warn'}">${ic(e.k==='ok'?'cloud':'warn','sm')}${esc(e.t)}</div><p>${esc(e.s)}</p>
     <p style="font-size:13px;color:var(--muted)">Todo se guarda solo en la carpeta <b>MAS Consultorios</b> de tu Google Drive (${esc(EMAIL)}). Los datos son tuyos: nadie más los ve. Queda además una copia por día de los últimos 4 meses.</p>
     <div class="acts">${CARP?`<a class="btn sec" href="https://drive.google.com/drive/folders/${CARP}" target="_blank">${ic('cloud','sm')}Ver carpeta</a>`:''}<button class="btn sec" onclick="descargarCopia()">${ic('file','sm')}Descargar una copia</button><button class="btn sec" onclick="verDias()">Volver a un día anterior</button></div></div>`}
 function config(){const P=(db.cfg.perfil||{});return `<div class="ph"><div><h1>Configuración</h1><p>Tus datos, tu licencia y cómo usarlo en otros aparatos.</p></div></div>
