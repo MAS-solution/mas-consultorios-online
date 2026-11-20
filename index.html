@@ -392,6 +392,15 @@ details.mas .in{padding:14px 14px 2px}
 .bk.bad svg,.bk.bad b{color:var(--pink)}
 .estado.bad{color:var(--pink)}
 
+/* preguntas de la primera consulta (Configuración) */
+.aq{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.aq-r{display:flex;align-items:center;gap:6px}
+.aq-r input[type=checkbox]{width:18px;height:18px;flex-shrink:0;accent-color:var(--teal)}
+.aq-r .aq-l{flex:1;min-width:0;padding:7px 10px;border:1px solid var(--line);border-radius:3px;font:inherit;font-size:14px;background:#fff;color:var(--ink)}
+.aq-r.off .aq-l{color:var(--faint);text-decoration:line-through}
+.aq-r .btn.icon{width:32px;padding:0;justify-content:center}
+.aq-sp{width:32px;flex-shrink:0}
+
 .reco{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:10px 12px;display:flex;gap:10px;align-items:center;max-width:calc(100vw - 32px);font-size:14px}
 .reco[hidden]{display:none}.reco span{display:flex;gap:6px;align-items:center}
 </style>
@@ -465,7 +474,7 @@ details.mas .in{padding:14px 14px 2px}
 </svg>
 
 <script>
-const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.20-1021";
+const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.20-1043";
 let hoy=new Date();hoy.setHours(0,0,0,0);
 const refrescarHoy=()=>{hoy=new Date();hoy.setHours(0,0,0,0)};
 const pad=n=>String(n).padStart(2,'0');
@@ -872,22 +881,49 @@ function autAviso(p){const a=autUso(p);if(!a)return '';
   return ''}
 
 /* ---------- FICHA ---------- */
-const PARTES=[['trab','Qué se trabajó'],['resp','Cómo respondió'],['casa','Tareas para la casa']];
-const ANAM_INF=[['embarazo','Embarazo'],['parto','Parto y nacimiento'],['desarrollo','Desarrollo (motor y del lenguaje)'],['alimentacion','Alimentación (lactancia, masticación, deglución)'],['sueno','Sueño'],['audicion','Audición (otitis, estudios)'],
-  ['familia','Antecedentes familiares'],['medicacion','Medicación'],['alergias','Alergias'],['operaciones','Operaciones (amígdalas, adenoides, otras)'],['otros','Otros datos']];
-const ANAM_GEN=[['personales','Antecedentes personales (enfermedades, tratamientos anteriores)'],['familia','Antecedentes familiares'],['medicacion','Medicación'],['alergias','Alergias'],['operaciones','Operaciones o internaciones'],
-  ['habitos','Hábitos (sueño, alimentación, actividad física)'],['estudios','Estudios previos'],['otros','Otros datos']];
-/* la entrevista inicial cambia según la especialidad; lo ya cargado de otra lista se sigue mostrando */
-function anamCampos(a){const base=/fono|psicoped|terapia ocup|estimulaci|pediatr/i.test(espec())?ANAM_INF:ANAM_GEN;
-  const ya=new Set(base.map(x=>x[0]));const extra=[...ANAM_INF,...ANAM_GEN].filter(([k])=>!ya.has(k)&&a&&a[k]&&(ya.add(k),true));return [...base,...extra]}
-function textoSesion(t){return esc(t).replace(new RegExp('^('+PARTES.map(x=>x[1]).join('|')+'):','gm'),'<span class="et">$1:</span>')}
+/* ---------- PERFILES POR ESPECIALIDAD ----------
+   Cada perfil define: preguntas de la primera consulta (claves de ANAM_Q), tests sugeridos, partes de la sesión y especialidades del equipo.
+   Las claves de ANAM_Q NUNCA se renombran (son los campos guardados en p.anam). Para sumar una especialidad: agregar un perfil acá. */
+const ANAM_Q={embarazo:'Embarazo',parto:'Parto y nacimiento',desarrollo:'Desarrollo (motor y del lenguaje)',alimentacion:'Alimentación (lactancia, masticación, deglución)',sueno:'Sueño',
+  audicion:'Audición (otitis, estudios)',familia:'Antecedentes familiares',medicacion:'Medicación',alergias:'Alergias',operaciones:'Operaciones (amígdalas, adenoides, otras)',otros:'Otros datos',
+  personales:'Antecedentes personales (enfermedades, tratamientos anteriores)',habitos:'Hábitos (sueño, alimentación, actividad física)',estudios:'Estudios previos',
+  habla:'Lenguaje y habla (cuándo empezó a hablar, cómo se comunica)',orales:'Hábitos orales (chupete, mamadera, succión del dedo)',respiracion:'Respiración (bucal o nasal, ronquidos)',voz:'Voz (disfonías, uso de la voz)',
+  vision:'Visión (anteojos, estudios)',escolaridad:'Historia escolar (jardín, repitencias, cambios de escuela)',lectoescritura:'Lectura y escritura',matematica:'Matemática',
+  atencion:'Atención y concentración',conducta:'Conducta y vínculos (en casa y en la escuela)',tareas:'Tareas y hábitos de estudio',
+  historia:'Historia de vida (infancia, momentos importantes, cambios)',vinculos:'Vínculos (familia, pareja, amistades)',trabajo:'Trabajo o estudio',
+  tratamientos:'Tratamientos anteriores (psicológicos o psiquiátricos)',consumo:'Consumo (alcohol, tabaco, otras sustancias)',riesgo:'Situaciones de riesgo (ideas de muerte, autolesiones)',red:'Red de apoyo'};
+const PARTES_STD=[['trab','Qué se trabajó'],['resp','Cómo respondió'],['casa','Tareas para la casa']];
+const PERFILES=[
+  {id:'fono',re:/fono/i,anam:['embarazo','parto','desarrollo','habla','alimentacion','orales','respiracion','sueno','audicion','voz','familia','medicacion','alergias','operaciones','otros'],
+    tests:['PLON-R','ITPA','TEPROSIF-R','Test de articulación','ELCE','CELF-5','Protocolo de deglución','Screening auditivo'],
+    eq:['Psicopedagogía','Psicología','Terapia ocupacional','Otorrinolaringología','Neurología','Pediatría','Maestra integradora']},
+  {id:'psicoped',re:/psicoped/i,anam:['embarazo','parto','desarrollo','sueno','audicion','vision','escolaridad','lectoescritura','matematica','atencion','conducta','tareas','familia','medicacion','estudios','otros'],
+    tests:['WISC-V','Bender','DTVP-3','Figura de Rey','PROLEC-R','TALE','Batería Evalúa','CARAS-R','Dibujo de la familia','HTP'],
+    eq:['Fonoaudiología','Psicología','Neurología','Terapia ocupacional','Maestra integradora','Pediatría','Psiquiatría']},
+  {id:'psico',re:/psicolog/i,anam:['historia','familia','vinculos','trabajo','tratamientos','medicacion','sueno','consumo','riesgo','red','otros'],
+    tests:['BDI-II (Beck depresión)','BAI (Beck ansiedad)','STAI','SCL-90-R','MMPI-2','HTP','Persona bajo la lluvia','Rorschach'],
+    partes:[['temas','Temas de la sesión'],['obs','Observaciones'],['prox','Para la próxima']],
+    eq:['Psiquiatría','Psicopedagogía','Fonoaudiología','Médico de cabecera','Neurología','Acompañante terapéutico']},
+  {id:'infantil',re:/terapia ocup|estimulaci|pediatr|psicomot/i,anam:['embarazo','parto','desarrollo','alimentacion','sueno','audicion','familia','medicacion','alergias','operaciones','otros'],tests:[]},
+  {id:'general',re:/.*/,anam:['personales','familia','medicacion','alergias','operaciones','habitos','estudios','otros'],tests:[]}];
+const perfil=()=>PERFILES.find(x=>x.re.test(espec()))||PERFILES[PERFILES.length-1];
+const PARTES_TODAS=[...PARTES_STD,...PERFILES.flatMap(x=>x.partes||[])];
+let PARTES=PARTES_STD;function partes(){PARTES=perfil().partes||PARTES_STD;return PARTES}
+/* preguntas de la primera consulta: las del perfil, o las que armó en Configuración (db.cfg.anamQ=[{k,l?,on?}]) */
+function anamLista(){const c=db.cfg.anamQ;if(Array.isArray(c)&&c.length)return c.map(x=>({k:x.k,l:x.l||ANAM_Q[x.k]||x.k,on:x.on!==false,propia:!ANAM_Q[x.k]}));
+  return perfil().anam.map(k=>({k,l:ANAM_Q[k],on:true,propia:false}))}
+function anamCampos(a){const L=anamLista(),vis=L.filter(x=>x.on).map(x=>[x.k,x.l]),ya=new Set(vis.map(x=>x[0]));
+  /* lo ya cargado en una pregunta oculta, quitada o de otra especialidad se sigue mostrando */
+  const nombre=k=>(L.find(x=>x.k===k)||{}).l||ANAM_Q[k]||(db.cfg.anamNombres||{})[k]||(/^q_/.test(k)?'Otra pregunta':'');
+  const extra=Object.keys(a||{}).filter(k=>!ya.has(k)&&!['fecha','quien','editado'].includes(k)&&nombre(k)&&a[k]).map(k=>[k,nombre(k)]);return [...vis,...extra]}
+function textoSesion(t){return esc(t).replace(new RegExp('^('+PARTES_TODAS.map(x=>x[1]).join('|')+'):','gm'),'<span class="et">$1:</span>')}
 function pillPago(e,ficha){if(!e.pago)return '';const c=e.cobrado;
   return `<button class="pill ${c?'teal':'amber'}" style="border:0;cursor:pointer" title="${c?'Marcar como no cobrada':'Marcar como cobrada'}" onclick="cobrar('${e.id}')">${esc(e.pago)} · ${c?'cobrada':'sin cobrar'}</button>`}
 function cobrar(id){const e=db.E.find(x=>x.id===id);if(!e)return;e.cobrado=!e.cobrado;e.cobradoEl=e.cobrado?iso(hoy):undefined;guardar();toast(e.cobrado?'Marcada como cobrada.':'Marcada como sin cobrar.');ir(vista,vista==='ficha'?e.pid:undefined)}
 function modoPartes(on){db.cfg.partes=on;guardar();ir('ficha',fichaId)}
 let fichaId=null;
 
-function ficha(id){const p=pac(id);if(!p)return pacientes();fichaId=id;const O=OPC();
+function ficha(id){const p=pac(id);if(!p)return pacientes();fichaId=id;const O=OPC();partes();
   if((tabF==='anam'&&!O.anam)||(tabF==='evalu'&&!O.evalu))tabF='historia';
   const E=db.E.filter(e=>e.pid==id).sort((a,b)=>b.fecha.localeCompare(a.fecha)||String(b.creado||'').localeCompare(String(a.creado||'')));
   const T=db.T.filter(t=>t.pid==id&&t.fecha>=iso(hoy)).sort((a,b)=>(a.fecha+a.hora).localeCompare(b.fecha+b.hora));
@@ -975,7 +1011,7 @@ function formEquipo(pid,xid){const x=equipo(pac(pid)).find(e=>e.id===xid)||{};co
   abrir(`<div class="mh"><h2>${xid?'Editar profesional':'Agregar al equipo terapéutico'}</h2></div><div class="mb">
   <div class="mfield"><label>Nombre</label><input id="eq_n" list="dl_eqn" value="${esc(x.nom||'')}" placeholder="Ej.: Lic. María Pérez" oninput="autoEquipo()">
     <datalist id="dl_eqn">${C.map(c=>`<option value="${esc(c.nom)}">${esc(c.esp||'')}</option>`).join('')}</datalist></div>
-  <div class="frow"><div class="mfield"><label>Especialidad</label><input id="eq_e" list="dl_eqe" value="${esc(x.esp||'')}" placeholder="Ej.: Psicopedagogía"><datalist id="dl_eqe">${ESP_EQ.map(e=>`<option value="${e}">`).join('')}</datalist></div>
+  <div class="frow"><div class="mfield"><label>Especialidad</label><input id="eq_e" list="dl_eqe" value="${esc(x.esp||'')}" placeholder="Ej.: Psicopedagogía"><datalist id="dl_eqe">${[...new Set([...(perfil().eq||[]),...ESP_EQ])].filter(e=>e.toLowerCase()!==espec().toLowerCase()).map(e=>`<option value="${e}">`).join('')}</datalist></div>
     <div class="mfield"><label>Celular <span class="opt">opcional</span></label><input id="eq_c" value="${esc(x.cel||'')}" placeholder="Ej.: 3521 555555" inputmode="tel"></div></div></div>
   <div class="mf">${xid?`<button class="btn sec" style="margin-right:auto;color:var(--pink)" onclick="quitarEquipo(${pid},'${xid}')">Quitar</button>`:''}<button class="btn sec" onclick="cerrar()">Cancelar</button><button class="btn" onclick="guardarEquipo(${pid},'${xid||''}')">Guardar</button></div>`)}
 /* si elige un profesional que ya cargó en otro paciente, completa especialidad y celular */
@@ -989,7 +1025,7 @@ function quitarEquipo(pid,xid){const p=pac(pid),x=equipo(p).find(e=>e.id===xid);
   confirmar('Quitar del equipo','¿Quitar a '+esc(x.nom)+' del equipo terapéutico de este paciente?','Quitar',()=>{p.eq=equipo(p).filter(e=>e.id!==xid);if(!p.eq.length)delete p.eq;guardar();toast('Quitado del equipo.');ir('ficha',pid)},true)}
 const esBorr=e=>e.estado==='borrador';
 const AVISO_CONF='Revisá que el texto, la fecha y la asistencia estén bien: <b>una vez confirmada, la sesión ya no se puede corregir ni borrar</b>. El cobro sí se puede marcar después.';
-function leerCompose(){const O=OPC(),g=id=>{const x=document.getElementById(id);return x?x.value.trim():''};
+function leerCompose(){partes();const O=OPC(),g=id=>{const x=document.getElementById(id);return x?x.value.trim():''};
   let t;if(O.partes)t=PARTES.map(([k,l])=>g('evo_'+k)?l+': '+g('evo_'+k):'').filter(Boolean).join('\n\n');else t=g('evo');
   const as=g('evo_as'),pg=g('evo_pg'),cb=document.getElementById('evo_cb');
   if(!t&&as&&as!=='vino')t=ASIST[as]+'.';
@@ -1024,7 +1060,7 @@ function nuevoObj(pid){const i=document.getElementById('ob_t'),t=i.value.trim();
   db.Ob.push({id:uid(),pid,texto:t,desde:iso(hoy)});guardar();ir('ficha',pid);setTimeout(()=>{const x=document.getElementById('ob_t');if(x)x.focus()},30)}
 function togObj(id){const o=db.Ob.find(x=>x.id===id);if(o.logrado)delete o.logrado;else o.logrado=iso(hoy);guardar();ir('ficha',o.pid)}
 function borrarObj(id){const o=db.Ob.find(x=>x.id===id);confirmar('Borrar objetivo','¿Borrar <b>'+esc(o.texto)+'</b>?','Borrar',()=>{db.Ob=db.Ob.filter(x=>x.id!==id);guardar();ir('ficha',o.pid)},true)}
-function nuevaEval(pid){const tests=[...new Set(db.V.map(v=>v.test))].sort();
+function nuevaEval(pid){const usados=[...new Set(db.V.map(v=>v.test))].sort(),tests=[...usados,...perfil().tests.filter(t=>!usados.includes(t))];
   abrir(`<div class="mh"><h2>Cargar evaluación</h2></div><div class="mb">
   <div class="frow"><div class="mfield"><label>Test o protocolo</label><input id="ev_t" list="ev_l" placeholder="Nombre del test, escala o evaluación"><datalist id="ev_l">${tests.map(t=>`<option value="${esc(t)}">`).join('')}</datalist></div><div class="mfield"><label>Fecha</label><input type="date" id="ev_f" value="${iso(hoy)}"></div></div>
   <div class="mfield"><label>Puntaje o resultado <span class="opt">opcional</span></label><input id="ev_p" placeholder="Ej.: 18/40, percentil 25, normal"></div>
@@ -1267,11 +1303,12 @@ function config(){return `<div class="ph"><div><h1>Configuración</h1><p>Copia d
       <div class="card">${cardColores()}</div>
       <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('cfg','sm')}</span>Qué usar en las fichas</h2></div><div class="cfg">
         <p>Todo es opcional. Apagá lo que no uses y deja de aparecer (lo que ya cargaste no se borra).</p>
-        ${[['anam','Primera consulta','Entrevista inicial: embarazo, parto, desarrollo, alimentación, sueño, audición, antecedentes.'],
+        ${[['anam','Primera consulta','Entrevista inicial con las preguntas de tu especialidad. Las podés cambiar en "Preguntas de la primera consulta".'],
            ['evalu','Objetivos y evaluaciones','Objetivos con "en proceso / logrado" y tests con puntaje.'],
            ['asist','Asistencia','Vino / faltó con aviso / faltó sin aviso, en cada sesión.'],
            ['cobro','Cobro','Particular u obra social, y si ya se cobró. Avisa en el Inicio lo que falta cobrar.']]
           .map(([k,l,d])=>`<label class="chk"><input type="checkbox" ${OPC()[k]?'checked':''} onchange="setOpc('${k}',this.checked)"><span>${l}<small>${d}</small></span></label>`).join('')}</div></div>
+      ${OPC().anam?`<div class="card" id="cfgAnam">${cardAnam()}</div>`:''}
       <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('up','sm')}</span>Recuperar una copia</h2></div><div class="cfg">
         <p>Si cambiaste de computadora o se borró algo, podés traer la última copia guardada en Google Drive.${EST.copiaEnDrive?' La copia más nueva es de '+esc(cuando(EST.copiaEnDrive))+'.':''}</p>
         <div class="acts"><button class="btn sec" ${EST.copiaEnDrive?'':'disabled'} onclick="ofrecerRecuperar()">Recuperar copia de Google Drive</button></div></div></div>
@@ -1295,7 +1332,30 @@ function config(){return `<div class="ph"><div><h1>Configuración</h1><p>Copia d
   </div>`}
 async function accionDrive(a){try{toast(a==='elegir-drive'?'Se abrió una ventana para elegir la carpeta (puede quedar detrás).':'Un momento…');EST=await api('POST','/api/'+a);pintarCopia();
   const e=estadoCopia();toast(e.k==='ok'?'Listo: la copia está en Google Drive.':EST.sinDrive?'No se encontró Google Drive en esta compu.':e.t+'.');ir('config')}catch(x){toast(x.message)}}
-function setOpc(k,v){db.cfg[k]=v;guardar();toast(v?'Activado.':'Desactivado. Lo cargado no se borra.')}
+/* ---------- Configuración: preguntas de la primera consulta ---------- */
+function cardAnam(){const L=anamLista(),propio=Array.isArray(db.cfg.anamQ)&&db.cfg.anamQ.length;
+  return `<div class="card-h"><h2><span class="chip c-blue">${ic('note','sm')}</span>Preguntas de la primera consulta</h2></div><div class="cfg">
+    <p>${propio?'Tu lista personalizada.':'Las preguntas de '+(espec()?esc(espec().toLowerCase()):'tu especialidad')+'.'} Destildá las que no hacés, cambiales el nombre o el orden, o sumá las tuyas. Lo que ya cargaste en tus pacientes no se borra.</p>
+    <div class="aq">${L.map((x,i)=>`<div class="aq-r${x.on?'':' off'}"><input type="checkbox" ${x.on?'checked':''} title="Mostrar u ocultar" onchange="anamSet(${i},'on',this.checked)">
+      <input class="aq-l" value="${esc(x.l)}" onchange="anamSet(${i},'l',this.value)" aria-label="Nombre de la pregunta">
+      <button class="btn sm sec icon" title="Subir" ${i?'':'disabled'} onclick="anamMover(${i},-1)">&uarr;</button><button class="btn sm sec icon" title="Bajar" ${i<L.length-1?'':'disabled'} onclick="anamMover(${i},1)">&darr;</button>
+      ${x.propia?`<button class="btn sm sec icon" title="Quitar pregunta" onclick="anamQuitar(${i})">${ic('x','sm')}</button>`:'<span class="aq-sp"></span>'}</div>`).join('')}</div>
+    <div class="addrow"><input id="aq_n" placeholder="Escribí una pregunta nueva" onkeydown="if(event.key==='Enter')anamAgregar()"><button class="btn sec" onclick="anamAgregar()">${ic('plus','sm')}Agregar</button></div>
+    ${propio?`<button class="btn link" style="margin-top:10px" onclick="anamReset()">Volver a las de mi especialidad</button>`:''}</div>`}
+function anamGuardar(L,msg){const nm=Object.assign({},db.cfg.anamNombres);L.forEach(x=>{if(x.propia)nm[x.k]=x.l});if(Object.keys(nm).length)db.cfg.anamNombres=nm;  /* el nombre de las propias queda siempre, aunque se quiten */
+  db.cfg.anamQ=L.map(x=>{const o={k:x.k};if(x.propia||x.l!==ANAM_Q[x.k])o.l=x.l;if(!x.on)o.on=false;return o});guardar();
+  const c=document.getElementById('cfgAnam');if(c)c.innerHTML=cardAnam();if(msg)toast(msg)}
+function anamSet(i,campo,v){const L=anamLista();if(campo==='l'){v=String(v).trim();if(!v){toast('La pregunta no puede quedar vacía.');anamGuardar(L);return}}
+  L[i][campo]=v;anamGuardar(L,campo==='on'?(v?'Pregunta visible.':'Pregunta oculta. Lo cargado no se borra.'):'Guardado.')}
+function anamMover(i,d){const L=anamLista(),j=i+d;if(j<0||j>=L.length)return;[L[i],L[j]]=[L[j],L[i]];anamGuardar(L)}
+function anamAgregar(){const n=document.getElementById('aq_n').value.trim();if(!n){toast('Escribí la pregunta.');return}
+  const L=anamLista(),ot=L.findIndex(x=>x.k==='otros'),nueva={k:'q_'+uid(),l:n,on:true,propia:true};
+  if(ot>=0)L.splice(ot,0,nueva);else L.push(nueva);anamGuardar(L,'Pregunta agregada.');setTimeout(()=>{const x=document.getElementById('aq_n');if(x)x.focus()},30)}
+function anamQuitar(i){const L=anamLista(),x=L[i],usada=db.P.some(p=>p.anam&&p.anam[x.k]);
+  const hacer=()=>{L.splice(i,1);anamGuardar(L,'Pregunta quitada.')};
+  if(usada)confirmar('Quitar pregunta','<b>'+esc(x.l)+'</b> ya tiene respuestas en algunos pacientes: se van a seguir viendo en sus fichas. Si solo no la querés ver, mejor destildala.','Quitar',hacer,true);else hacer()}
+function anamReset(){confirmar('Volver a las de tu especialidad','Se vuelve a la lista original. Lo que cargaste no se borra.','Volver',()=>{delete db.cfg.anamQ;guardar();const c=document.getElementById('cfgAnam');if(c)c.innerHTML=cardAnam();toast('Listo.')})}
+function setOpc(k,v){db.cfg[k]=v;guardar();if(k==='anam'&&vista==='config')ir('config');toast(v?'Activado.':'Desactivado. Lo cargado no se borra.')}
 async function guardarNombre(){const n=document.getElementById('c_nom').value.trim();if(!n){toast('Escribí tu nombre.');return}
   db.cfg.matricula=document.getElementById('c_mat').value.trim();guardar();
   try{EST=await api('POST','/api/perfil',{nombre:n,especialidad:document.getElementById('c_esp').value.trim(),slogan:document.getElementById('c_slo').value.trim()});pintarPerfil();toast('Guardado.')}catch(x){toast(x.message)}}
@@ -1598,11 +1658,12 @@ function config(){const P=(db.cfg.perfil||{});return `<div class="ph"><div><h1>C
       <div class="card">${cardColores()}</div>
       <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('cfg','sm')}</span>Qué usar en las fichas</h2></div><div class="cfg">
         <p>Todo es opcional. Apagá lo que no uses y deja de aparecer (lo que ya cargaste no se borra).</p>
-        ${[['anam','Primera consulta','Entrevista inicial: embarazo, parto, desarrollo, alimentación, sueño, audición, antecedentes.'],
+        ${[['anam','Primera consulta','Entrevista inicial con las preguntas de tu especialidad. Las podés cambiar en "Preguntas de la primera consulta".'],
            ['evalu','Objetivos y evaluaciones','Objetivos con "en proceso / logrado" y tests con puntaje.'],
            ['asist','Asistencia','Vino / faltó con aviso / faltó sin aviso, en cada sesión.'],
            ['cobro','Cobro','Particular u obra social, y si ya se cobró. Avisa en el Inicio lo que falta cobrar.']]
           .map(([k,l,d])=>`<label class="chk"><input type="checkbox" ${OPC()[k]?'checked':''} onchange="setOpc('${k}',this.checked)"><span>${l}<small>${d}</small></span></label>`).join('')}</div></div>
+      ${OPC().anam?`<div class="card" id="cfgAnam">${cardAnam()}</div>`:''}
       <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('up','sm')}</span>Usarlo en la tablet o el celular</h2></div><div class="cfg">
         <ol><li>Abrí esta misma dirección en la tablet o el celular:<div class="path">${esc(location.origin+location.pathname)}</div></li>
         <li>Tocá <b>Continuar con Google</b> con la misma cuenta (${esc(EMAIL)}).</li>
