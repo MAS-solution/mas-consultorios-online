@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MAS Consultorios</title>
 <meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleusercontent.com https://*.gstatic.com; connect-src 'self' https://www.googleapis.com https://*.supabase.co https://accounts.google.com/gsi/ https://oauth2.googleapis.com; frame-src https://accounts.google.com/gsi/ https://accounts.google.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <link rel="icon" href="icono-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -12,7 +13,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="MAS Consultorios">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous"></script>
 <script src="https://accounts.google.com/gsi/client" async></script>
 <style>
 
@@ -486,7 +487,7 @@ details.mas .in{padding:14px 14px 2px}
 </svg>
 
 <script>
-const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.20-1307";
+const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.20-1458";
 let hoy=new Date();hoy.setHours(0,0,0,0);
 const refrescarHoy=()=>{hoy=new Date();hoy.setHours(0,0,0,0)};
 const pad=n=>String(n).padStart(2,'0');
@@ -1642,7 +1643,7 @@ function mostrarLock(){
 async function conCredencial(r){const e=$id('lerr');if(e)e.textContent='Entrando…';
   const{data,error}=await sb.auth.signInWithIdToken({provider:'google',token:r.credential});
   if(error){if(e)e.textContent='No se pudo entrar: '+error.message;return}
-  EMAIL=(data.user&&data.user.email||'').toLowerCase();await despuesDeEntrar(true)}
+  EMAIL=(data.user&&data.user.email||'').toLowerCase();RECIEN_GOOGLE=true;await despuesDeEntrar(true)}
 /* 2) con sesión: licencia y después Drive */
 async function despuesDeEntrar(primera){
   const{data,error}=await sb.rpc('licencia_online');
@@ -1664,8 +1665,58 @@ async function abrirDatos(primera){const e=$id('lerr');e.textContent='Conectando
     lsSet('mas-drive-ok-'+EMAIL,'1');e.textContent='Abriendo tus datos…';await abrirApp()}
   catch(x){e.textContent=msj(x)}}
 async function cambiarCuenta(){await sb.auth.signOut().catch(()=>{});olvidarTok();EMAIL='';try{google.accounts.id.disableAutoSelect()}catch(e){}mostrarLock()}
-/* en la versión online no se bloquea (ni sola por inactividad ni con botón): queda abierta */
-function bloquear(){}
+/* ---------- PIN de bloqueo (opcional). db.cfg.pin = {s: sal, h: hash PBKDF2, min: minutos sin uso}. Viaja con los datos: el mismo PIN en todos los aparatos ---------- */
+let ENTRO=false,PIN_OK=false,PIN_MAL=0,PIN_ESPERA=0,RECIEN_GOOGLE=false;
+const pinActivo=()=>!!(db&&db.cfg&&db.cfg.pin&&db.cfg.pin.h);
+async function pinHash(pin,s){const te=new TextEncoder(),k=await crypto.subtle.importKey('raw',te.encode(String(pin)),'PBKDF2',false,['deriveBits']);
+  const b=await crypto.subtle.deriveBits({name:'PBKDF2',salt:te.encode(s),iterations:150000,hash:'SHA-256'},k,256);
+  return btoa(String.fromCharCode(...new Uint8Array(b)))}
+/* lo llama el control de inactividad de app.js (cada 30 s, después de 20 min): acá se respeta el tiempo elegido */
+function bloquear(){if(!pinActivo()||!PIN_OK||$id('app').hidden)return;if(Date.now()-ultAct<(+db.cfg.pin.min||15)*60000)return;bloquearYa()}
+function bloquearYa(){if(!pinActivo())return;PIN_OK=false;cerrar();$id('view').innerHTML='';mostrarPin()}
+setInterval(()=>{if(pinActivo()&&PIN_OK&&!$id('app').hidden&&Date.now()-ultAct>(+db.cfg.pin.min||15)*60000)bloquearYa()},15000);
+function mostrarPin(){pantalla('lock','Ingresá tu PIN','MAS Consultorios está bloqueado.',
+  `<div class="mfield" style="margin-top:6px"><input id="pin_i" type="password" inputmode="numeric" autocomplete="off" maxlength="8" aria-label="PIN" style="text-align:center;font-size:24px;letter-spacing:10px;height:52px" onkeydown="if(event.key==='Enter')probarPin()"></div>
+  ${btnGrande('Desbloquear','probarPin()')}${btnGrande('Me olvidé el PIN','olvidePin()',true)}`);
+  setTimeout(()=>{const i=$id('pin_i');if(i)i.focus()},60)}
+async function probarPin(){const e=$id('lerr'),i=$id('pin_i');if(!i||!pinActivo())return;
+  if(Date.now()<PIN_ESPERA){e.textContent='Esperá '+Math.ceil((PIN_ESPERA-Date.now())/1000)+' segundos.';return}
+  if((await pinHash(i.value,db.cfg.pin.s))===db.cfg.pin.h){PIN_MAL=0;PIN_OK=true;mostrarApp();return}
+  PIN_MAL++;i.value='';i.focus();
+  if(PIN_MAL>=10){salirPorPin('Se equivocó el PIN muchas veces. Por seguridad hay que volver a entrar con Google.');return}
+  if(PIN_MAL>=5){PIN_ESPERA=Date.now()+30000;e.textContent='PIN incorrecto. Esperá 30 segundos para probar de nuevo.'}
+  else e.textContent='PIN incorrecto.'}
+function olvidePin(){confirmar('Me olvidé el PIN','Para entrar sin el PIN tenés que volver a entrar con tu cuenta de Google. Después lo podés cambiar en Configuración.','Entrar con Google',()=>salirPorPin(''))}
+async function salirPorPin(texto){await cola.catch(()=>{});cerrar();PIN_OK=false;PIN_MAL=0;db=null;
+  await sb.auth.signOut().catch(()=>{});olvidarTok();try{google.accounts.id.disableAutoSelect()}catch(e){}
+  mostrarLock();if(texto){const e=$id('lerr');if(e)e.textContent=texto}}
+/* muestra la app ya cargada (después del PIN) */
+function mostrarApp(){if(!ENTRO){entrarApp();return}$id('lock').hidden=true;$id('app').hidden=false;ultAct=Date.now();ir(vista==='ficha'?'ficha':vista,vista==='ficha'?fichaId:undefined)}
+function botonCandado(){document.querySelectorAll('.me button[onclick="bloquear()"],.me button[onclick="bloquearYa()"]').forEach(b=>{b.setAttribute('onclick','bloquearYa()');b.title='Bloquear ahora';b.hidden=!pinActivo()})}
+/* Configuración */
+function cardPin(){const P=db.cfg.pin,m=P?(+P.min||15):15,op=[5,10,15,30,60].map(x=>`<option value="${x}" ${x===m?'selected':''}>${x} minutos</option>`).join('');
+  return `<div class="card-h"><h2><span class="chip c-blue">${ic('lock','sm')}</span>Bloqueo con PIN</h2></div><div class="cfg">
+  ${P?`<p><b>Activado.</b> Se pide el PIN al abrir la app y después de un rato sin usarla. Vale para todos tus aparatos.</p>
+    <div class="mfield"><label>Bloquear después de</label><select id="pin_min" onchange="pinMinutos(this.value)">${op}</select></div>
+    <div class="mfield"><label>PIN actual</label><input id="pin_a" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></div>
+    <div class="frow"><div class="mfield"><label>PIN nuevo <span class="opt">para cambiarlo</span></label><input id="pin_n1" type="password" inputmode="numeric" maxlength="8" autocomplete="new-password"></div><div class="mfield"><label>Repetí el PIN nuevo</label><input id="pin_n2" type="password" inputmode="numeric" maxlength="8" autocomplete="new-password"></div></div>
+    <div class="acts"><button class="btn sec" onclick="pinCambiar()">Cambiar PIN</button><button class="btn sec" onclick="pinQuitar()">Quitar PIN</button><button class="btn sec" onclick="bloquearYa()">${ic('lock','sm')}Bloquear ahora</button></div>`
+  :`<p>Si alguien agarra tu compu, tablet o celular con la app abierta, no puede ver tus pacientes sin el PIN. Se pide al abrir la app y después de un rato sin usarla.</p>
+    <div class="frow"><div class="mfield"><label>PIN (4 a 8 números)</label><input id="pin_n1" type="password" inputmode="numeric" maxlength="8" autocomplete="new-password"></div><div class="mfield"><label>Repetí el PIN</label><input id="pin_n2" type="password" inputmode="numeric" maxlength="8" autocomplete="new-password"></div></div>
+    <div class="mfield"><label>Bloquear después de</label><select id="pin_min">${op}</select></div>
+    <button class="btn" onclick="pinActivar()">Activar PIN</button>`}</div>`}
+function pintarCardPin(msg){const c=$id('cfgPin');if(c)c.innerHTML=cardPin();botonCandado();if(msg)toast(msg)}
+function pinNuevo(){const a=$id('pin_n1').value,b=$id('pin_n2').value;
+  if(!/^\d{4,8}$/.test(a)){toast('El PIN tiene que tener entre 4 y 8 números.');return null}
+  if(/^(\d)\1+$/.test(a)||'0123456789'.includes(a)||'9876543210'.includes(a)){toast('Elegí un PIN menos fácil de adivinar (no 1234 ni 0000).');return null}
+  if(a!==b){toast('Los dos PIN no son iguales.');return null}return a}
+async function pinGuardar(pin,min){const s=Array.from(crypto.getRandomValues(new Uint8Array(16)),x=>x.toString(16).padStart(2,'0')).join('');
+  db.cfg.pin={s,h:await pinHash(pin,s),min:+min||15};PIN_OK=true;guardar()}
+async function pinActivar(){const p=pinNuevo();if(!p)return;await pinGuardar(p,$id('pin_min').value);pintarCardPin('PIN activado.')}
+async function pinActualOk(){const a=$id('pin_a').value;if(a&&(await pinHash(a,db.cfg.pin.s))===db.cfg.pin.h)return true;toast('El PIN actual no es correcto.');return false}
+async function pinCambiar(){if(!(await pinActualOk()))return;const p=pinNuevo();if(!p)return;await pinGuardar(p,db.cfg.pin.min);pintarCardPin('PIN cambiado.')}
+async function pinQuitar(){if(!(await pinActualOk()))return;delete db.cfg.pin;guardar();pintarCardPin('PIN quitado.')}
+function pinMinutos(v){db.cfg.pin.min=+v||15;guardar();toast('Guardado.')}
 function olvide(){}async function recuperarPass(){}async function entrar(){}
 
 /* ---------- abrir: carpeta "MAS Consultorios" en su Drive ---------- */
@@ -1682,7 +1733,8 @@ async function abrirApp(){
   if(!db.cfg.perfil||!db.cfg.perfil.nombre){mostrarBienvenida();return}
   entrarApp()}
 function entrarApp(){perfilDesdeDb();setTok('online');
-  document.querySelectorAll('.me button[onclick="bloquear()"]').forEach(b=>b.hidden=true);
+  if(pinActivo()&&!PIN_OK&&!RECIEN_GOOGLE){mostrarPin();return}
+  PIN_OK=true;RECIEN_GOOGLE=false;ENTRO=true;botonCandado();
   $id('lock').hidden=true;$id('app').hidden=false;ultAct=Date.now();pintarCopia();ir('inicio');
   avisoVencimiento();avisoNovedades();revisarEspacio()}
 function mostrarBienvenida(){
@@ -1732,6 +1784,7 @@ function config(){const P=(db.cfg.perfil||{});return `<div class="ph"><div><h1>C
   <div class="grid cfg-grid">
     <div class="grid">
       <div class="card" id="cfgDrive">${cardDrive()}</div>
+      <div class="card" id="cfgPin">${cardPin()}</div>
       <div class="card">${cardColores()}</div>
       <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('cfg','sm')}</span>Qué usar en las fichas</h2></div><div class="cfg">
         <p>Todo es opcional. Apagá lo que no uses y deja de aparecer (lo que ya cargaste no se borra).</p>
@@ -1860,6 +1913,11 @@ function salir(){confirmar('Salir','Se cierra tu sesión en este aparato. Tus da
   if(data&&data.session){EMAIL=(data.session.user.email||'').toLowerCase();await despuesDeEntrar(false);return}
   mostrarLock();
 })();
+/* novedad solo de la versión online */
+NOVEDADES.push({n:4,fecha:'2026-11-20',titulo:'Bloqueo con PIN',items:[
+  ['lock','Ahora podés poner un <b>PIN</b> para que nadie vea tus pacientes si deja tu compu, tablet o celular con la app abierta.'],
+  ['cfg','Se activa en <b>Configuración → Bloqueo con PIN</b>. Elegís después de cuántos minutos sin uso se bloquea.'],
+  ['user','Es el mismo PIN en todos tus aparatos. Si te lo olvidás, volvés a entrar con tu cuenta de Google.']]});
 
 </script>
 </body>
