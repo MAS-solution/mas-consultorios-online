@@ -485,7 +485,7 @@ details.mas .in{padding:14px 14px 2px}
 </svg>
 
 <script>
-const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.20-1241";
+const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.20-1247";
 let hoy=new Date();hoy.setHours(0,0,0,0);
 const refrescarHoy=()=>{hoy=new Date();hoy.setHours(0,0,0,0)};
 const pad=n=>String(n).padStart(2,'0');
@@ -1167,7 +1167,11 @@ const NOVEDADES=[
   {n:2,fecha:'2026-11-20',titulo:'Equipo terapéutico',items:[
     ['users','En la ficha de cada paciente, debajo de sus datos, está el <b>Equipo terapéutico</b>: los otros profesionales que lo atienden.'],
     ['user','De cada uno cargás <b>especialidad, nombre y celular</b>. Si ya lo cargaste en otro paciente, al escribir el nombre se completa solo.'],
-    ['msg','Con el botón de mensaje le escribís por <b>WhatsApp</b>.']]}];
+    ['msg','Con el botón de mensaje le escribís por <b>WhatsApp</b>.']]},
+  {n:3,fecha:'2026-11-20',titulo:'Datos de facturación de las obras sociales',items:[
+    ['file','En <b>Configuración → Obras sociales</b> (o desde la ficha del paciente, en <b>Datos de facturación</b>) cargás los datos de cada obra social: razón social, CUIT, IVA, valor por sesión y dónde se presenta.'],
+    ['note','Guardá el <b>texto de la descripción</b> que ponés en cada factura y copialo con el botón <b>Copiar</b>, igual que el CUIT o la razón social.'],
+    ['print','Elegís el mes y te muestra las <b>sesiones para facturar</b> de cada paciente, con el total. También podés imprimir la planilla.']]}];
 function avisoNovedades(){const ult=NOVEDADES[NOVEDADES.length-1].n,vista=+db.cfg.novVista||0;if(vista>=ult)return;
   if(!db.P.length){db.cfg.novVista=ult;guardar();return}
   const L=NOVEDADES.filter(x=>x.n>vista);
