@@ -465,7 +465,7 @@ details.mas .in{padding:14px 14px 2px}
 </svg>
 
 <script>
-const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.20-1014";
+const SB_URL="https://mpfrcnrdlyjmrlxpttrb.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wZnJjbnJkbHlqbXJseHB0dHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjIxNzUsImV4cCI6MjExMDUzODE3NX0.SNBQTpLdnd_M5NxgrNO1xnwiaVbesR05tMqdLTvGX4Q",GOOGLE_CLIENT_ID="7581436825-3n7o2li1hdpf0uu1kaj341o4pl5rf6t4.apps.googleusercontent.com",VERSION_ONLINE="online 2026.11.20-1021";
 let hoy=new Date();hoy.setHours(0,0,0,0);
 const refrescarHoy=()=>{hoy=new Date();hoy.setHours(0,0,0,0)};
 const pad=n=>String(n).padStart(2,'0');
@@ -1607,9 +1607,12 @@ function config(){const P=(db.cfg.perfil||{});return `<div class="ph"><div><h1>C
         <ol><li>Abrí esta misma dirección en la tablet o el celular:<div class="path">${esc(location.origin+location.pathname)}</div></li>
         <li>Tocá <b>Continuar con Google</b> con la misma cuenta (${esc(EMAIL)}).</li>
         <li>Para tenerlo como app: en Android, menú <b>⋮</b> → <b>Agregar a la pantalla principal</b>. En iPad o iPhone (Safari): <b>Compartir</b> → <b>Agregar a inicio</b>.</li></ol></div></div>
-      <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('up','sm')}</span>Traer los datos del programa de la compu</h2></div><div class="cfg">
-        <p>Si antes usabas MAS Consultorios instalado en la compu, elegí el archivo <b>datos.json</b> (está en la carpeta <i>MAS Consultorios - Copias</i> de tu Google Drive, o en la compu).</p>
-        <div class="acts"><label class="btn sec">${ic('clip','sm')}Elegir datos.json<input type="file" hidden accept=".json,application/json" onchange="importarLocal(this.files[0]);this.value=''"></label></div></div></div>
+      <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('right','sm')}</span>Pasar a otra cuenta de Google</h2></div><div class="cfg">
+        <p><b>1. En esta cuenta:</b> descargá la mudanza. Es un solo archivo con todo: pacientes, historias, turnos, configuración y también las fotos y los PDF.</p>
+        <div class="acts"><button class="btn sec" onclick="descargarMudanza()">${ic('file','sm')}Descargar la mudanza</button></div>
+        <p style="margin-top:14px"><b>2. En la cuenta nueva:</b> entrá con esa cuenta, vení a esta misma pantalla y elegí el archivo acá abajo.</p>
+        <div class="acts"><label class="btn sec">${ic('clip','sm')}Elegir archivo de mudanza<input type="file" hidden accept=".masc,.json,application/json" onchange="traerArchivo(this.files[0]);this.value=''"></label></div>
+        <p style="font-size:13px;color:var(--muted);margin-top:10px">Para entrar con la cuenta nueva, pedí que pasen tu licencia a ese mail. También sirve para traer el <b>datos.json</b> del programa de la compu.</p></div></div>
     </div>
     <div class="grid">
       <div class="card"><div class="card-h"><h2><span class="chip c-blue">${ic('user','sm')}</span>Tus datos</h2></div><div class="cfg">
@@ -1658,6 +1661,53 @@ function importarLocal(file){if(!file)return;const rd=new FileReader();
     else hacer()};
   rd.readAsText(file)}
 function ofrecerRecuperar(){verDias()}
+
+/* ---------- MUDANZA a otra cuenta de Google ----------
+   Con el permiso drive.file la app de la cuenta nueva no ve archivos de la vieja (ni copiando la carpeta a mano),
+   así que se baja un solo archivo .masc: "MASC1" + largo del encabezado (12 dígitos) + encabezado JSON {db,files} + los archivos uno atrás del otro. */
+function progreso(t){const p=$id('mud_p');if(p)p.innerHTML=t}
+function ventanaProgreso(titulo,t){abrir(`<div class="mh"><h2>${titulo}</h2></div><div class="mb"><p id="mud_p">${t}</p><p style="font-size:13px;color:var(--muted)">No cierres esta ventana hasta que termine.</p></div>`)}
+async function descargarMudanza(){await cola;const L=db.A.filter(a=>a.driveId&&!a.sinArchivo),partes=[],files=[];let fallan=0;
+  ventanaProgreso('Preparando la mudanza','Juntando tus datos…');
+  try{for(let i=0;i<L.length;i++){const a=L[i];progreso(`Bajando archivos de tu Drive: <b>${i+1} de ${L.length}</b>`);
+      try{const b=await (await g('GET',DAPI+'/files/'+a.driveId+'?alt=media')).blob();partes.push(b);files.push({id:a.id,size:b.size})}
+      catch(e){if(e.message==='reconectar')throw e;fallan++}}
+    const head=new TextEncoder().encode(JSON.stringify({v:1,de:EMAIL,fecha:new Date().toISOString(),db,files}));
+    const blob=new Blob(['MASC1',String(head.length).padStart(12,'0'),head,...partes],{type:'application/octet-stream'});
+    const el=document.createElement('a');el.href=URL.createObjectURL(blob);el.download='MAS Consultorios - mudanza '+iso(new Date())+'.masc';document.body.appendChild(el);el.click();
+    setTimeout(()=>{URL.revokeObjectURL(el.href);el.remove()},5000);
+    abrir(`<div class="mh"><h2>Mudanza descargada</h2></div><div class="mb">
+      <p>Se descargó <b>${esc(el.download)}</b> (${mb(blob.size)}) con ${db.P.length} pacientes y ${files.length} archivos.${fallan?` <b>${fallan}</b> archivo${fallan>1?'s':''} no se pudo bajar (puede que lo hayas borrado del Drive).`:''}</p>
+      <p>Ahora entrá con la <b>cuenta nueva</b>, andá a <b>Configuración → Pasar a otra cuenta de Google</b> y elegí ese archivo.</p>
+      <p style="font-size:13px;color:var(--muted)">Esta cuenta no se toca: tus datos siguen acá hasta que vos los borres.</p></div>
+      <div class="mf"><button class="btn" onclick="cerrar()">Entendido</button></div>`)}
+  catch(e){cerrar();toast('No se pudo preparar la mudanza: '+msj(e));if(e.message==='reconectar')avisoReconectar()}}
+async function traerArchivo(file){if(!file)return;
+  const ini=await file.slice(0,17).text();
+  if(!ini.startsWith('MASC1'))return importarLocal(file);       // datos.json del programa de la compu
+  let h;try{const n=+ini.slice(5,17);h=JSON.parse(await file.slice(17,17+n).text());h.off=17+n}catch(e){toast('Ese archivo de mudanza está dañado.');return}
+  if(!h.db||!Array.isArray(h.db.P)){toast('Ese archivo de mudanza está dañado.');return}
+  const hacer=()=>aplicarMudanza(file,h);
+  const de=h.de&&h.de!==EMAIL?` de <b>${esc(h.de)}</b>`:'';
+  if(db.P.length)return confirmar('Traer la mudanza',`Ya tenés <b>${db.P.length} pacientes</b> en esta cuenta. Se van a <b>reemplazar</b> por los ${h.db.P.length} de la mudanza${de} (lo de ahora queda en la copia de hoy).`,'Reemplazar',hacer,true);
+  else return confirmar('Traer la mudanza',`Se van a traer ${h.db.P.length} pacientes y ${h.files.length} archivos${de}.`,'Traer',hacer)}
+async function aplicarMudanza(file,h){const d=h.db,porId=new Map(d.A.map(a=>[a.id,a]));
+  ventanaProgreso('Trayendo la mudanza','Preparando…');
+  try{await cola;if(!ADJ)ADJ=await carpeta('adjuntos',CARP);let off=h.off;
+    for(let i=0;i<h.files.length;i++){const x=h.files[i],a=porId.get(x.id),b=file.slice(off,off+x.size,(a&&a.tipo)||'application/octet-stream');off+=x.size;
+      if(!a)continue;progreso(`Subiendo archivos a tu Drive: <b>${i+1} de ${h.files.length}</b>`);
+      const r=await subirDrive({name:'p'+a.pid+'-'+a.archivo,parents:[ADJ]},b,null,'id');a.driveId=r.id;delete a.sinArchivo}
+    const subidos=new Set(h.files.map(x=>x.id));d.A.forEach(a=>{if(!subidos.has(a.id)){delete a.driveId;a.sinArchivo=true}});
+    progreso('Guardando tus pacientes…');
+    if(ARCH){ultHist=0;await guardarHistorial(JSON.stringify(db));const m=await g('GET',DAPI+'/files/'+ARCH+'?fields=version');VERS=m.version;BASE=JSON.stringify(await leerRemoto()||VACIO())}
+    d.cfg=Object.assign({},d.cfg||{});if(!d.cfg.perfil)d.cfg.perfil=db.cfg.perfil;
+    db=d;normalizar();guardar();await cola;perfilDesdeDb();
+    if(ERRG){cerrar();if(ERRG==='lleno'){LLENO_VISTO=false;avisoLleno()}else toast('Se trajo, pero falta guardar: '+estadoCopia().t);return}
+    abrir(`<div class="mh"><h2>Listo, mudanza terminada</h2></div><div class="mb"><p>Ya tenés en esta cuenta <b>${db.P.length} pacientes</b> y <b>${h.files.length} archivos</b>.</p></div>
+      <div class="mf"><button class="btn" onclick="cerrar();ir('inicio')">Ir al inicio</button></div>`)}
+  catch(e){cerrar();if(e.message==='drive-lleno'){LLENO_VISTO=false;avisoLleno();return}
+    toast('No se pudo terminar la mudanza: '+msj(e)+'. Probá de nuevo: no se perdió nada.');if(e.message==='reconectar')avisoReconectar()}}
+/* ---------- fin mudanza ---------- */
 function salir(){confirmar('Salir','Se cierra tu sesión en este aparato. Tus datos siguen en tu Google Drive.','Salir',async()=>{
   try{await cola}catch(e){}
   if(PEND){toast('Todavía hay cambios sin guardar. Esperá a que se guarden.');return}
